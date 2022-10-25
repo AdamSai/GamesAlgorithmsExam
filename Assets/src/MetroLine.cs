@@ -17,13 +17,8 @@ public class MetroLine
     public List<Platform> platforms;
     public int maxTrains;
     public float maxTrainSpeed;
-    public Vector3[] railPath;
     public int carriagesPerTrain;
-    public float train_accelerationStrength = 0.0003f;
-    public float train_brakeStrength = 0.01f;
-    public float train_friction = 0.95f;
     public float speedRatio;
-    public float carriageLength_onRail;
    
     public MetroLine(int metroLineIndex, int _maxTrains)
     {
@@ -110,8 +105,6 @@ public class MetroLine
         }
 
         bezierPath.MeasurePath();
-        carriageLength_onRail = Get_distanceAsRailProportion(TrainCarriage.CARRIAGE_LENGTH) +
-                                Get_distanceAsRailProportion(TrainCarriage.CARRIAGE_SPACING);
 
         // now that the rails have been laid - let's put the platforms on
         int totalPoints = bezierPath.points.Count;

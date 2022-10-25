@@ -4,10 +4,7 @@ using UnityEngine;
 
 public class Colour {
 
-	public static void Set(ref Material _material, Color _newColour)
-	{
-		_material.color = _newColour;
-	}
+
 
 	public static void RecolourChildren(Transform _target, Color _newColour)
 	{

@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class Metro : MonoBehaviour
 {
-    public static float CUSTOMER_SATISFACTION = 1f;
     public static float BEZIER_HANDLE_REACH = 0.1f;
     public static float BEZIER_PLATFORM_OFFSET = 3f;
     public static float PLATFORM_ADJACENCY_LIMIT = 12f;

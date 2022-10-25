@@ -7,7 +7,6 @@ public class Platform : MonoBehaviour
 {
     public int carriageCount, platformIndex;
     public MetroLine parentMetroLine;
-    public List<Walkway> walkways;
     public Walkway walkway_FRONT_CROSS, walkway_BACK_CROSS;
     public BezierPoint point_platform_START, point_platform_END;
     public Platform oppositePlatform;
@@ -15,7 +14,6 @@ public class Platform : MonoBehaviour
     public List<Platform> adjacentPlatforms;
     public Queue<Commuter>[] platformQueues;
     public CommuterNavPoint[] queuePoints;
-    public Train currentTrainAtPlatform;
 
     public int temporary_routeDistance = 0;
     public Platform temporary_accessedViaPlatform;
@@ -41,17 +39,12 @@ public class Platform : MonoBehaviour
 
     public void Setup_Walkways()
     {
-        foreach (Walkway _WALKWAY in GetComponentsInChildren<Walkway>())
-        {
-            _WALKWAY.connects_FROM = this;
-        }
+
     }
     
     public void PairWithOppositePlatform(Platform _oppositePlatform)
     {
         oppositePlatform = _oppositePlatform;
-        walkway_FRONT_CROSS.connects_TO = oppositePlatform;
-        walkway_BACK_CROSS.connects_TO = oppositePlatform;
     }
 
     public void Add_AdjacentPlatform(Platform _platform)

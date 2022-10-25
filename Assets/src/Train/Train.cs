@@ -24,20 +24,17 @@ public class Train
     public List<Commuter> passengers;
     public List<Commuter> passengers_to_DISEMBARK;
     public List<Commuter> passengers_to_EMBARK;
-    public int passengerCountOnDeparture;
     private float currentPosition = 0f;
     private int currentRegion;
     public float speed = 0f;
     public float speed_on_platform_arrival = 0f;
-    public float accelerationStrength, brakeStrength, railFriction;
+    public float accelerationStrength, railFriction;
     public float stateDelay = 0f;
     public int parentLineIndex;
-    public bool isOutbound;
     public TrainState state;
     public MetroLine parentLine;
     public Platform nextPlatform;
     public Train trainAheadOfMe;
-    public bool trainReadyToDepart = false;
 
     public Train(int _trainIndex, int _parentLineIndex, float _startPosition, int _totalCarriages)
     {
@@ -245,7 +242,6 @@ public class Train
         }
 
         currentPosition = ((currentPosition += speed) % 1f);
-        isOutbound = currentPosition <= 0.5f;
         speed *= railFriction;
         UpdateCarriages();
     }

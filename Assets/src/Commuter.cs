@@ -22,7 +22,6 @@ public class CommuterTask
     public Vector3[] destinations;
     public int destinationIndex = 0;
     public Platform startPlatform, endPlatform;
-    public Walkway walkway;
 
     public CommuterTask(CommuterState _state)
     {
