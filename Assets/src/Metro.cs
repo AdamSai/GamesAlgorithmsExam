@@ -57,21 +57,6 @@ public class Metro : MonoBehaviour
     [HideInInspector] public List<Commuter> commuters;
     [HideInInspector] private Platform[] allPlatforms;
 
-    public static string GetLine_NAME_FromIndex(int _index)
-    {
-        string result = "";
-        INSTANCE = FindObjectOfType<Metro>();
-        if (INSTANCE != null)
-        {
-            if (INSTANCE.LineNames.Length - 1 >= _index)
-            {
-                result = INSTANCE.LineNames[_index];
-            }
-        }
-
-        return result;
-    }
-
     public static Color GetLine_COLOUR_FromIndex(int _index)
     {
         Color result = Color.black;

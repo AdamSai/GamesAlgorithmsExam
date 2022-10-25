@@ -38,11 +38,10 @@ public class Commuter : MonoBehaviour
     public const float QUEUE_MOVEMENT_DELAY = 0.25f;
     public const float QUEUE_DECISION_RATE = 3f;
 
-    public float satisfaction = 1f;
     public Transform body;
     private Queue<CommuterTask> route_TaskList;
     private CommuterTask currentTask;
-    public Platform currentPlatform, route_START, route_END;
+    public Platform currentPlatform;
     public Platform nextPlatform;
     public Platform FinalDestination;
     private Vector3 speed = Vector3.zero;
@@ -83,37 +82,6 @@ public class Commuter : MonoBehaviour
         SetupRoute();
     }
 
-
-    void Add_TrainConnection(Platform _start, Platform _end)
-    {
-        route_TaskList.Enqueue(new CommuterTask(CommuterState.QUEUE) {startPlatform = _start});
-        route_TaskList.Enqueue(new CommuterTask(CommuterState.GET_ON_TRAIN));
-        route_TaskList.Enqueue(new CommuterTask(CommuterState.WAIT_FOR_STOP)
-        {
-            destinationIndex = _end.point_platform_END.index
-        });
-        route_TaskList.Enqueue(new CommuterTask(CommuterState.GET_OFF_TRAIN) {endPlatform = _end});
-    }
-
-    void Add_WalkToAdjacentPlatform(Platform _A, Platform _B)
-    {
-    }
-
-    void Add_WalkToOppositePlatform(Platform _A, Platform _B)
-    {
-        route_TaskList.Enqueue(new CommuterTask(CommuterState.WALK)
-        {
-            startPlatform = _A,
-            endPlatform = _B,
-            destinations = new Vector3[]
-            {
-                _A.walkway_FRONT_CROSS.nav_START.transform.position,
-                _A.walkway_FRONT_CROSS.nav_END.transform.position,
-                _B.walkway_BACK_CROSS.nav_END.transform.position,
-                _B.walkway_BACK_CROSS.nav_START.transform.position
-            }
-        });
-    }
 
     void SetupRoute()
     {

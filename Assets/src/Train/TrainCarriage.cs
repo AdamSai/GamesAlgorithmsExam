@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -76,8 +72,4 @@ public class TrainCarriage : MonoBehaviour
         }
     }
 
-    public void VacateSeat(CommuterNavPoint _seat)
-    {
-        seats_TAKEN.Remove(_seat);
-    }
 }
