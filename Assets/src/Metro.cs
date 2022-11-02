@@ -265,18 +265,6 @@ public class Metro : MonoBehaviour
 
     #region ------------------------- < PATH ALGORITHM
 
-    public bool RouteisPossible(Platform _A, Platform _B)
-    {
-        MetroLine _lineA = _A.parentMetroLine;
-        MetroLine _lineB = _B.parentMetroLine;
-
-        if (_lineA == _lineB)
-        {
-            return true;
-        }
-
-        return _lineA.Has_ConnectionToMetroLine(_lineB);
-    }
 
     public Queue<CommuterTask> ShortestRoute(Platform _A, Platform _B)
     {

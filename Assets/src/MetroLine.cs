@@ -73,7 +73,6 @@ public class MetroLine
                 _currentPoint.SetHandles(_POINTS[i + 1].location - _POINTS[i - 1].location);
             }
         }
-
         bezierPath.MeasurePath();
 
         // - - - - - - - - - - - - - - - - - - - - - - - -  RETURN points
@@ -234,19 +233,4 @@ public class MetroLine
         return result;
     }
 
-    public bool Has_ConnectionToMetroLine(MetroLine _targetLine)
-    {
-        foreach (Platform _P in platforms)
-        {
-            foreach (Platform _ADJ in _P.adjacentPlatforms)
-            {
-                if (_ADJ.parentMetroLine == _targetLine)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 }
