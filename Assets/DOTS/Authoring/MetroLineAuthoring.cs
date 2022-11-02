@@ -1,4 +1,5 @@
 ﻿using DOTS.Components;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -17,7 +18,8 @@ namespace DOTS.Authoring
         {
             AddComponent(new BezierPathComponent
             {
-                BezierHandleReach = authoring.BezierHandleReach
+                BezierHandleReach = authoring.BezierHandleReach,
+                Points = new NativeArray<BezierPoint>()
             });
         }
     }
