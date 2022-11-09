@@ -1,6 +1,8 @@
+using DOTS.Components;
 using DOTS.Jobs;
 using Unity.Burst;
 using Unity.Entities;
+using UnityEngine;
 
 [BurstCompile]
 public partial struct SetupRailSystem : ISystem
@@ -25,3 +27,4 @@ public partial struct SetupRailSystem : ISystem
         state.Enabled = false;
     }
 }
+

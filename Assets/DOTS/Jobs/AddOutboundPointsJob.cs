@@ -8,7 +8,7 @@ namespace DOTS.Jobs
     {
         public void Execute(ref BezierPathComponent bezierPath, in RailMarkerContainer railMarkers)
         {
-            for (var i = 0; i < bezierPath.points.Length; i++)
+            for (var i = 0; i < railMarkers.Value.Length; i++)
                 bezierPath.AddPoint(railMarkers.Value[i].Position);
         }
     }
