@@ -7,20 +7,33 @@ namespace DOTS.Authoring
 {
     public class MetroLineAuthoring : MonoBehaviour
     {
-        [Range(0f, 1f)]
-        public float BezierHandleReach = 0.15f;
+        // [Range(0f, 1f)]
+        // public float BezierHandleReach = 0.15f;
     }
 
-
+    
     public class MetroLineBaker : Baker<MetroLineAuthoring>
     {
         public override void Bake(MetroLineAuthoring authoring)
         {
-            AddComponent(new BezierPathComponent
+            var data = authoring.GetComponentsInChildren<RailMarkerMono>();
+            var railMarkers = new NativeArray<RailMarkerStruct>(data.Length, Allocator.Persistent);
+            Debug.Log("data: " + data.Length);
+
+            for (int i = 0; i < data.Length; i++)
             {
-                BezierHandleReach = authoring.BezierHandleReach,
-                Points = new NativeArray<BezierPoint>()
+                var railMarker = data[i];
+                Debug.Log("data: " + data[i]);
+                railMarkers[i] = new RailMarkerStruct(railMarker.MetroLineID, railMarker.PointIndex,
+                    railMarker.RailMarkerType);
+            }
+            
+            AddComponent(new RailMarkerContainer
+            {
+                RailMarkers = railMarkers
             });
+            
+
         }
     }
 }
