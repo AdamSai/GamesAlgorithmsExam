@@ -5,6 +5,6 @@ namespace DOTS.Components
 {
     public struct RailMarkerContainer : IComponentData
     {
-        public NativeArray<RailMarkerStruct> RailMarkers;
+        public NativeArray<RailMarkerStruct> Value;
     }
 }

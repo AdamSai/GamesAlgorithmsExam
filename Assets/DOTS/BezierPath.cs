@@ -3,38 +3,33 @@ using Unity.Mathematics;
 
 namespace DOTS
 {
-    public class BezierPath
+    public struct BezierPath
     {
         public NativeList<BezierPoint> points;
         private float pathLength;
-        private float distance = 0f;
+        private float distance;
 
-        public BezierPath()
+        public BezierPoint AddPoint(float3 _location)
         {
-            points = new NativeList<BezierPoint>();
-            distance = 0f;
+            BezierPoint result = new BezierPoint(points.Length, _location, _location, _location);
+            points.Add(result);
+            if (points.Length > 1)
+            {
+                BezierPoint _prev = points[points.Length - 2];
+                var _currentIdx = points.Length - 1;
+                SetHandles(_currentIdx, _prev.location);
+            }
+        
+            return result;
         }
 
-        // public BezierPoint AddPoint(float3 _location)
-        // {
-        //     BezierPoint result = new BezierPoint(points.Count, _location, _location, _location);
-        //     points.Add(result);
-        //     if (points.Count > 1)
-        //     {
-        //         BezierPoint _prev = points[points.Count - 2];
-        //         BezierPoint _current = points[points.Count - 1];
-        //         SetHandles(_current, _prev.location);
-        //     }
-        //
-        //     return result;
-        // }
-        //
-        // void SetHandles(BezierPoint _point, float3 _prevPointLocation)
-        // {
-        //     float3 _dist_PREV_CURRENT = float3.Normalize(_point.location - _prevPointLocation);
-        //
-        //     _point.SetHandles(_dist_PREV_CURRENT);
-        // }
+        void SetHandles(int _currentIdx, float3 _prevPointLocation)
+        {
+            float3 _dist_PREV_CURRENT = math.normalize(points[_currentIdx].location - _prevPointLocation);
+        
+            points[_currentIdx].SetHandles(_dist_PREV_CURRENT);
+        }
+        
         //
         // public void MeasurePath()
         // {

@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 
 namespace DOTS.Components
 {
@@ -14,6 +15,7 @@ namespace DOTS.Components
         public byte MetroLineID;
         public byte PointIndex;
         public RailMarkerTypes RailMarkerType;
+        public float3 Position;
     }
     
     public struct RailMarkerStruct
@@ -21,12 +23,15 @@ namespace DOTS.Components
         public byte MetroLineID;
         public byte PointIndex;
         public RailMarkerTypes RailMarkerType;
+        public float3 Position;
 
-        public RailMarkerStruct(byte metroLineID, byte pointIndex, RailMarkerTypes railMarkerType)
+
+        public RailMarkerStruct(byte metroLineID, byte pointIndex, RailMarkerTypes railMarkerType, float3 position)
         {
             MetroLineID = metroLineID;
             PointIndex = pointIndex;
             RailMarkerType = railMarkerType;
+            Position = position;
         }
     }
 }

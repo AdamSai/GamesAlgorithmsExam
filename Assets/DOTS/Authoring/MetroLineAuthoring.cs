@@ -18,19 +18,22 @@ namespace DOTS.Authoring
         {
             var data = authoring.GetComponentsInChildren<RailMarkerAuthoring>();
             var railMarkers = new NativeArray<RailMarkerStruct>(data.Length, Allocator.Persistent);
-            Debug.Log("data: " + data.Length);
             
             for (int i = 0; i < data.Length; i++)
             {
                 var railMarker = data[i];
-                Debug.Log("data: " + data[i]);
                 railMarkers[i] = new RailMarkerStruct(railMarker.MetroLineID, railMarker.PointIndex,
-                    railMarker.RailMarkerType);
+                    railMarker.RailMarkerType, railMarker.transform.position);
             }
             
             AddComponent(new RailMarkerContainer
             {
-                RailMarkers = railMarkers
+                Value = railMarkers
+            });
+            
+            AddComponent( new BezierPathComponent
+            {
+                points = new NativeList<BezierPoint>()
             });
             
 
