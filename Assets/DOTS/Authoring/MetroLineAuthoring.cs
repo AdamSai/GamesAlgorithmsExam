@@ -16,10 +16,10 @@ namespace DOTS.Authoring
     {
         public override void Bake(MetroLineAuthoring authoring)
         {
-            var data = authoring.GetComponentsInChildren<RailMarkerMono>();
+            var data = authoring.GetComponentsInChildren<RailMarkerAuthoring>();
             var railMarkers = new NativeArray<RailMarkerStruct>(data.Length, Allocator.Persistent);
             Debug.Log("data: " + data.Length);
-
+            
             for (int i = 0; i < data.Length; i++)
             {
                 var railMarker = data[i];
