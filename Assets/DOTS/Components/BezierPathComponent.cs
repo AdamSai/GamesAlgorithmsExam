@@ -9,6 +9,10 @@ namespace DOTS.Components
         public NativeList<BezierPoint> points;
         private float pathLength;
         private float distance;
+        
+        // TODO: Optimize this if startup is slow
+        // Maybe this should take in an Array/List instead and we process all of the points
+        // Febrice talked about moving the loops up in the hierarchy to avoid the overhead of looping
         public BezierPoint AddPoint(float3 _location)
         {
             BezierPoint result = new BezierPoint(points.Length, _location, _location, _location);
