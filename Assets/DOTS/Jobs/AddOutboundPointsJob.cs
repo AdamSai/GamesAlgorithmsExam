@@ -1,15 +1,22 @@
 ﻿using DOTS.Components;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace DOTS.Jobs
 {
     public partial struct AddOutboundPointsJob : IJobEntity
     {
-        public void Execute(ref BezierPathComponent bezierPath, in RailMarkerContainer railMarkers)
+        public NativeList<RailMarkerComponent> query;
+
+        public void Execute(ref BezierPathComponent path)
         {
-            for (var i = 0; i < railMarkers.Value.Length; i++)
-                bezierPath.AddPoint(railMarkers.Value[i].Position);
+            for (var i = 0; i < query.Length; i++)
+            {
+                Debug.Log("happy days");
+            }
         }
     }
 }
