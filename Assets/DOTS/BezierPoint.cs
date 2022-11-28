@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace DOTS
 {
@@ -18,11 +19,20 @@ namespace DOTS
             distanceAlongPath = 0f;
         }
 
-        public void SetHandles(float3 _distance)
+        public BezierPoint SetHandles(float3 _distance)
         {
             _distance *= Metro.BEZIER_HANDLE_REACH;
             handle_in = location - _distance;
             handle_out = location + _distance;
+            return this;
+        }
+
+        public void SetDistanceAlongPath(float distance)
+        {
+            Debug.Log("Set distance to: " + distance);
+            distanceAlongPath = distance;
+            Debug.Log("Distance is : " + distance);
+
         }
     }
 }

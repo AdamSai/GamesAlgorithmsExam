@@ -18,7 +18,8 @@ namespace DOTS.Authoring
             {
                 MetroLineID = authoring.MetroLineID,
                 PointIndex = authoring.PointIndex,
-                RailMarkerType = authoring.RailMarkerType
+                RailMarkerType = authoring.RailMarkerType,
+                Position = authoring.transform.position
             });
         }
     }

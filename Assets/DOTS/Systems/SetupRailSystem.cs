@@ -32,6 +32,12 @@ public partial struct SetupRailSystem : ISystem
 
         state.Dependency = new AddOutboundPointsJob() { railMarkers = railMarkerQuery }.Schedule(dependency);
 
+        // Fix outbound handles
+        // new FixOutboundHandlesJob().Schedule();
+
+        // Fix return handles
+
+
         // Stop the job
         state.Enabled = false;
     }
