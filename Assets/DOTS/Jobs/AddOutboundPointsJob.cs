@@ -1,21 +1,21 @@
 ﻿using DOTS.Components;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
-using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace DOTS.Jobs
 {
     public partial struct AddOutboundPointsJob : IJobEntity
     {
-        public NativeList<RailMarkerComponent> query;
+        public NativeList<RailMarkerComponent> railMarkers;
 
-        public void Execute(ref BezierPathComponent path)
+        public void Execute(ref BezierPathComponent path, ref MetroLineComponent metroLine)
         {
-            for (var i = 0; i < query.Length; i++)
+            for (var i = 0; i < railMarkers.Length; i++)
             {
-                Debug.Log("happy days");
+                if (railMarkers[i].MetroLineID == metroLine.MetroLineID)
+                {
+                    path.AddPoint(railMarkers[i].Position);
+                }
             }
         }
     }
