@@ -11,33 +11,33 @@ namespace DOTS.Authoring
         // public float BezierHandleReach = 0.15f;
     }
 
-    
+
     public class MetroLineBaker : Baker<MetroLineAuthoring>
     {
         public override void Bake(MetroLineAuthoring authoring)
         {
             //var data = authoring.GetComponentsInChildren<RailMarkerAuthoring>();
             //var railMarkers = new NativeArray<RailMarkerStruct>(data.Length, Allocator.Persistent);
-            
+
             //for (int i = 0; i < data.Length; i++)
             //{
             //    var railMarker = data[i];
             //    railMarkers[i] = new RailMarkerStruct(railMarker.MetroLineID, railMarker.PointIndex,
             //        railMarker.RailMarkerType, railMarker.transform.position);
             //}
-            
+
             //AddComponent(new RailMarkerContainer
             //{
             //    Value = railMarkers
             //});
 
 
-            
-            AddComponent( new BezierPathComponent
+
+            AddComponent(new BezierPathComponent
             {
                 points = new NativeList<BezierPoint>(Allocator.Persistent)
             });
-            
+
 
         }
     }

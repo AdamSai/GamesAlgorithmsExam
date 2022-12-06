@@ -2068,6 +2068,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4992691071569114}
   - component: {fileID: 333389900}
+  - component: {fileID: 4992691071569115}
   m_Layer: 0
   m_Name: Green
   m_TagString: Untagged
@@ -2136,6 +2137,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4879169046002036}
   - component: {fileID: 333389901}
+  - component: {fileID: 4879169046002037}
   m_Layer: 0
   m_Name: Red
   m_TagString: Untagged
@@ -2646,6 +2648,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4104866588883542}
   - component: {fileID: 333389898}
+  - component: {fileID: 4104866588883543}
   m_Layer: 0
   m_Name: Blue
   m_TagString: Untagged
@@ -2850,6 +2853,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4846937050293210}
   - component: {fileID: 333389899}
+  - component: {fileID: 4846937050293211}
   m_Layer: 0
   m_Name: Yellow
   m_TagString: Untagged
@@ -3048,6 +3052,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4104866588883543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802617898791844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ebe10c49f497854ea49f9f5e1173b6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxTrains: 4
+  Carriages: 4
+  MaxTrainSpeed: 0.002
 --- !u!4 &4137274543797552
 Transform:
   m_ObjectHideFlags: 0
@@ -4034,6 +4053,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4846937050293211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1930845318277514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ebe10c49f497854ea49f9f5e1173b6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxTrains: 4
+  Carriages: 4
+  MaxTrainSpeed: 0.002
 --- !u!4 &4847493070054696
 Transform:
   m_ObjectHideFlags: 0
@@ -4134,6 +4168,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4879169046002037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1422488439485158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ebe10c49f497854ea49f9f5e1173b6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxTrains: 4
+  Carriages: 4
+  MaxTrainSpeed: 0.002
 --- !u!4 &4879591104272368
 Transform:
   m_ObjectHideFlags: 0
@@ -4364,6 +4413,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: -90.00001, z: 0}
+--- !u!114 &4992691071569115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1392208982123488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ebe10c49f497854ea49f9f5e1173b6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxTrains: 4
+  Carriages: 4
+  MaxTrainSpeed: 0.002
 --- !u!4 &4992732780084182
 Transform:
   m_ObjectHideFlags: 0

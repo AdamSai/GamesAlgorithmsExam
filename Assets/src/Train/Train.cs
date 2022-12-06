@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -25,7 +23,6 @@ public class Train
     public List<Commuter> passengers_to_DISEMBARK;
     public List<Commuter> passengers_to_EMBARK;
     private float currentPosition = 0f;
-    private int currentRegion;
     public float speed = 0f;
     public float speed_on_platform_arrival = 0f;
     public float accelerationStrength, railFriction;
@@ -59,7 +56,7 @@ public class Train
         carriages = new List<TrainCarriage>();
         for (int i = 0; i < totalCarriages; i++)
         {
-            GameObject _tempCarriage_OBJ = (GameObject) Metro.Instantiate(Metro.INSTANCE.prefab_trainCarriage);
+            GameObject _tempCarriage_OBJ = (GameObject)Metro.Instantiate(Metro.INSTANCE.prefab_trainCarriage);
             TrainCarriage _TC = _tempCarriage_OBJ.GetComponent<TrainCarriage>();
             carriages.Add(_TC);
             _TC.SetColour(parentLine.lineColour);
@@ -135,7 +132,7 @@ public class Train
                 }
                 else
                 {
-//                    Debug.Log(trainIndex + " : stopped behind " + trainAheadOfMe.trainIndex + ",  dist = " + distanceToTrainAhead);
+                    //                    Debug.Log(trainIndex + " : stopped behind " + trainAheadOfMe.trainIndex + ",  dist = " + distanceToTrainAhead);
                     speed *= 0.85f;
                 }
 
@@ -186,7 +183,7 @@ public class Train
             case TrainState.UNLOADING:
                 if (trainIndex == 0)
                 {
-//                    Debug.Log("still to DISEMBARK: " + passengers_to_DISEMBARK.Count);
+                    //                    Debug.Log("still to DISEMBARK: " + passengers_to_DISEMBARK.Count);
                 }
 
                 if (passengers_to_DISEMBARK.Count == 0)
@@ -199,7 +196,7 @@ public class Train
 
                 if (trainIndex == 0)
                 {
-//                    Debug.Log("still to EMBARK: " + passengers_to_EMBARK.Count);
+                    //                    Debug.Log("still to EMBARK: " + passengers_to_EMBARK.Count);
                 }
                 if (passengers_to_EMBARK.Count == 0)
                 {

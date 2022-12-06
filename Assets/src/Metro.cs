@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 
@@ -185,6 +183,10 @@ public class Metro : MonoBehaviour
             {
                 MetroLine _ML = metroLines[i];
                 float trainSpacing = 1f / _ML.maxTrains;
+
+                Debug.Log("Max Trains: " + _ML.maxTrains);
+                Debug.Log("Train Spacing: " + trainSpacing);
+
                 for (int trainIndex = 0; trainIndex < _ML.maxTrains; trainIndex++)
                 {
                     _ML.AddTrain(trainIndex, trainIndex * trainSpacing);
@@ -216,7 +218,7 @@ public class Metro : MonoBehaviour
             Platform _startPlatform = GetRandomPlatform();
             Platform _endPlatform = GetRandomPlatform();
             // TODO put route possibility check back in
-//            while (_endPlatform == _startPlatform || !RouteisPossible(_startPlatform, _endPlatform))
+            //            while (_endPlatform == _startPlatform || !RouteisPossible(_startPlatform, _endPlatform))
             while (_endPlatform == _startPlatform)
             {
                 _endPlatform = GetRandomPlatform();
@@ -224,7 +226,7 @@ public class Metro : MonoBehaviour
 
             AddCommuter(_startPlatform, _endPlatform);
 
-//            AddCommuter(metroLines[0].platforms[0], metroLines[1].platforms[2]);
+            //            AddCommuter(metroLines[0].platforms[0], metroLines[1].platforms[2]);
         }
     }
 
@@ -232,14 +234,14 @@ public class Metro : MonoBehaviour
     {
         int _LINE_INDEX = Random.Range(0, metroLines.Length - 1);
         MetroLine _LINE = metroLines[_LINE_INDEX];
-        int _PLATFORM_INDEX = Mathf.FloorToInt(Random.Range(0f, (float) _LINE.platforms.Count));
+        int _PLATFORM_INDEX = Mathf.FloorToInt(Random.Range(0f, (float)_LINE.platforms.Count));
         return _LINE.platforms[_PLATFORM_INDEX];
     }
 
     public void AddCommuter(Platform _start, Platform _end)
     {
         GameObject commuter_OBJ =
-            (GameObject) Instantiate(Metro.INSTANCE.prefab_commuter,
+            (GameObject)Instantiate(Metro.INSTANCE.prefab_commuter,
                 _start.transform.position + new Vector3(0f, 0f, 0f), transform.rotation);
         Commuter _C = commuter_OBJ.GetComponent<Commuter>();
         _C.Init(_start, _end);
@@ -269,7 +271,7 @@ public class Metro : MonoBehaviour
 
     public Queue<CommuterTask> ShortestRoute(Platform _A, Platform _B)
     {
-        Debug.Log("Getting from "+_A.GetFullName()+" to "+_B.GetFullName());
+        Debug.Log("Getting from " + _A.GetFullName() + " to " + _B.GetFullName());
         foreach (Platform _P in allPlatforms)
         {
             _P.temporary_routeDistance = 999;
@@ -302,7 +304,7 @@ public class Metro : MonoBehaviour
         {
             if (arrived)
             {
-                Debug.Log("Arrived at " + _B.GetFullName() + " after "+steps+" steps");
+                Debug.Log("Arrived at " + _B.GetFullName() + " after " + steps + " steps");
                 break;
             }
 
@@ -316,14 +318,14 @@ public class Metro : MonoBehaviour
 
         Platform _CURRENT_PLATFORM = _B;
         Platform _PREV_PLATFORM = _B.temporary_accessedViaPlatform;
-        Debug.Log(commuters.Count +  ", start: " + _A.GetFullName() + "Dest: " + _B.GetFullName() + ",  b prev: ");
+        Debug.Log(commuters.Count + ", start: " + _A.GetFullName() + "Dest: " + _B.GetFullName() + ",  b prev: ");
         List<CommuterTask> _TASK_LIST = new List<CommuterTask>();
         while (_CURRENT_PLATFORM != _A)
         {
             // if this is _B (the destination, and we arrived by rail, it's safe to get off)
             if (_CURRENT_PLATFORM == _B && _CURRENT_PLATFORM.temporary_connectionType == CommuterState.GET_OFF_TRAIN)
             {
-                _TASK_LIST.Add(new CommuterTask(CommuterState.GET_OFF_TRAIN) {endPlatform = _CURRENT_PLATFORM});
+                _TASK_LIST.Add(new CommuterTask(CommuterState.GET_OFF_TRAIN) { endPlatform = _CURRENT_PLATFORM });
                 _TASK_LIST.Add(new CommuterTask(CommuterState.WAIT_FOR_STOP)
                 {
                     endPlatform = _CURRENT_PLATFORM
@@ -343,7 +345,7 @@ public class Metro : MonoBehaviour
 
                 if (_PREV_PLATFORM.temporary_connectionType == CommuterState.GET_OFF_TRAIN)
                 {
-                    _TASK_LIST.Add(new CommuterTask(CommuterState.GET_OFF_TRAIN) {endPlatform = _PREV_PLATFORM});
+                    _TASK_LIST.Add(new CommuterTask(CommuterState.GET_OFF_TRAIN) { endPlatform = _PREV_PLATFORM });
                     _TASK_LIST.Add(new CommuterTask(CommuterState.WAIT_FOR_STOP)
                     {
                         endPlatform = _PREV_PLATFORM
@@ -355,7 +357,7 @@ public class Metro : MonoBehaviour
                 if (_PREV_PLATFORM.temporary_connectionType == CommuterState.WALK)
                 {
                     _TASK_LIST.Add(new CommuterTask(CommuterState.GET_ON_TRAIN));
-                    _TASK_LIST.Add(new CommuterTask(CommuterState.QUEUE) {startPlatform = _PREV_PLATFORM});
+                    _TASK_LIST.Add(new CommuterTask(CommuterState.QUEUE) { startPlatform = _PREV_PLATFORM });
                 }
             }
 
@@ -409,7 +411,7 @@ public class Metro : MonoBehaviour
             _testPlatform.temporary_routeDistance = _currentStep;
             _testPlatform.temporary_accessedViaPlatform = _accessedVia;
             _testPlatform.temporary_connectionType = _connectionType;
-//            Debug.Log(_testPlatform.GetFullName() +  ", dist: " + _testPlatform.temporary_routeDistance);
+            //            Debug.Log(_testPlatform.GetFullName() +  ", dist: " + _testPlatform.temporary_routeDistance);
             _platformList.Add(_testPlatform);
         }
     }

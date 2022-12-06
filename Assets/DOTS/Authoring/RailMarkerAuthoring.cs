@@ -9,7 +9,7 @@ namespace DOTS.Authoring
         public byte PointIndex;
         public RailMarkerTypes RailMarkerType;
     }
-    
+
     public class RailMarkerBaker : Baker<RailMarkerAuthoring>
     {
         public override void Bake(RailMarkerAuthoring authoring)
