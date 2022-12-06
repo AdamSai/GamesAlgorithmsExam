@@ -36,28 +36,28 @@ namespace DOTS.Jobs
             path.distance = BezierUtility.MeasurePath(path);
             
             // now that the rails have been laid - let's put the platforms on
-            int totalPoints = path.points.Length;
-            for (int i = 1; i < lineRailMarkers.Length; i++)
-            {
-                int _plat_END = i;
-                int _plat_START = i - 1;
-                if (lineRailMarkers[_plat_END].RailMarkerType == RailMarkerTypes.PLATFORM_END &&
-                    lineRailMarkers[_plat_START].RailMarkerType == RailMarkerTypes.PLATFORM_START)
-                {
-                    Platform _ouboundPlatform = AddPlatform(_plat_START, _plat_END);
-                    // now add an opposite platform!
-                    int opposite_START = totalPoints - (i + 1);
-                    int opposite_END = totalPoints - i;
-                    Platform _oppositePlatform = AddPlatform(opposite_START, opposite_END);
-                    _oppositePlatform.transform.eulerAngles =
-                        _ouboundPlatform.transform.rotation.eulerAngles + new Vector3(0f, 180f, 0f);
-                    ;
+            //int totalPoints = path.points.Length;
+            //for (int i = 1; i < lineRailMarkers.Length; i++)
+            //{
+            //    int _plat_END = i;
+            //    int _plat_START = i - 1;
+            //    if (lineRailMarkers[_plat_END].RailMarkerType == RailMarkerTypes.PLATFORM_END &&
+            //        lineRailMarkers[_plat_START].RailMarkerType == RailMarkerTypes.PLATFORM_START)
+            //    {
+            //        Platform _ouboundPlatform = AddPlatform(_plat_START, _plat_END);
+            //        // now add an opposite platform!
+            //        int opposite_START = totalPoints - (i + 1);
+            //        int opposite_END = totalPoints - i;
+            //        Platform _oppositePlatform = AddPlatform(opposite_START, opposite_END);
+            //        _oppositePlatform.transform.eulerAngles =
+            //            _ouboundPlatform.transform.rotation.eulerAngles + new Vector3(0f, 180f, 0f);
+            //        ;
 
-                    // pair these platforms as opposites
-                    _ouboundPlatform.PairWithOppositePlatform(_oppositePlatform);
-                    _oppositePlatform.PairWithOppositePlatform(_ouboundPlatform);
-                }
-            }
+            //        // pair these platforms as opposites
+            //        _ouboundPlatform.PairWithOppositePlatform(_oppositePlatform);
+            //        _oppositePlatform.PairWithOppositePlatform(_ouboundPlatform);
+            //    }
+            //}
 
 
             
@@ -134,9 +134,9 @@ namespace DOTS.Jobs
             GameObject platform_OBJ =
                 (GameObject)Metro.Instantiate(Metro.INSTANCE.prefab_platform, _PT_END.location, Quaternion.identity);
             Platform platform = platform_OBJ.GetComponent<Platform>();
-            platform.SetupPlatform(this, _PT_START, _PT_END);
+            //platform.SetupPlatform(this, _PT_START, _PT_END);
             platform_OBJ.transform.LookAt(BezierUtility.GetPoint_PerpendicularOffset(_PT_END, -3f, path.distance, path.points));
-            platforms.Add(platform);
+            //platforms.Add(platform);
             return platform;
         }
 
