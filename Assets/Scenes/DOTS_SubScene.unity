@@ -3071,6 +3071,8 @@ MonoBehaviour:
   MaxTrains: 4
   Carriages: 4
   MaxTrainSpeed: 0.002
+  carriagesSpeed: 0
+  entity: {fileID: 1741807958892527987, guid: 56fc8c8d675ca8641b7bd6fb776af510, type: 3}
 --- !u!4 &4137274543797552
 Transform:
   m_ObjectHideFlags: 0
@@ -4072,6 +4074,8 @@ MonoBehaviour:
   MaxTrains: 4
   Carriages: 4
   MaxTrainSpeed: 0.002
+  carriagesSpeed: 0
+  entity: {fileID: 1741807958892527987, guid: 56fc8c8d675ca8641b7bd6fb776af510, type: 3}
 --- !u!4 &4847493070054696
 Transform:
   m_ObjectHideFlags: 0
@@ -4187,6 +4191,8 @@ MonoBehaviour:
   MaxTrains: 4
   Carriages: 4
   MaxTrainSpeed: 0.002
+  carriagesSpeed: 0
+  entity: {fileID: 1741807958892527987, guid: 56fc8c8d675ca8641b7bd6fb776af510, type: 3}
 --- !u!4 &4879591104272368
 Transform:
   m_ObjectHideFlags: 0
@@ -4432,6 +4438,8 @@ MonoBehaviour:
   MaxTrains: 4
   Carriages: 4
   MaxTrainSpeed: 0.002
+  carriagesSpeed: 0
+  entity: {fileID: 1741807958892527987, guid: 56fc8c8d675ca8641b7bd6fb776af510, type: 3}
 --- !u!4 &4992732780084182
 Transform:
   m_ObjectHideFlags: 0

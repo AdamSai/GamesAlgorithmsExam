@@ -8,7 +8,8 @@ namespace DOTS.Authoring
         public byte MaxTrains;
         public byte Carriages;
         public float MaxTrainSpeed;
-        public Colour LineColour;
+        public float carriagesSpeed;
+        public UnityEngine.GameObject entity;
     }
 
     public class MetroLineTrainDataBaker : Baker<MetroLineTrainDataAuthoring>
@@ -19,7 +20,9 @@ namespace DOTS.Authoring
             {
                 maxTrains = authoring.MaxTrains,
                 carriages = authoring.Carriages,
-                maxTrainSpeed = authoring.MaxTrainSpeed
+                maxTrainSpeed = authoring.MaxTrainSpeed,
+                carriagesSpeed = authoring.carriagesSpeed,
+                entity = GetEntity(authoring.entity)
             });
         }
     }
