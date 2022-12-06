@@ -9,6 +9,7 @@ namespace DOTS.Authoring
     {
         // [Range(0f, 1f)]
         // public float BezierHandleReach = 0.15f;
+        public int MetroLineID;
     }
 
 
@@ -16,6 +17,10 @@ namespace DOTS.Authoring
     {
         public override void Bake(MetroLineAuthoring authoring)
         {
+            AddComponent( new MetroLineComponent
+            {
+                MetroLineID = authoring.MetroLineID
+            });
             //var data = authoring.GetComponentsInChildren<RailMarkerAuthoring>();
             //var railMarkers = new NativeArray<RailMarkerStruct>(data.Length, Allocator.Persistent);
 
