@@ -10,6 +10,7 @@ namespace DOTS.Authoring
         // [Range(0f, 1f)]
         // public float BezierHandleReach = 0.15f;
         public int MetroLineID;
+        public GameObject RailPrefab;
     }
 
 
@@ -19,7 +20,8 @@ namespace DOTS.Authoring
         {
             AddComponent( new MetroLineComponent
             {
-                MetroLineID = authoring.MetroLineID
+                MetroLineID = authoring.MetroLineID,
+                railPrefab = GetEntity(authoring.RailPrefab)
             });
             //var data = authoring.GetComponentsInChildren<RailMarkerAuthoring>();
             //var railMarkers = new NativeArray<RailMarkerStruct>(data.Length, Allocator.Persistent);

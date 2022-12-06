@@ -28,9 +28,12 @@ public partial struct SetupRailSystem : ISystem
             new EntityQueryBuilder(Allocator.Temp).WithAll<RailMarkerComponent>().Build(ref state)
                 .ToComponentDataListAsync<RailMarkerComponent>(Allocator.Persistent, out var railMarkers);
 
+        // Creating an EntityCommandBuffer to defer the structural changes required by instantiation.
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        
         var dependency = JobHandle.CombineDependencies(railMarkers, state.Dependency);
-
-        state.Dependency = new AddOutboundPointsJob() { railMarkers = railMarkerQuery }.Schedule(dependency);
+        state.Dependency = new AddOutboundPointsJob() { railMarkers = railMarkerQuery, ECB = ecb }.Schedule(dependency);
 
         // Fix outbound handles
         // new FixOutboundHandlesJob().Schedule();

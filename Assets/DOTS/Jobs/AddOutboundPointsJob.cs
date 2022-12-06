@@ -5,6 +5,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace DOTS.Jobs
@@ -13,6 +14,8 @@ namespace DOTS.Jobs
     public partial struct AddOutboundPointsJob : IJobEntity
     {
         public NativeList<RailMarkerComponent> railMarkers;
+        public EntityCommandBuffer ECB;
+        
         private int totalOutboundPoints;
 
         public void Execute(ref BezierPathComponent path, ref MetroLineComponent metroLine)
@@ -58,9 +61,24 @@ namespace DOTS.Jobs
             //         _oppositePlatform.PairWithOppositePlatform(_ouboundPlatform);
             //     }
             // }
-
-
             
+            // Now, let's lay the rail meshes
+            float _DIST = 0f;
+            while (_DIST < path.distance)
+            {
+                float _DIST_AS_RAIL_FACTOR = Get_distanceAsRailProportion(_DIST, path.distance);
+                Vector3 _RAIL_POS = Get_PositionOnRail(_DIST_AS_RAIL_FACTOR, path.distance, path.points);
+                Vector3 _RAIL_ROT = Get_RotationOnRail(_DIST_AS_RAIL_FACTOR, path.distance, path.points);
+                var rail = ECB.Instantiate(metroLine.railPrefab);
+                //            _RAIL.GetComponent<Renderer>().material.color = lineColour;
+                var ltw = new WorldTransform();
+                ltw.Position = _RAIL_POS;
+                ltw.Rotation = Quaternion.LookRotation(_RAIL_POS - _RAIL_ROT);
+                ECB.SetComponent(rail, LocalTransform.FromPosition(_RAIL_POS));
+                
+                Debug.Log("Pos: " + ltw.Position);
+                _DIST += Metro.RAIL_SPACING;
+            }
         }
 
         private void FixReturnHandles(NativeList<BezierPoint> returnPoints)
@@ -85,7 +103,8 @@ namespace DOTS.Jobs
 
         private void AddReturnPoints(BezierPathComponent path, NativeList<BezierPoint> returnPoints, NativeList<BezierPoint> _POINTS)
         {
-            float platformOffset = Metro.BEZIER_PLATFORM_OFFSET;
+            // TODO: See BEZIER_PLATFORM_OFFSET from Metro.cs
+            float platformOffset = 3f;
             for (int i = totalOutboundPoints - 1; i >= 0; i--)
             {
                 float3 _targetLocation =
@@ -139,6 +158,21 @@ namespace DOTS.Jobs
         //     platforms.Add(platform);
         //     return platform;
         // }
+
+        public float Get_distanceAsRailProportion(float _realDistance, float distance)
+        {
+            return _realDistance / distance;
+        }
+        
+        public Vector3 Get_PositionOnRail(float _pos, float distance, NativeList<BezierPoint> points)
+        {
+            return BezierUtility.Get_Position(_pos, distance, points);
+        }
+        
+        public Vector3 Get_RotationOnRail(float _pos, float distance, NativeList<BezierPoint> points)
+        {
+            return BezierUtility.Get_NormalAtPosition(_pos, distance, points);
+        }
 
     }
 }

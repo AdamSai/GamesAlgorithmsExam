@@ -21,7 +21,8 @@ namespace DOTS
 
         public BezierPoint SetHandles(float3 _distance)
         {
-            _distance *= Metro.BEZIER_HANDLE_REACH;
+            // TODO: See BEZIER_HANDLE_REACH from Metro.cs
+            _distance *= 0.1f;
             handle_in = location - _distance;
             handle_out = location + _distance;
             return this;
