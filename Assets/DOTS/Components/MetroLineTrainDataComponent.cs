@@ -8,6 +8,6 @@ namespace DOTS.Components
         public byte carriages;
         public float maxTrainSpeed;
         public float carriagesSpeed;
-        public Entity entity;
+        public Entity trainPrefab;
     }
 }

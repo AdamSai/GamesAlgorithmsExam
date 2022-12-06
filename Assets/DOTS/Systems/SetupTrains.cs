@@ -1,3 +1,4 @@
+using DOTS.Authoring;
 using DOTS.Components;
 using System.Diagnostics;
 using Unity.Entities;
@@ -28,8 +29,6 @@ public partial struct SetupTrains : ISystem
     {
         ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
 
-        //ecb.Instantiate(new Entity());
-
         var SetupTrainsJob = new SetupTrainsJob
         {
             ECB = ecb
@@ -49,9 +48,9 @@ public partial struct SetupTrains : ISystem
 public partial struct SetupTrainsJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
-    public void Execute(MetroLineTrainDataComponent MLTDC)
+    public void Execute(MetroLineTrainDataComponent MLTDC, MetroLineComponent MLA)
     {
-        //float trainSpacing = 1 / maxtrains; 
+        float trainSpacing = 1 / MLTDC.maxTrains;
 
         for (int i = 0; i < MLTDC.maxTrains; i++)
         {
@@ -59,32 +58,39 @@ public partial struct SetupTrainsJob : IJobEntity
             //Add TrainIDComponent, TrainData and State
 
             UnityEngine.Debug.Log("ECB: " + ECB);
-            Entity train = ECB.Instantiate(MLTDC.entity);
+            Entity train = ECB.Instantiate(MLTDC.trainPrefab);
 
-            //Setup Index as I
-            //Add Metro Line Index
+            ECB.SetComponent(train, new TrainIDComponent
+            {
+                LineIndex = MLA.MetroLineID,
+                TrainIndex = i
+            });
 
-            //Setup Position
+            float pos = trainSpacing * i;
+            ECB.SetComponent(train, new TrainDataComponent
+            {
+                Speed = MLTDC.maxTrainSpeed,
+                Position = pos
+            });
+
+            ECB.SetComponent(train, new TrainStateComponent
+            {
+                value = TrainStateDOTS.DEPARTING
+            });
         }
-    }
-}
-
-public partial struct SpawnTrainJob : IJobEntity
-{
-    public float spacing;
-    public void Execute()
-    {
-        //Set Initial Position
-        //position = spacing * trainIndex
-
-
     }
 }
 
 public partial struct SetupCarriagesJob : IJobEntity
 {
-    public void Execute()
+    public EntityCommandBuffer ECB;
+    public void Execute(MetroLineTrainDataComponent MLTDC)
     {
+        int amountOfCarriages = MLTDC.carriages;
+
+        for (int i = 0; i < amountOfCarriages; i++)
+        {
+        }
         //Spawn Carriages
     }
 }
