@@ -16,6 +16,7 @@ namespace DOTS.Utility
 
             for (int i = 1; i < path.points.Length; i++)
             {
+                var x = path.points[i].distanceAlongPath;
                 var currentPoint = path.points[i];
                 currentPoint.distanceAlongPath = MeasurePoint(i, i - 1, path.points, ref distance);
                 path.points[i] = currentPoint;
