@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -174,7 +174,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &744625572
 GameObject:
@@ -267,117 +267,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1613561186
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1613561187}
-  m_Layer: 0
-  m_Name: markers
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1613561187
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1613561186}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1796044332}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1796044330
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1796044332}
-  - component: {fileID: 1796044331}
-  m_Layer: 0
-  m_Name: METRO_Linear
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1796044331
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1796044330}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c01e95b87c2f409a9e354a1812e871b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prefab_trainCarriage: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
-    type: 3}
-  prefab_platform: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
-    type: 3}
-  prefab_commuter: {fileID: 1598512793004306, guid: 1b7c16b60bc3a4b37b5a2f18f064dcb4,
-    type: 3}
-  prefab_rail: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2,
-    type: 3}
-  drawRailBeziers: 0
-  maxCommuters: 1000
-  Bezier_HandleReach: 1
-  Bezier_PlatformOffset: 8
-  Train_accelerationStrength: 0.000001
-  Train_railFriction: 1
-  Train_delay_doors_OPEN: 1
-  Train_delay_doors_CLOSE: 1
-  Train_delay_departure: 2
-  LineNames:
-  - R
-  - G
-  - Y
-  - B
-  maxTrains: 06000000060000000400000004000000
-  carriagesPerTrain: 05000000050000000400000004000000
-  maxTrainSpeed:
-  - 0.002
-  - 0.002
-  - 0.002
-  - 0.002
-  LineColours:
-  - {r: 1, g: 0.2216981, b: 0.2216981, a: 1}
-  - {r: 0.1273585, g: 1, b: 0.51499337, a: 1}
-  - {r: 1, g: 0.73059565, b: 0.1745283, a: 1}
-  - {r: 0.13679248, g: 0.7169527, b: 1, a: 1}
-  commuters: []
---- !u!4 &1796044332
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1796044330}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1613561187}
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1925484582
 GameObject:
