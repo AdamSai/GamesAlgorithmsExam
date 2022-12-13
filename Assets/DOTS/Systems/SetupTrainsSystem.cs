@@ -14,7 +14,7 @@ public enum TrainStateDOTS
     DEPARTING,
     EMERGENCY_STOP
 }
-public partial struct SetupTrains : ISystem
+public partial struct SetupTrainsSystem : ISystem
 {
     EntityCommandBuffer ecb;
     public void OnCreate(ref SystemState state)
@@ -90,6 +90,8 @@ public partial struct SetupCarriagesJob : IJobEntity
 
         for (int i = 0; i < amountOfCarriages; i++)
         {
+            //ECB.Instantiate()
+            //Set Colour to Line Colour
         }
         //Spawn Carriages
     }
