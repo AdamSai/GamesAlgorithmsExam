@@ -9,7 +9,7 @@ namespace DOTS.Authoring
     {
         // [Range(0f, 1f)]
         // public float BezierHandleReach = 0.15f;
-        public int MetroLineID;
+        public byte MetroLineID;
     }
 
 
@@ -17,7 +17,7 @@ namespace DOTS.Authoring
     {
         public override void Bake(MetroLineAuthoring authoring)
         {
-            AddComponent( new MetroLineComponent
+            AddComponent(new MetroLineComponent
             {
                 MetroLineID = authoring.MetroLineID
             });

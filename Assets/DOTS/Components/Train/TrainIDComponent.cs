@@ -1,7 +1,10 @@
 using Unity.Entities;
 
-public struct TrainIDComponent : IComponentData
+namespace DOTS.Components
 {
-    public int TrainIndex;
-    public int LineIndex;
+    public struct TrainIDComponent : IComponentData
+    {
+        public byte TrainIndex;
+        public byte LineIndex;
+    }
 }

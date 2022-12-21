@@ -6,9 +6,7 @@ namespace DOTS.Authoring
     public class MetroLineTrainDataAuthoring : UnityEngine.MonoBehaviour
     {
         public byte MaxTrains;
-        public byte Carriages;
         public float MaxTrainSpeed;
-        public float CarriagesSpeed;
         public UnityEngine.GameObject TrainPrefab;
     }
 
@@ -19,9 +17,7 @@ namespace DOTS.Authoring
             AddComponent(new MetroLineTrainDataComponent
             {
                 maxTrains = authoring.MaxTrains,
-                carriages = authoring.Carriages,
                 maxTrainSpeed = authoring.MaxTrainSpeed,
-                carriagesSpeed = authoring.CarriagesSpeed,
                 trainPrefab = GetEntity(authoring.TrainPrefab)
             });
         }

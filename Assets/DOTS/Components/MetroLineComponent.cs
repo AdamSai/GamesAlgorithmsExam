@@ -4,6 +4,6 @@ namespace DOTS.Components
 {
     public struct MetroLineComponent : IComponentData
     {
-        public int MetroLineID;
+        public byte MetroLineID;
     }
 }

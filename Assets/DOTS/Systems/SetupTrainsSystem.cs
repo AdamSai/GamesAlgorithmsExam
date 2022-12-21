@@ -1,6 +1,4 @@
-using DOTS.Authoring;
 using DOTS.Components;
-using System.Diagnostics;
 using Unity.Entities;
 
 public enum TrainStateDOTS
@@ -52,7 +50,7 @@ public partial struct SetupTrainsJob : IJobEntity
     {
         float trainSpacing = 1 / MLTDC.maxTrains;
 
-        for (int i = 0; i < MLTDC.maxTrains; i++)
+        for (byte i = 0; i < MLTDC.maxTrains; i++)
         {
             //Spawn empty Entity
             //Add TrainIDComponent, TrainData and State
@@ -84,16 +82,19 @@ public partial struct SetupTrainsJob : IJobEntity
 public partial struct SetupCarriagesJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
-    public void Execute(MetroLineTrainDataComponent MLTDC)
+    public void Execute(MetroLineCarriageDataComponent MLCDC)
     {
-        int amountOfCarriages = MLTDC.carriages;
+        int amountOfCarriages = MLCDC.carriages;
 
         for (int i = 0; i < amountOfCarriages; i++)
         {
+            //Entity Carriage = ECB.Instantiate
             //ECB.Instantiate()
+            //Set Carriage ID
+            //Set Train ID
             //Set Colour to Line Colour
+            //Set Colour to Carriages Material
         }
-        //Spawn Carriages
     }
 }
 

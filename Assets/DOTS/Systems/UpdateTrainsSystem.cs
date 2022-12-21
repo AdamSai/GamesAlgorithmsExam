@@ -1,4 +1,3 @@
-using DOTS.Components;
 using Unity.Entities;
 
 public partial struct UpdateTrainsSystem : ISystem
@@ -21,13 +20,11 @@ public partial struct UpdateTrainsSystem : ISystem
     }
 }
 
-
-
 public partial struct UpdateTrainStatesJob : IJobEntity
 {
     public void Execute(TrainStateComponent TSC)
     {
-        switch(TSC.value) 
+        switch (TSC.value)
         {
             case TrainStateDOTS.EN_ROUTE:
                 break;
@@ -51,7 +48,7 @@ public partial struct UpdateTrainStatesJob : IJobEntity
 
             default:
                 break;
-        }   
+        }
     }
 }
 
