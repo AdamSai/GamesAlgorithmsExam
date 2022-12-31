@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 1781121127534614125}
   - component: {fileID: 9141022340570281930}
   - component: {fileID: 4275831167545919582}
-  - component: {fileID: -4291153195422046402}
+  - component: {fileID: 1926737380860696517}
+  - component: {fileID: -1023210087542907954}
   m_Layer: 0
   m_Name: Train_DOTS
   m_TagString: Untagged
@@ -58,7 +59,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b42d50be212a71c4f8f696997d6fb8e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-4291153195422046402
+  Carriages: 0
+  CarriagesSpeed: 0
+--- !u!114 &1926737380860696517
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,6 +70,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1741807958892527987}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0314428a67ca24449e5f991a922a60a, type: 3}
+  m_Script: {fileID: 11500000, guid: 1c495f373ec7cfb49a9688c745c1baf4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Value: 0
+--- !u!114 &-1023210087542907954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741807958892527987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5726d5f3126e3d4c8befada9ebd22b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 0

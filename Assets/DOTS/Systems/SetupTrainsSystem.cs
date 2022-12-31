@@ -55,7 +55,6 @@ public partial struct SetupTrainsJob : IJobEntity
             //Spawn empty Entity
             //Add TrainIDComponent, TrainData and State
 
-            UnityEngine.Debug.Log("ECB: " + ECB);
             Entity train = ECB.Instantiate(MLTDC.trainPrefab);
 
             ECB.SetComponent(train, new TrainIDComponent
@@ -65,10 +64,15 @@ public partial struct SetupTrainsJob : IJobEntity
             });
 
             float pos = trainSpacing * i;
-            ECB.SetComponent(train, new TrainDataComponent
+            ECB.SetComponent(train, new TrainPositionComponent
             {
-                Speed = MLTDC.maxTrainSpeed,
-                Position = pos
+                value = pos
+            });
+
+            ECB.SetComponent(train, new TrainSpeedComponent
+            {
+                value = MLTDC.maxTrainSpeed
+
             });
 
             ECB.SetComponent(train, new TrainStateComponent
