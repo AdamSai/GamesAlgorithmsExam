@@ -27,6 +27,9 @@ public partial struct UpdateTrainStatesJob : IJobEntity
         switch (TSC.value)
         {
             case TrainStateDOTS.EN_ROUTE:
+
+
+
                 break;
 
             case TrainStateDOTS.ARRIVING:
@@ -37,6 +40,7 @@ public partial struct UpdateTrainStatesJob : IJobEntity
 
             case TrainStateDOTS.UNLOADING:
                 break;
+
             case TrainStateDOTS.LOADING:
                 break;
             case TrainStateDOTS.DOORS_CLOSE:
