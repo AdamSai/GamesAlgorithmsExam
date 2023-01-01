@@ -1,5 +1,8 @@
 using DOTS.Components;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Rendering;
 
 public enum TrainStateDOTS
 {
@@ -31,14 +34,25 @@ public partial struct SetupTrainsSystem : ISystem
         {
             ECB = ecb
         };
-
         SetupTrainsJob.Run();
-        //Spawn Trains for each line
-        //Add Index to train and its Line Index
-        //Calculate spacing between each train for each line
-        //float trainSpacing = 1 / maxtrains; 
-        //Setup total Carriages
 
+        var SetupCarriagesJob = new SetupCarriagesJob
+        {
+            ECB = ecb
+        };
+
+        SetupCarriagesJob.Run();
+
+        var entityArray = new EntityQueryBuilder(Allocator.Temp)
+        .WithAny<CarriageColorTag>().Build(ref state).ToEntityArray(Allocator.Temp);
+
+        UnityEngine.Debug.Log("Entity Array size: " + entityArray.Length);
+
+        for (int i = 0; i < entityArray.Length; i++)
+        {
+            ecb.AddComponent(entityArray[i], new URPMaterialPropertyBaseColor { Value = new float4(0, 0, 1, 1) });
+            UnityEngine.Debug.Log("Added Color to: " + entityArray[i].ToString());
+        }
         state.Enabled = false;
     }
 }
@@ -86,19 +100,40 @@ public partial struct SetupTrainsJob : IJobEntity
 public partial struct SetupCarriagesJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
-    public void Execute(MetroLineCarriageDataComponent MLCDC)
+    public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, MetroLineComponent MLID)
     {
-        int amountOfCarriages = MLCDC.carriages;
-
-        for (int i = 0; i < amountOfCarriages; i++)
+        for (int i = 0; i < MLTrain.maxTrains; i++)
         {
-            //Entity Carriage = ECB.Instantiate
-            //ECB.Instantiate()
-            //Set Carriage ID
-            //Set Train ID
-            //Set Colour to Line Colour
-            //Set Colour to Carriages Material
+            for (int j = 0; j < MLCarriage.carriages; j++)
+            {
+                //Instantiate Carriages
+                Entity carriage = ECB.Instantiate(MLCarriage.carriage);
+
+                ECB.SetComponent(carriage, new CarriageIDComponent
+                {
+                    id = j,
+                    trainIndex = i,
+                    lineIndex = MLID.MetroLineID
+                });
+
+                //carr
+                //var buffer = ECB.
+                //Entity Carriage = ECB.Instantiate
+                //ECB.Instantiate()
+                //Set Colour to Line Colour
+                //Set Colour to Carriages Material
+            }
         }
+    }
+}
+
+public partial struct SetupCarriagesColorJob : IJobEntity
+{
+    public EntityCommandBuffer ECB;
+    public void Execute(CarriageColorTag ccTag)
+    {
+
+        //ECB.AddComponent(ccTag, new URPMaterialPropertyBaseColor { Value = new float4(1, 0, 1, 1) });
     }
 }
 
