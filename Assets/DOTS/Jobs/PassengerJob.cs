@@ -9,8 +9,9 @@ public partial struct PassengerJob : IJobEntity
     public EntityCommandBuffer ECB;
     public ComponentLookup<CarriageComponentDummy> platformComponents;
     public ComponentLookup<LocalTransform> transforms;
+    public ComponentLookup<LocalToWorld> worldTransforms;
 
-    public void Execute(in PassengerComponent passenger, in CommuterComponent commuter, ref LocalTransform transform)
+    public void Execute(Entity e, LocalToWorld worldTransform, in PassengerComponent passenger, in CommuterComponent commuter, ref LocalTransform transformm)
     {
         if (passenger.currentCarriage == Entity.Null)
             return;
@@ -20,7 +21,10 @@ public partial struct PassengerJob : IJobEntity
 
 
         // Otherwise:
-        transform.Translate(transforms[passenger.carriageSeat].Position);
+        // Set rotation and position
+        var seatPos = worldTransforms[passenger.carriageSeat].Position;
+        var transform = LocalTransform.FromPosition(seatPos);
+        ECB.SetComponent(e, transform);
 
         //LocalTransform.FromPosition(posOnRail);
     }
