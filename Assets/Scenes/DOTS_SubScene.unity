@@ -3078,6 +3078,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxTrains: 4
   MaxTrainSpeed: 0.002
+  Friction: 0.99
   TrainPrefab: {fileID: 1741807958892527987, guid: 56fc8c8d675ca8641b7bd6fb776af510,
     type: 3}
 --- !u!114 &4104866588883544
@@ -4096,6 +4097,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxTrains: 4
   MaxTrainSpeed: 0.002
+  Friction: 1
   TrainPrefab: {fileID: 1741807958892527987, guid: 56fc8c8d675ca8641b7bd6fb776af510,
     type: 3}
 --- !u!114 &4846937050293212
@@ -4228,6 +4230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxTrains: 4
   MaxTrainSpeed: 0.002
+  Friction: 1
   TrainPrefab: {fileID: 1741807958892527987, guid: 56fc8c8d675ca8641b7bd6fb776af510,
     type: 3}
 --- !u!114 &4879169046002038
@@ -4490,6 +4493,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxTrains: 4
   MaxTrainSpeed: 0.002
+  Friction: 1
   TrainPrefab: {fileID: 1741807958892527987, guid: 56fc8c8d675ca8641b7bd6fb776af510,
     type: 3}
 --- !u!114 &4992691071569116

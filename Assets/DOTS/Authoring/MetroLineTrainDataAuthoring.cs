@@ -7,6 +7,7 @@ namespace DOTS.Authoring
     {
         public byte MaxTrains;
         public float MaxTrainSpeed;
+        public float Friction;
         public UnityEngine.GameObject TrainPrefab;
     }
 
@@ -18,6 +19,7 @@ namespace DOTS.Authoring
             {
                 maxTrains = authoring.MaxTrains,
                 maxTrainSpeed = authoring.MaxTrainSpeed,
+                friction = authoring.Friction,
                 trainPrefab = GetEntity(authoring.TrainPrefab)
             });
         }

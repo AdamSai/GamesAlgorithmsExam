@@ -6,6 +6,7 @@ namespace DOTS.Components
     {
         public byte maxTrains;
         public float maxTrainSpeed;
+        public float friction;
         public Entity trainPrefab;
     }
 }
