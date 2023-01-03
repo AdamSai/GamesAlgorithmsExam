@@ -7,7 +7,26 @@ namespace DOTS.Utility
 {
     public class BezierUtility
     {
-        public static float MeasurePath(BezierPathComponent path)
+        public static void AddPoint(float3 location, ref BezierPathComponent path)
+        {
+            BezierPoint result = new BezierPoint(path.points.Length, location, location, location);
+            path.points.Add(result);
+            if (path.points.Length > 1)
+            {
+                BezierPoint prev = path.points[path.points.Length - 2];
+                var currentIdx = path.points.Length - 1;
+                path.points[currentIdx] = SetHandles(currentIdx, prev.location, path.points);
+            }
+        }
+
+        static BezierPoint SetHandles(int _currentIdx, float3 _prevPointLocation, NativeList<BezierPoint> points)
+        {
+            float3 distPrevCurrent = math.normalize(points[_currentIdx].location - _prevPointLocation);
+        
+            return points[_currentIdx].SetHandles(distPrevCurrent);
+        }
+        
+        public static float MeasurePath(ref BezierPathComponent path)
         {
             float distance = 0f;
             var point = path.points[0];
@@ -35,30 +54,30 @@ namespace DOTS.Utility
         {
             BezierPoint _currentPoint = points[_current];
             BezierPoint _prevPoint = points[_prev];
-            float measurementIncrement = 1f / Metro.BEZIER_MEASUREMENT_SUBDIVISIONS;
+            float measurementIncrement = 1f / 2; // TODO: for 2f see Metro.BEZIER_MEASUREMENT_SUBDIVISIONS
             float regionDistance = 0f;
-            for (int i = 0; i < Metro.BEZIER_MEASUREMENT_SUBDIVISIONS - 1; i++)
+            for (int i = 0; i < 2 - 1; i++) // TODO: for 2f see Metro.BEZIER_MEASUREMENT_SUBDIVISIONS
             {
                 float _CURRENT_SUBDIV = i * measurementIncrement;
                 float _NEXT_SOBDIV = (i + 1) * measurementIncrement;
-                regionDistance += Vector3.Distance(BezierLerp(_prevPoint, _currentPoint, _CURRENT_SUBDIV),
+                regionDistance += math.distance(BezierLerp(_prevPoint, _currentPoint, _CURRENT_SUBDIV),
                     BezierLerp(_prevPoint, _currentPoint, _NEXT_SOBDIV));
             }
 
             return regionDistance;
         }
 
-        public static Vector3 BezierLerp(BezierPoint _pointA, BezierPoint _pointB, float _progress)
+        public static float3 BezierLerp(BezierPoint _pointA, BezierPoint _pointB, float _progress)
         {
             // Round 1 --> Origins to handles, handle to handle
-            Vector3 l1_a_aOUT = Vector3.Lerp(_pointA.location, _pointA.handle_out, _progress);
-            Vector3 l2_bIN_b = Vector3.Lerp(_pointB.handle_in, _pointB.location, _progress);
-            Vector3 l3_aOUT_bIN = Vector3.Lerp(_pointA.handle_out, _pointB.handle_in, _progress);
+            var l1_a_aOUT = math.lerp(_pointA.location, _pointA.handle_out, _progress);
+            var l2_bIN_b = math.lerp(_pointB.handle_in, _pointB.location, _progress);
+            var l3_aOUT_bIN = math.lerp(_pointA.handle_out, _pointB.handle_in, _progress);
             // Round 2 
-            Vector3 l1_to_l3 = Vector3.Lerp(l1_a_aOUT, l3_aOUT_bIN, _progress);
-            Vector3 l3_to_l2 = Vector3.Lerp(l3_aOUT_bIN, l2_bIN_b, _progress);
+            var l1_to_l3 = math.lerp(l1_a_aOUT, l3_aOUT_bIN, _progress);
+            var l3_to_l2 = math.lerp(l3_aOUT_bIN, l2_bIN_b, _progress);
             // Final Round
-            Vector3 result = Vector3.Lerp(l1_to_l3, l3_to_l2, _progress);
+            var result = math.lerp(l1_to_l3, l3_to_l2, _progress);
 
             return result;
         }
@@ -71,17 +90,17 @@ namespace DOTS.Utility
         public static float3 Get_TangentAtPosition(float _position, float distance, NativeList<BezierPoint> points)
         {
             float3 normal = Get_NormalAtPosition(_position, distance, points);
-            return new Vector3(-normal.z, normal.y, normal.x);
+            return new float3(-normal.z, normal.y, normal.x);
         }
         
         public static float3 Get_NormalAtPosition(float _position, float distance, NativeList<BezierPoint> points)
         {
-            Vector3 _current = Get_Position(_position, distance, points);
-            Vector3 _ahead = Get_Position((_position + 0.0001f) % 1f, distance, points);
-            return (_ahead - _current) / Vector3.Distance(_ahead, _current);
+            var _current = Get_Position(_position, distance, points);
+            var _ahead = Get_Position((_position + 0.0001f) % 1f, distance, points);
+            return (_ahead - _current) / math.distance(_ahead, _current);
         }
         
-        public static Vector3 Get_Position(float _progress, float distance, NativeList<BezierPoint> points)
+        public static float3 Get_Position(float _progress, float distance, NativeList<BezierPoint> points)
         {
             float progressDistance = distance * _progress;
             int pointIndex_region_start = GetRegionIndex(progressDistance, points);

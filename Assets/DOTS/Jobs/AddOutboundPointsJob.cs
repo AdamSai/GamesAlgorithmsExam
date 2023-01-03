@@ -5,7 +5,9 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Rendering.UI;
 
 namespace DOTS.Jobs
 {
@@ -13,28 +15,34 @@ namespace DOTS.Jobs
     public partial struct AddOutboundPointsJob : IJobEntity
     {
         public NativeList<RailMarkerComponent> railMarkers;
+        public EntityCommandBuffer ECB;
+        
         private int totalOutboundPoints;
 
-        public void Execute(ref BezierPathComponent path, ref MetroLineComponent metroLine)
+        public void Execute(ref BezierPathComponent path, in MetroLineComponent metroLine)
         {
             var lineRailMarkers = new NativeList<RailMarkerComponent>(Allocator.Temp);
 
-            AddOutboundHandles(path, metroLine, lineRailMarkers);
+            // Sort the rail markers by PointIndex
+            railMarkers.Sort(new RailMarkerComparer());
+
+            // Add outbound handles
+            AddOutboundHandles(ref path, metroLine, lineRailMarkers);
             totalOutboundPoints = path.points.Length;
 
             // Fix outbound handles
-            var _POINTS = path.points;
-            FixOutboundHandles(ref _POINTS);
-            path.distance = BezierUtility.MeasurePath(path);
+            FixOutboundHandles(path.points);
+            path.distance = BezierUtility.MeasurePath(ref path);
             
             // Return points
-            var returnPoints = new NativeList<BezierPoint>(Allocator.Temp);
-            AddReturnPoints(path, returnPoints, _POINTS);
+            var returnStartIndex = path.points.Length; // Stores index of when return points start in the nativelist
+            AddReturnPoints(ref path);
             
             // Fix return handles
-            FixReturnHandles(returnPoints);
-            path.distance = BezierUtility.MeasurePath(path);
+            FixReturnHandles(ref path.points, returnStartIndex);
+            path.distance = BezierUtility.MeasurePath(ref path);
             
+            // TODO: Platforms
             // now that the rails have been laid - let's put the platforms on
             // int totalPoints = path.points.Length;
             // for (int i = 1; i < lineRailMarkers.Length; i++)
@@ -58,56 +66,27 @@ namespace DOTS.Jobs
             //         _oppositePlatform.PairWithOppositePlatform(_ouboundPlatform);
             //     }
             // }
-
-
             
+            // Now, let's lay the rail meshes
+
+            InstantiateRails(path, metroLine);
         }
 
-        private void FixReturnHandles(NativeList<BezierPoint> returnPoints)
-        {
-            for (int i = 0; i <= totalOutboundPoints - 1; i++)
-            {
-                BezierPoint _currentPoint = returnPoints[i];
-                if (i == 0)
-                {
-                    returnPoints[i] = returnPoints[i].SetHandles(returnPoints[1].location - _currentPoint.location);
-                }
-                else if (i == totalOutboundPoints - 1)
-                {
-                    returnPoints[i] = returnPoints[i].SetHandles(_currentPoint.location - returnPoints[i - 1].location);
-                }
-                else
-                {
-                    returnPoints[i] = returnPoints[i].SetHandles(returnPoints[i + 1].location - returnPoints[i - 1].location);
-                }
-            }
-        }
 
-        private void AddReturnPoints(BezierPathComponent path, NativeList<BezierPoint> returnPoints, NativeList<BezierPoint> _POINTS)
-        {
-            float platformOffset = Metro.BEZIER_PLATFORM_OFFSET;
-            for (int i = totalOutboundPoints - 1; i >= 0; i--)
-            {
-                float3 _targetLocation =
-                    BezierUtility.GetPoint_PerpendicularOffset(path.points[i], platformOffset, path.distance, path.points);
-                path.AddPoint(_targetLocation);
-                returnPoints.Add(_POINTS[_POINTS.Length - 1]);
-            }
-        }
 
-        private void AddOutboundHandles(BezierPathComponent path, MetroLineComponent metroLine, NativeList<RailMarkerComponent> lineRailMarkers)
+        private void AddOutboundHandles(ref BezierPathComponent path, MetroLineComponent metroLine, NativeList<RailMarkerComponent> lineRailMarkers)
         {
             for (var i = 0; i < railMarkers.Length; i++)
             {
                 if (railMarkers[i].MetroLineID == metroLine.MetroLineID)
                 {
-                    path.AddPoint(railMarkers[i].Position);
+                    BezierUtility.AddPoint(railMarkers[i].Position, ref path);
                     lineRailMarkers.Add(railMarkers[i]);
                 }
             }
         }
 
-        private void FixOutboundHandles(ref NativeList<BezierPoint> points)
+        private void FixOutboundHandles(NativeList<BezierPoint> points)
         {
             for (var i = 0; i <= totalOutboundPoints - 1; i++)
             {
@@ -127,6 +106,38 @@ namespace DOTS.Jobs
             }
         }
         
+                
+        private void AddReturnPoints(ref BezierPathComponent path)
+        {
+            // TODO: See BEZIER_PLATFORM_OFFSET from Metro.cs
+            float platformOffset = 8f;
+            for (int i = totalOutboundPoints - 1; i >= 0; i--)
+            {
+                float3 _targetLocation =
+                    BezierUtility.GetPoint_PerpendicularOffset(path.points[i], platformOffset, path.distance, path.points);
+                BezierUtility.AddPoint(_targetLocation, ref path);
+            }
+        }
+        
+        private void FixReturnHandles(ref NativeList<BezierPoint> returnPoints, int returnStartIndex)
+        {
+            for (int i = returnStartIndex; i < returnPoints.Length; i++)
+            {
+                if (i == returnStartIndex)
+                {
+                    returnPoints[i] = returnPoints[i].SetHandles(returnPoints[returnStartIndex].location - returnPoints[i].location);
+                }
+                else if (i == returnPoints.Length - 1)
+                {
+                    returnPoints[i] = returnPoints[i].SetHandles(returnPoints[i].location - returnPoints[i - 1].location);
+                }
+                else
+                {
+                    returnPoints[i] = returnPoints[i].SetHandles(returnPoints[i + 1].location - returnPoints[i - 1].location);
+                }
+            }
+        }
+        
         // Platform AddPlatform(int _index_platform_START, int _index_platform_END, BezierPathComponent path)
         // {
         //     BezierPoint _PT_START = path.points[_index_platform_START];
@@ -139,6 +150,40 @@ namespace DOTS.Jobs
         //     platforms.Add(platform);
         //     return platform;
         // }
+        
+        private void InstantiateRails(BezierPathComponent path, MetroLineComponent metroLine)
+        {
+            float _DIST = 0f;
+            while (_DIST < path.distance)
+            {
+                float _DIST_AS_RAIL_FACTOR = Get_distanceAsRailProportion(_DIST, path.distance);
+                float3 _RAIL_POS = Get_PositionOnRail(_DIST_AS_RAIL_FACTOR, path.distance, path.points);
+                float3 _RAIL_ROT = Get_RotationOnRail(_DIST_AS_RAIL_FACTOR, path.distance, path.points);
+               
+                var rail = ECB.Instantiate(metroLine.railPrefab);
+                var foo = LocalTransform.FromPosition(_RAIL_POS);
+                var foobar = Quaternion.LookRotation(foo.Position - (_RAIL_POS - _RAIL_ROT), Vector3.up);
+                foo.Rotation = foobar;
+                ECB.SetComponent(rail, foo);
+                
+                // TODO: See Metro.RAIL_SPACING
+                _DIST += 0.5f;
+            }
+        }
 
+        public float Get_distanceAsRailProportion(float _realDistance, float distance)
+        {
+            return _realDistance / distance;
+        }
+        
+        public Vector3 Get_PositionOnRail(float _pos, float distance, NativeList<BezierPoint> points)
+        {
+            return BezierUtility.Get_Position(_pos, distance, points);
+        }
+        
+        public Vector3 Get_RotationOnRail(float _pos, float distance, NativeList<BezierPoint> points)
+        {
+            return BezierUtility.Get_NormalAtPosition(_pos, distance, points);
+        }
     }
 }
