@@ -1,9 +1,7 @@
-using System.Linq;
 using DOTS.Components;
 using DOTS.Utility;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -33,12 +31,12 @@ public partial struct UpdateCarriagesSystem : ISystem
 
         var trains =
             trainQuery.ToEntityArray(Allocator.Persistent);
-        
-        
+
+
         var metroLines =
             metroLineQuery.ToEntityArray(Allocator.Persistent);
 
-        var carriageJob = new UpdateCarriageJob {trains = trains, ECB = ECB, metroLines = metroLines, EM = state.EntityManager};
+        var carriageJob = new UpdateCarriageJob { trains = trains, ECB = ECB, metroLines = metroLines, EM = state.EntityManager };
         carriageJob.Run();
 
         // var dependency = JobHandle.CombineDependencies(trainJobHandle, state.Dependency);
@@ -53,7 +51,7 @@ public partial struct UpdateCarriageJob : IJobEntity
     public EntityCommandBuffer ECB;
     public NativeArray<Entity> trains;
     public NativeArray<Entity> metroLines;
-    
+
     public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, ref CarriagePositionComponent carriagePos)
     {
         Entity trainEntity = default;
@@ -68,7 +66,7 @@ public partial struct UpdateCarriageJob : IJobEntity
                 break;
             }
         }
-        
+
         // Find the correct MetroLine
         for (var i = 0; i < metroLines.Length; i++)
         {
@@ -79,25 +77,32 @@ public partial struct UpdateCarriageJob : IJobEntity
             }
         }
 
-        
+
         // Set initial speed and position
         var pos = EM.GetComponentData<TrainPositionComponent>(trainEntity).value;
-        var speed = EM.GetComponentData<TrainSpeedComponent>(trainEntity).value;
-        
-        pos = ((pos += speed) % 1f);
-        speed *= 1; // TODO: See Train_railFriction on Metro.cs
-        
-        ECB.SetComponent(trainEntity, new TrainPositionComponent {value = pos});
-        ECB.SetComponent(trainEntity, new TrainSpeedComponent() {value = speed});
-        
-        
+        var Speed = EM.GetComponentData<TrainSpeedComponent>(trainEntity).speed;
+        var Friction = EM.GetComponentData<TrainSpeedComponent>(trainEntity).friction;
+
+        pos = ((pos += Speed) % 1f);
+        Speed *= Friction; // TODO: See Train_railFriction on Metro.cs
+
+        ECB.SetComponent(trainEntity, new TrainPositionComponent { value = pos });
+        ECB.SetComponent(trainEntity, new TrainSpeedComponent()
+        {
+            friction = Friction,
+            speed = Speed
+        });
+
+        Debug.Log("Speed: " + Speed);
+        Debug.Log("Friction : " + Friction);
+
         // UpdateCarriages
         // Update position on the bezier
         carriagePos.value = pos;
         var bezier = EM.GetComponentData<BezierPathComponent>(metroLine);
         var posOnRail = BezierUtility.Get_Position(pos, bezier.distance, bezier.points);
         var rotOnRail = BezierUtility.Get_NormalAtPosition(pos, bezier.distance, bezier.points);
-        
+
         // Set rotation and position
         var transform = LocalTransform.FromPosition(posOnRail);
         var rot = Quaternion.LookRotation(transform.Position - rotOnRail, Vector3.up);

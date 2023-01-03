@@ -4,6 +4,7 @@ namespace DOTS.Components
 {
     public struct TrainSpeedComponent : IComponentData
     {
-        public float value;
+        public float speed;
+        public float friction;
     }
 }

@@ -85,7 +85,8 @@ public partial struct SetupTrainsJob : IJobEntity
 
             ECB.SetComponent(train, new TrainSpeedComponent
             {
-                value = MLTDC.maxTrainSpeed
+                speed = MLTDC.maxTrainSpeed,
+                friction = MLTDC.friction
 
             });
 

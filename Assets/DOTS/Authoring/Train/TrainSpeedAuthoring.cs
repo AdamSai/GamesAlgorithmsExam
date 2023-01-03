@@ -8,7 +8,8 @@ namespace DOTS.Authoring
 
     public class TrainSpeedAuthoring : MonoBehaviour
     {
-        public float Value;
+        public float Speed;
+        public float Friction;
     }
     public class TrainSpeedBaker : Baker<TrainSpeedAuthoring>
     {
@@ -16,7 +17,8 @@ namespace DOTS.Authoring
         {
             AddComponent(new TrainSpeedComponent
             {
-                value = authoring.Value
+                speed = authoring.Speed,
+                friction = authoring.Friction
             });
         }
     }
