@@ -60,7 +60,7 @@ public partial struct SetupTrainsSystem : ISystem
 public partial struct SetupTrainsJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
-    public void Execute(MetroLineTrainDataComponent MLTDC, MetroLineComponent MLA)
+    public void Execute(MetroLineTrainDataComponent MLTDC, in MetroLineComponent MLA)
     {
         float trainSpacing = 1 / MLTDC.maxTrains;
 
@@ -100,7 +100,7 @@ public partial struct SetupTrainsJob : IJobEntity
 public partial struct SetupCarriagesJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
-    public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, MetroLineComponent MLID)
+    public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, in MetroLineComponent MLID)
     {
         for (int i = 0; i < MLTrain.maxTrains; i++)
         {

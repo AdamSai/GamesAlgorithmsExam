@@ -9,7 +9,7 @@ namespace DOTS.Authoring
     {
         // [Range(0f, 1f)]
         // public float BezierHandleReach = 0.15f;
-        public int MetroLineID;
+        public byte MetroLineID;
         public GameObject RailPrefab;
     }
 
