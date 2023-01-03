@@ -1,4 +1,5 @@
 
+using DOTS.Components;
 using Unity.Entities;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace DOTS.Authoring
             {
 
             });
+            AddComponent(new TrainPositionComponent());
         }
     }
 }

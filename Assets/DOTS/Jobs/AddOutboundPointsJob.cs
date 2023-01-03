@@ -161,10 +161,10 @@ namespace DOTS.Jobs
                 float3 _RAIL_ROT = Get_RotationOnRail(_DIST_AS_RAIL_FACTOR, path.distance, path.points);
                
                 var rail = ECB.Instantiate(metroLine.railPrefab);
-                var foo = LocalTransform.FromPosition(_RAIL_POS);
-                var foobar = Quaternion.LookRotation(foo.Position - (_RAIL_POS - _RAIL_ROT), Vector3.up);
-                foo.Rotation = foobar;
-                ECB.SetComponent(rail, foo);
+                var transform = LocalTransform.FromPosition(_RAIL_POS);
+                var rot = Quaternion.LookRotation(transform.Position - (_RAIL_POS - _RAIL_ROT), Vector3.up);
+                transform.Rotation = rot;
+                ECB.SetComponent(rail, transform);
                 
                 // TODO: See Metro.RAIL_SPACING
                 _DIST += 0.5f;

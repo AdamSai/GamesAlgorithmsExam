@@ -1,11 +1,26 @@
+using System.Linq;
 using DOTS.Components;
+using DOTS.Utility;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
+using Unity.Transforms;
+using UnityEngine;
 
+// Run the system after  SetupTrainsSystem
+[UpdateAfter(typeof(SetupTrainsSystem))]
 public partial struct UpdateCarriagesSystem : ISystem
 {
+    private EntityQuery trainQuery;
+    private EntityQuery metroLineQuery;
+    private EntityCommandBuffer ECB;
+
     public void OnCreate(ref SystemState state)
     {
+        trainQuery =
+            new EntityQueryBuilder(Allocator.Temp).WithAll<TrainPositionComponent, TrainIDComponent, TrainSpeedComponent>().Build(ref state);
+        metroLineQuery =
+            new EntityQueryBuilder(Allocator.Temp).WithAll<BezierPathComponent, MetroLineComponent>().Build(ref state);
     }
 
     public void OnDestroy(ref SystemState state)
@@ -14,23 +29,76 @@ public partial struct UpdateCarriagesSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        //Loop all trains
-        //Update all carriages of each train
+        ECB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
 
-        //Add all Carriages To array
-        var trainArray = new EntityQueryBuilder(Allocator.Temp)
-        .WithAny<TrainIDComponent>().Build(ref state).ToEntityArray(Allocator.Temp);
+        var trains =
+            trainQuery.ToEntityArray(Allocator.Persistent);
+        
+        
+        var metroLines =
+            metroLineQuery.ToEntityArray(Allocator.Persistent);
 
-        for (int i = 0; i < trainArray.Length; i++)
+        var carriageJob = new UpdateCarriageJob {trains = trains, ECB = ECB, metroLines = metroLines, EM = state.EntityManager};
+        carriageJob.Run();
+
+        // var dependency = JobHandle.CombineDependencies(trainJobHandle, state.Dependency);
+        // state.Dependency = new UpdateCarriageJob {trains = trains}.Schedule(dependency);
+    }
+}
+
+
+public partial struct UpdateCarriageJob : IJobEntity
+{
+    public EntityManager EM;
+    public EntityCommandBuffer ECB;
+    public NativeArray<Entity> trains;
+    public NativeArray<Entity> metroLines;
+    
+    public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, CarriagePositionComponent carriagePos)
+    {
+        Entity trainEntity = default;
+        Entity metroLine = default;
+
+        for (var i = 0; i < trains.Length; i++)
         {
-            //Add all carriages To array, only loop 
-            var carriageArray = new EntityQueryBuilder(Allocator.Temp)
-            .WithAny<CarriageIDComponent>().Build(ref state).ToEntityArray(Allocator.Temp);
-
-            for (int j = 0; j < carriageArray.Length; j++)
+            if (EM.GetComponentData<TrainIDComponent>(trains[i]).LineIndex == carriageIDComponent.lineIndex)
             {
-
+                trainEntity = trains[i];
+                break;
             }
         }
+        
+        for (var i = 0; i < metroLines.Length; i++)
+        {
+            if (EM.GetComponentData<MetroLineComponent>(metroLines[i]).MetroLineID == carriageIDComponent.lineIndex)
+            {
+                metroLine = metroLines[i];
+                break;
+            }
+        }
+
+        
+
+        var pos = EM.GetComponentData<TrainPositionComponent>(trainEntity).value;
+        var speed = EM.GetComponentData<TrainSpeedComponent>(trainEntity).value;
+        // TODO: State machine shiesh
+        
+        pos = ((pos += speed) % 1f);
+        speed *= 1; // TODO: See Train_railFriction on Metro.cs
+        
+        ECB.SetComponent(trainEntity, new TrainPositionComponent {value = pos});
+        ECB.SetComponent(trainEntity, new TrainSpeedComponent() {value = speed});
+        
+        
+        // UpdateCarriages
+        carriagePos.value = pos;
+        var bezier = EM.GetComponentData<BezierPathComponent>(metroLine);
+        var posOnRail = BezierUtility.Get_Position(pos, bezier.distance, bezier.points);
+        var rotOnRail = BezierUtility.Get_NormalAtPosition(pos, bezier.distance, bezier.points);
+        
+        var transform = LocalTransform.FromPosition(posOnRail);
+        var rot = Quaternion.LookRotation(transform.Position - rotOnRail, Vector3.up);
+        transform.Rotation = rot;
+        ECB.SetComponent(ent, transform);
     }
 }
