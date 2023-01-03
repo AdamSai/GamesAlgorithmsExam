@@ -2,16 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
-public enum CommuterComponentState
-{
-    WALK,
-    QUEUE,
-    GET_ON_TRAIN,
-    GET_OFF_TRAIN,
-    WAIT_FOR_STOP,
-}
+//public enum CommuterComponentState
+//{
+//    WALK,
+//    QUEUE,
+//    GET_ON_TRAIN,
+//    GET_OFF_TRAIN,
+//    WAIT_FOR_STOP,
+//}
 
 public struct CommuterComponentTask
 {
@@ -30,7 +31,7 @@ public struct CommuterComponentTask
 
 public struct CommuterComponent : IComponentData
 {
-    public NativeArray<Vector3> destinations;
-    public NativeArray<CommuterComponentTask> tasks;
-    public int destinationIndex;
+    public NativeList<CommuterComponentTask> tasks;
+    public Entity currentCarriage;
+    public Entity currentPlatform;
 }
