@@ -54,11 +54,12 @@ public partial struct UpdateCarriageJob : IJobEntity
     public NativeArray<Entity> trains;
     public NativeArray<Entity> metroLines;
     
-    public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, CarriagePositionComponent carriagePos)
+    public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, ref CarriagePositionComponent carriagePos)
     {
         Entity trainEntity = default;
         Entity metroLine = default;
 
+        // Find the correct Train
         for (var i = 0; i < trains.Length; i++)
         {
             if (EM.GetComponentData<TrainIDComponent>(trains[i]).LineIndex == carriageIDComponent.lineIndex)
@@ -68,6 +69,7 @@ public partial struct UpdateCarriageJob : IJobEntity
             }
         }
         
+        // Find the correct MetroLine
         for (var i = 0; i < metroLines.Length; i++)
         {
             if (EM.GetComponentData<MetroLineComponent>(metroLines[i]).MetroLineID == carriageIDComponent.lineIndex)
@@ -78,10 +80,9 @@ public partial struct UpdateCarriageJob : IJobEntity
         }
 
         
-
+        // Set initial speed and position
         var pos = EM.GetComponentData<TrainPositionComponent>(trainEntity).value;
         var speed = EM.GetComponentData<TrainSpeedComponent>(trainEntity).value;
-        // TODO: State machine shiesh
         
         pos = ((pos += speed) % 1f);
         speed *= 1; // TODO: See Train_railFriction on Metro.cs
@@ -91,11 +92,13 @@ public partial struct UpdateCarriageJob : IJobEntity
         
         
         // UpdateCarriages
+        // Update position on the bezier
         carriagePos.value = pos;
         var bezier = EM.GetComponentData<BezierPathComponent>(metroLine);
         var posOnRail = BezierUtility.Get_Position(pos, bezier.distance, bezier.points);
         var rotOnRail = BezierUtility.Get_NormalAtPosition(pos, bezier.distance, bezier.points);
         
+        // Set rotation and position
         var transform = LocalTransform.FromPosition(posOnRail);
         var rot = Quaternion.LookRotation(transform.Position - rotOnRail, Vector3.up);
         transform.Rotation = rot;
