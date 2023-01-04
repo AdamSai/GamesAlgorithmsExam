@@ -2078,6 +2078,7 @@ GameObject:
   - component: {fileID: 333389900}
   - component: {fileID: 4992691071569115}
   - component: {fileID: 4992691071569116}
+  - component: {fileID: 4992691071569117}
   m_Layer: 0
   m_Name: Green
   m_TagString: Untagged
@@ -2148,6 +2149,7 @@ GameObject:
   - component: {fileID: 333389901}
   - component: {fileID: 4879169046002037}
   - component: {fileID: 4879169046002038}
+  - component: {fileID: 4879169046002039}
   m_Layer: 0
   m_Name: Red
   m_TagString: Untagged
@@ -2660,6 +2662,7 @@ GameObject:
   - component: {fileID: 333389898}
   - component: {fileID: 4104866588883543}
   - component: {fileID: 4104866588883544}
+  - component: {fileID: 4104866588883545}
   m_Layer: 0
   m_Name: Blue
   m_TagString: Untagged
@@ -2866,6 +2869,7 @@ GameObject:
   - component: {fileID: 333389899}
   - component: {fileID: 4846937050293211}
   - component: {fileID: 4846937050293212}
+  - component: {fileID: 4846937050293213}
   m_Layer: 0
   m_Name: Yellow
   m_TagString: Untagged
@@ -3078,7 +3082,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxTrains: 4
   MaxTrainSpeed: 0.001
-  Friction: 0.99
+  Friction: 1
   TrainPrefab: {fileID: 1741807958892527987, guid: 56fc8c8d675ca8641b7bd6fb776af510,
     type: 3}
 --- !u!114 &4104866588883544
@@ -3094,9 +3098,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Carriages: 4
-  CarriagesSpeed: 0.002
+  CarriagesSpeed: 0.001
   Carriage: {fileID: 5593063280175603151, guid: c25f4b2e7f379444c98c3e0a8687d8c9,
     type: 3}
+--- !u!114 &4104866588883545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802617898791844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cb7016d479f80c48b75e95c8350cf68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &4137274543797552
 Transform:
   m_ObjectHideFlags: 0
@@ -4113,9 +4129,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Carriages: 4
-  CarriagesSpeed: 0.002
+  CarriagesSpeed: 0.001
   Carriage: {fileID: 5593063280175603151, guid: c25f4b2e7f379444c98c3e0a8687d8c9,
     type: 3}
+--- !u!114 &4846937050293213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1930845318277514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cb7016d479f80c48b75e95c8350cf68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &4847493070054696
 Transform:
   m_ObjectHideFlags: 0
@@ -4245,10 +4273,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e91d144606723c4fae54b65b2b437a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Carriages: 5
-  CarriagesSpeed: 0.0001
+  Carriages: 4
+  CarriagesSpeed: 0.001
   Carriage: {fileID: 5593063280175603151, guid: c25f4b2e7f379444c98c3e0a8687d8c9,
     type: 3}
+--- !u!114 &4879169046002039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1422488439485158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cb7016d479f80c48b75e95c8350cf68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &4879591104272368
 Transform:
   m_ObjectHideFlags: 0
@@ -4508,10 +4548,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e91d144606723c4fae54b65b2b437a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Carriages: 5
-  CarriagesSpeed: 0.002
+  Carriages: 4
+  CarriagesSpeed: 0.001
   Carriage: {fileID: 5593063280175603151, guid: c25f4b2e7f379444c98c3e0a8687d8c9,
     type: 3}
+--- !u!114 &4992691071569117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1392208982123488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cb7016d479f80c48b75e95c8350cf68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &4992732780084182
 Transform:
   m_ObjectHideFlags: 0
