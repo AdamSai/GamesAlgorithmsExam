@@ -5,13 +5,13 @@ using UnityEngine;
 namespace DOTS.Authoring
 {
 
-    public class CarriageAuthoring : MonoBehaviour
+    public class CarriageTagAuthoring : MonoBehaviour
     {
     }
 
-    public class CarriageBaker : Baker<CarriageAuthoring>
+    public class CarriageTagBaker : Baker<CarriageTagAuthoring>
     {
-        public override void Bake(CarriageAuthoring authoring)
+        public override void Bake(CarriageTagAuthoring authoring)
         {
             AddComponent(new CarriageTag { });
         }

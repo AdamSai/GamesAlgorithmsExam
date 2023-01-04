@@ -1,8 +1,5 @@
 using DOTS.Components;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Rendering;
 
 public enum TrainStateDOTS
 {
@@ -44,17 +41,6 @@ public partial struct SetupTrainsSystem : ISystem
 
         SetupCarriagesJob.Run();
 
-        var entityArray = new EntityQueryBuilder(Allocator.Temp)
-        .WithAny<CarriageColorTag>().Build(ref state).ToEntityArray(Allocator.Temp);
-
-        UnityEngine.Debug.Log("Entity Array size: " + entityArray.Length);
-
-
-        for (int i = 0; i < entityArray.Length; i++)
-        {
-            ecb.AddComponent(entityArray[i], new URPMaterialPropertyBaseColor { Value = new float4(0, 0, 1, 1) });
-            UnityEngine.Debug.Log("Added Color to: " + entityArray[i].ToString());
-        }
         state.Enabled = false;
     }
 }
@@ -105,7 +91,7 @@ public partial struct SetupCarriagesJob : IJobEntity
     public EntityCommandBuffer ECB;
     public EntityManager EM;
 
-    public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, in MetroLineComponent MLID)
+    public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, in MetroLineComponent MLID, ColorComponent color)
     {
         for (int i = 0; i < MLTrain.maxTrains; i++)
         {
@@ -119,6 +105,11 @@ public partial struct SetupCarriagesJob : IJobEntity
                     id = j,
                     trainIndex = i,
                     lineIndex = MLID.MetroLineID
+                });
+
+                ECB.SetComponent(carriage, new ColorComponent
+                {
+                    value = color.value
                 });
 
                 //var children = EM.GetBuffer<LinkedEntityGroup>(carriage);
