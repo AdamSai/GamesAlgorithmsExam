@@ -13,4 +13,9 @@ public struct PlatformComponent : IComponentData
     public float3 platform_entrance1; // Top of the stairs, middle point: commuters walk here
     public float3 platform_entrance0; // Entrance to the platform from the outside: commuters walk here
     public float3 carriage_entrance; // Entrance to the platform from the carriages
+    public DOTS.BezierPoint point_platform_START; // Start of the platform on the bezier
+    public DOTS.BezierPoint point_platform_END; // End of the platform on the bezier
+    public byte carriageCount; // Number of carriages
+    public int platformIndex; // Number of carriages
+    
 }

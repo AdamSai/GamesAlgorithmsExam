@@ -8,7 +8,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 // Run the system after  SetupTrainsSystem
-[UpdateAfter(typeof(SetupTrainsSystem))]
+[UpdateAfter(typeof(SetupRailSystem))]
 public partial struct UpdateCarriagesSystem : ISystem
 {
     private EntityQuery trainQuery;

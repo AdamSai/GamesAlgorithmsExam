@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
+using UnityEngine;
 
 public enum TrainStateDOTS
 {
@@ -15,6 +16,7 @@ public enum TrainStateDOTS
     DEPARTING,
     EMERGENCY_STOP
 }
+[UpdateAfter(typeof(SetupRailSystem))]
 public partial struct SetupTrainsSystem : ISystem
 {
     EntityCommandBuffer ecb;
@@ -28,31 +30,7 @@ public partial struct SetupTrainsSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
-
-        var SetupTrainsJob = new SetupTrainsJob
-        {
-            ECB = ecb
-        };
-        SetupTrainsJob.Run();
-
-        var SetupCarriagesJob = new SetupCarriagesJob
-        {
-            ECB = ecb
-        };
-
-        SetupCarriagesJob.Run();
-
-        var entityArray = new EntityQueryBuilder(Allocator.Temp)
-        .WithAny<CarriageColorTag>().Build(ref state).ToEntityArray(Allocator.Temp);
-
-        UnityEngine.Debug.Log("Entity Array size: " + entityArray.Length);
-
-        for (int i = 0; i < entityArray.Length; i++)
-        {
-            ecb.AddComponent(entityArray[i], new URPMaterialPropertyBaseColor { Value = new float4(0, 0, 1, 1) });
-            UnityEngine.Debug.Log("Added Color to: " + entityArray[i].ToString());
-        }
+      
         state.Enabled = false;
     }
 }
@@ -60,8 +38,9 @@ public partial struct SetupTrainsSystem : ISystem
 public partial struct SetupTrainsJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
-    public void Execute(MetroLineTrainDataComponent MLTDC, in MetroLineComponent MLA)
+    public void Execute(MetroLineTrainDataComponent MLTDC, MetroLineComponent MLA)
     {
+        Debug.Log("Setup trains");
         float trainSpacing = 1 / MLTDC.maxTrains;
 
         for (byte i = 0; i < MLTDC.maxTrains; i++)
@@ -100,8 +79,9 @@ public partial struct SetupTrainsJob : IJobEntity
 public partial struct SetupCarriagesJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
-    public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, in MetroLineComponent MLID)
+    public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, MetroLineComponent MLID)
     {
+        Debug.Log("Setup carriages");
         for (int i = 0; i < MLTrain.maxTrains; i++)
         {
             for (int j = 0; j < MLCarriage.carriages; j++)
