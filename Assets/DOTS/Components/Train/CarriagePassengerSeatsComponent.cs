@@ -7,6 +7,7 @@ namespace Assets.DOTS.Components.Train
 {
     public struct CarriagePassengerSeatsComponent : IComponentData
     {
+        public bool init;
         public NativeList<Entity> seats;
     }
 }

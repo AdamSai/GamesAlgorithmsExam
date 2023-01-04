@@ -21,8 +21,11 @@ namespace Assets.DOTS.Authoring.Train
         {
             AddComponent(new CarriagePassengerSeatsComponent
             {
-                seats = new NativeList<Entity>(Allocator.Persistent)
+                seats = new NativeList<Entity>(Allocator.Persistent),
+                init = false
             });
+
+            //SystemAPI.enti
         }
     }
 }

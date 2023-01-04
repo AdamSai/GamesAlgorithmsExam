@@ -9,32 +9,7 @@ using UnityEngine;
 
 namespace DOTS.Jobs
 {
-    public partial struct CommuterMovementJob : IJobEntity
-    {
-        public void Execute(in LocalToWorld localToWorld, in CommuterComponent commuter, ref WalkComponent walk)
-        {
-            if (walk.destinations.IsEmpty)
-                return;
-            
-            if (DOT(walk.velocity, walk.destinations[walk.destinations.Length - 1] - localToWorld.Position) < 0)
-            {
-                // Reached intermediate destination
-                walk.destinations.RemoveAt(walk.destinations.Length - 1);
-                walk.velocity = new float3(0f, 0f, 0f);
-            }
-            else
-            {
-                // Didn't reach intermediate destination, instead change velocity
-                walk.velocity =
-                    math.normalize(walk.destinations[walk.destinations.Length - 1] - localToWorld.Position) * walk.speed;
-            }
-        }
 
-        public static float DOT(float3 a, float3 b)
-        {
-            return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-        }
-    }
 }
 
 /*

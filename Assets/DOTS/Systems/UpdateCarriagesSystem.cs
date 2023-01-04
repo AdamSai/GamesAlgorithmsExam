@@ -93,9 +93,6 @@ public partial struct UpdateCarriageJob : IJobEntity
             speed = Speed
         });
 
-        Debug.Log("Speed: " + Speed);
-        Debug.Log("Friction : " + Friction);
-
         // UpdateCarriages
         // Update position on the bezier
         carriagePos.value = pos;
