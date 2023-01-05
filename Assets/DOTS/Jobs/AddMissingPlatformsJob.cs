@@ -49,21 +49,27 @@ namespace DOTS.Jobs
                 }
             }
             Debug.Log("Counter: " + counter);
+            Debug.Log("Counter1: " + count1);
+            Debug.Log("Counter2: " + count2);
         }
-        
-        public void Add_AdjacentPlatform(Entity invokerEntity, Entity entityToAdd)
+
+        private int count1;
+        private int count2;
+        public void Add_AdjacentPlatform(Entity invokerEntity, Entity _platform)
         {
             Debug.Log("Add adjacent");
             // Add the platform
-            AddAdjacentIfNotPresent(invokerEntity, entityToAdd);
+            AddAdjacentIfNotPresent(invokerEntity, _platform);
             // Add the opposite platform
-            var platformToAdd = platformLookUp.GetRefRO(entityToAdd).ValueRO;
+            var platformToAdd = platformLookUp.GetRefRO(_platform).ValueRO;
             var oppositePlatformEntity = platformToAdd.oppositePlatform;
             AddAdjacentIfNotPresent(invokerEntity, oppositePlatformEntity);
-            
+            var oppositePlatform = platformLookUp.GetRefRO(oppositePlatformEntity).ValueRO;
+
             // Loop and find adjacent platforms
             foreach (var _ADJ in platformToAdd.neighborPlatforms)
             {
+                count1++;
                 // Add the adjacent platform
                 AddAdjacentIfNotPresent(invokerEntity, _ADJ);
                 // Add the original to the adjacent platform
@@ -73,10 +79,10 @@ namespace DOTS.Jobs
                 AddAdjacentIfNotPresent(_ADJ, invokerPlatform.oppositePlatform);
             }
             
-            var oppositePlatform = platformLookUp.GetRefRO(oppositePlatformEntity).ValueRO;
             // Do the same but for the opposites neighbouring platforms
             foreach (var _ADJ in oppositePlatform.neighborPlatforms)
             {
+                count2++;
                 // Add the adjacent platform
                 AddAdjacentIfNotPresent(invokerEntity, _ADJ);
                 // Add the original to the adjacent platform
@@ -87,15 +93,15 @@ namespace DOTS.Jobs
             }
         }
 
-        public void AddAdjacentIfNotPresent(Entity original, Entity entityToAdd)
+        public void AddAdjacentIfNotPresent(Entity original, Entity _platform)
         {
-            var originalPlatform = platformLookUp.GetRefRW(original, false).ValueRW;
             counter++;
 
-            if (!originalPlatform.neighborPlatforms.Contains(entityToAdd) && !entityToAdd.Equals(original))
+            var originalPlatform = platformLookUp.GetRefRW(original, false).ValueRW;
+            if (!originalPlatform.neighborPlatforms.Contains(_platform) && _platform.Index != original.Index)
             {
                 Debug.Log("Adding adjacent platform");
-                originalPlatform.neighborPlatforms.Add(entityToAdd);
+                originalPlatform.neighborPlatforms.Add(_platform);
             }
         }
         
