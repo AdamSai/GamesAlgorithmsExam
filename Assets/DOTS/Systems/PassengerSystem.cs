@@ -20,7 +20,7 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
-            var transformLookup = state.GetComponentLookup<LocalToWorld>(true);
+            var transformLookup = state.GetComponentLookup<LocalToWorld>();
 
             var job = new PassengerJob { worldTransforms = transformLookup };
 

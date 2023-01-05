@@ -83,6 +83,8 @@ public partial struct UpdateCarriageJob : IJobEntity
         var Speed = EM.GetComponentData<TrainSpeedComponent>(trainEntity).speed;
         var Friction = EM.GetComponentData<TrainSpeedComponent>(trainEntity).friction;
 
+
+
         pos = ((pos += Speed) % 1f);
         Speed *= Friction; // TODO: See Train_railFriction on Metro.cs
 

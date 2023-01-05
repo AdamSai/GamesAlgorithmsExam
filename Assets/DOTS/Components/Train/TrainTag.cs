@@ -2,7 +2,7 @@ using Unity.Entities;
 
 namespace DOTS.Components
 {
-    public struct CarriageColorTag : IComponentData
+    public struct TrainTag : IComponentData
     {
     }
 }

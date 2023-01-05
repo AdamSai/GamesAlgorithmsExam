@@ -20,6 +20,24 @@ public partial struct UpdateTrainsSystem : ISystem
     }
 }
 
+//[WithAll(typeof(TrainTag))]
+//public partial struct UpdateTrainCarriagesJob : IJobEntity
+//{
+//    public void Execute(Entity ent, )
+//    {
+//        //Get MetroLine entity
+//        //for (var i = 0; i < metroLines.Length; i++)
+//        //{
+//        //    if (EM.GetComponentData<MetroLineComponent>(metroLines[i]).MetroLineID == carriageIDComponent.lineIndex)
+//        //    {
+//        //        metroLine = metroLines[i];
+//        //        break;
+//        //    }
+//        //}
+//        //Update Each Train
+//        //Get All Carriages From that Train
+//    }
+//}
 public partial struct UpdateTrainStatesJob : IJobEntity
 {
     public void Execute(TrainStateComponent TSC)
@@ -105,10 +123,10 @@ public partial struct UpdateTrainStatesJob : IJobEntity
 }
 
 
-public partial struct UpdateCarriagesJob : IJobEntity
-{
-    public void Execute()
-    {
-        //Update Position and look at
-    }
-}
+//public partial struct UpdateCarriagesJob : IJobEntity
+//{
+//    public void Execute()
+//    {
+//        //Update Position and look at
+//    }
+//}
