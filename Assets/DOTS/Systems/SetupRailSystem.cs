@@ -1,11 +1,8 @@
 using DOTS.Components;
 using DOTS.Jobs;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 
 // [BurstCompile]
@@ -50,14 +47,14 @@ public partial struct SetupRailSystem : ISystem
         var dependency0 = JobHandle.CombineDependencies(railMarkerJobHandle, state.Dependency);
         // var dependency = JobHandle.CombineDependencies(railMarkerJobHandle, state.Dependency);
         var outboundsJob = new AddOutboundPointsJob()
-            {
-                railMarkers = railMarkers,
-                ECB = ecb,
-                // lineRailMarkers = linerRailMarkers
-            }
+        {
+            railMarkers = railMarkers,
+            ECB = ecb,
+            // lineRailMarkers = linerRailMarkers
+        }
             .Schedule(dependency0);
         outboundsJob.Complete();
-        ecb.Playback(state.EntityManager);
+        //ecb.Playback(state.EntityManager);
 
         var platforms =
             platformQuery.ToEntityListAsync(Allocator.Persistent, out var platformJobHandle);
@@ -77,7 +74,7 @@ public partial struct SetupRailSystem : ISystem
         // state.Dependency.Complete();
         var dependency3 = JobHandle.CombineDependencies(addMissingPlatformsJob, state.Dependency);
         platform2ComponentLookup.Update(ref state);
-        state.Dependency = new FooJob {platforms = platform2ComponentLookup}.Schedule(dependency3);
+        state.Dependency = new FooJob { platforms = platform2ComponentLookup }.Schedule(dependency3);
 
         #endregion
 
