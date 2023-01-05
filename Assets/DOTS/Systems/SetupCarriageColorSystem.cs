@@ -68,7 +68,7 @@ public partial struct SetupCarriageColorSystem : ISystem
         //state.Enabled = false;
     }
 
-    [WithAll(typeof(CarriageTag))]
+    [WithAny(typeof(CarriageTag), (typeof(PlatformTag)))]
     public partial struct SetupCarriagesColorJob : IJobEntity
     {
         public EntityManager EM;
