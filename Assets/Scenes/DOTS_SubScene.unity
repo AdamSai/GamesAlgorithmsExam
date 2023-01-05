@@ -3247,8 +3247,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value:
-    x: 0
-    y: 0
+    x: 0.1372
+    y: 0.717647
     z: 1
     w: 1
 --- !u!4 &4137274543797552
@@ -4296,8 +4296,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Value:
     x: 1
-    y: 1
-    z: 0
+    y: 0.729
+    z: 0.1764
     w: 1
 --- !u!4 &4847493070054696
 Transform:
@@ -4458,8 +4458,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Value:
     x: 1
-    y: 0
-    z: 0
+    y: 0.1843
+    z: 0.1843
     w: 1
 --- !u!4 &4879591104272368
 Transform:
@@ -4749,9 +4749,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value:
-    x: 0
+    x: 0.1254
     y: 1
-    z: 0
+    z: 0.51372
     w: 1
 --- !u!4 &4992732780084182
 Transform:

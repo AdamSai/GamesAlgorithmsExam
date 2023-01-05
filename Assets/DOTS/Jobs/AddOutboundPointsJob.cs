@@ -16,7 +16,7 @@ namespace DOTS.Jobs
 
         private int totalOutboundPoints;
 
-        public void Execute(ref BezierPathComponent path, ref MetroLineComponent metroLine, in MetroLineCarriageDataComponent metroLineCarriageData, in MetroLineTrainDataComponent trainData)
+        public void Execute(ref BezierPathComponent path, ref MetroLineComponent metroLine, in MetroLineCarriageDataComponent metroLineCarriageData, in MetroLineTrainDataComponent trainData, in ColorComponent color)
         {
             var lineRailMarkers = new NativeList<RailMarkerComponent>(Allocator.Temp);
             var platforms = new NativeList<PlatformComponent>(Allocator.Temp);
@@ -52,11 +52,11 @@ namespace DOTS.Jobs
                 if (lineRailMarkers[_plat_END].RailMarkerType == RailMarkerTypes.PLATFORM_END &&
                     lineRailMarkers[_plat_START].RailMarkerType == RailMarkerTypes.PLATFORM_START)
                 {
-                    var _outboundPlatform = AddPlatform(_plat_START, _plat_END, path, metroLine, metroLineCarriageData, platforms, platformEntities);
+                    var _outboundPlatform = AddPlatform(_plat_START, _plat_END, path, metroLine, metroLineCarriageData, platforms, platformEntities, color);
                     // now add an opposite platform!
                     int opposite_START = totalPoints - (i + 1);
                     int opposite_END = totalPoints - i;
-                    var _oppositePlatform = AddPlatform(opposite_START, opposite_END, path, metroLine, metroLineCarriageData, platforms, platformEntities);
+                    var _oppositePlatform = AddPlatform(opposite_START, opposite_END, path, metroLine, metroLineCarriageData, platforms, platformEntities, color);
 
                     ECB.SetComponent(_outboundPlatform.entity, new OppositePlatformComponent
                     {
@@ -89,7 +89,7 @@ namespace DOTS.Jobs
             InstantiateRails(path, metroLine);
         }
 
-        private EntityWithRotation AddPlatform(int platStart, int platEnd, BezierPathComponent path, MetroLineComponent metroLine, MetroLineCarriageDataComponent metroLineCarriageData, NativeList<PlatformComponent> platforms, NativeList<Entity> platformEntities)
+        private EntityWithRotation AddPlatform(int platStart, int platEnd, BezierPathComponent path, MetroLineComponent metroLine, MetroLineCarriageDataComponent metroLineCarriageData, NativeList<PlatformComponent> platforms, NativeList<Entity> platformEntities, ColorComponent color)
         {
             var _PT_START = path.points[platStart];
             var _PT_END = path.points[platEnd];
@@ -110,6 +110,11 @@ namespace DOTS.Jobs
                 parentMetroName = metroLine.metroLineName
             };
             platforms.Add(platformComponent);
+
+            ECB.SetComponent(plat, new ColorComponent
+            {
+                value = color.value
+            });
             // ECB.SetComponent(plat, platformComponent);
             // TODO: setup color, queues, walkways, neighborPlatforms
 
