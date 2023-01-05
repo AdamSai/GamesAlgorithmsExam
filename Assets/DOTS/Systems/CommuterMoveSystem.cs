@@ -27,8 +27,6 @@ namespace Assets.DOTS.Systems
 
             state.Dependency = job.Schedule(state.Dependency);
 
-            Debug.Log("OnUpdate for commuter move system.");
-
             state.Dependency.Complete();
         }
 
@@ -58,8 +56,6 @@ namespace Assets.DOTS.Systems
 
                 // Update transform
                 transform.Position = newPos;
-
-                Debug.Log("Newpos: " + newPos);
             }
 
             public static float DOT(float3 a, float3 b)
