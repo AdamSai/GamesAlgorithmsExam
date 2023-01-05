@@ -12,6 +12,7 @@ namespace DOTS.Authoring
         public byte MetroLineID;
         public GameObject RailPrefab;
         public GameObject PlatformPrefab;
+        public char metroName;
     }
 
 
@@ -23,7 +24,8 @@ namespace DOTS.Authoring
             {
                 MetroLineID = authoring.MetroLineID,
                 railPrefab = GetEntity(authoring.RailPrefab),
-                platformPrefab = GetEntity(authoring.PlatformPrefab)
+                platformPrefab = GetEntity(authoring.PlatformPrefab),
+                metroLineName = authoring.metroName
             });
             //var data = authoring.GetComponentsInChildren<RailMarkerAuthoring>();
             //var railMarkers = new NativeArray<RailMarkerStruct>(data.Length, Allocator.Persistent);

@@ -5,37 +5,42 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-[BurstCompile]
+// [BurstCompile]
 public partial struct SetupRailSystem : ISystem
 {
     private EntityQuery railMarkerQuery;
-    private NativeList<RailMarkerComponent> linerRailMarkers;
+    private EntityQuery platformQuery;
+    private ComponentLookup<PlatformComponent> platformComponentLookup;
+    private ComponentLookup<PlatformComponent> platform2ComponentLookup;
 
-    [BurstCompile]
+    // [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         railMarkerQuery =
             new EntityQueryBuilder(Allocator.Temp).WithAll<RailMarkerComponent>().Build(ref state);
-        linerRailMarkers = new NativeList<RailMarkerComponent>(Allocator.Persistent);
+        platformQuery =
+            new EntityQueryBuilder(Allocator.Temp).WithAll<PlatformComponent>().Build(ref state);
+        platformComponentLookup = state.GetComponentLookup<PlatformComponent>();
+        platform2ComponentLookup = state.GetComponentLookup<PlatformComponent>();
     }
 
-    [BurstCompile]
+    // [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
-        railMarkerQuery.Dispose();
+        state.Enabled = false;
     }
 
-    [BurstCompile]
+    // [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         // TODO: Instead of looking up railmarkers look up children and get the components from there maybe ?
-
+  
         #region SetupRails
 
         // Creating an EntityCommandBuffer to defer the structural changes required by instantiation.
@@ -49,21 +54,29 @@ public partial struct SetupRailSystem : ISystem
             {
                 railMarkers = railMarkers,
                 ECB = ecb,
-                EM = state.EntityManager,
                 // lineRailMarkers = linerRailMarkers
             }
             .Schedule(dependency0);
         outboundsJob.Complete();
         ecb.Playback(state.EntityManager);
         
-        var dependency1 = JobHandle.CombineDependencies(outboundsJob, state.Dependency);
-        
-        state.Dependency = new RotatePlatformsJob
-        {
-            EM = state.EntityManager
-        }.Schedule(dependency1);
-        
+        var platforms =
+            platformQuery.ToEntityListAsync(Allocator.Persistent, out var platformJobHandle);
 
+        // var dependency2 = JobHandle.CombineDependencies(rotatePlatformsJob, platformJobHandle, state.Dependency);
+        var dependency2 = JobHandle.CombineDependencies(platformJobHandle, state.Dependency);
+        
+        dependency2.Complete();
+        platformComponentLookup.Update(ref state);
+        new AddMissingPlatformsJob
+        {
+            PlatformsEntities = platforms,
+            platformLookUp = platformComponentLookup
+        }.Run();
+        
+       // state.Dependency.Complete();
+       platform2ComponentLookup.Update(ref state);
+       new FooJob{platforms = platform2ComponentLookup}.Run();
         #endregion
 
         #region Trains
@@ -100,4 +113,21 @@ public partial struct SetupRailSystem : ISystem
         // Stop the job
         state.Enabled = false;
     }
+
+    [WithAll(typeof(PlatformComponent))]
+    public partial struct FooJob : IJobEntity
+    {
+        public ComponentLookup<PlatformComponent> platforms;
+        public void Execute(in Entity ent)
+        {
+            var thisOne = platforms.GetRefRO(ent).ValueRO;
+            foreach (var platform in thisOne.neighborPlatforms)
+            {
+                var foo = platforms.GetRefRO(platform).ValueRO;
+                Debug.Log($"{thisOne.parentMetroName}_{thisOne.platformIndex} -- {foo.parentMetroName}_{foo.platformIndex}");
+            }
+        }
+    }
+    
+    
 }

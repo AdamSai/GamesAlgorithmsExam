@@ -8,5 +8,6 @@ namespace DOTS.Components
         public float SpeedRatio;
         public Entity railPrefab;
         public Entity platformPrefab;
+        public char metroLineName;
     }
 }
