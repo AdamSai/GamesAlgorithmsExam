@@ -15,6 +15,7 @@ public enum TrainStateDOTS
 public partial struct SetupTrainsSystem : ISystem
 {
     EntityCommandBuffer ecb;
+
     public void OnCreate(ref SystemState state)
     {
     }
@@ -100,6 +101,7 @@ public partial struct SetupCarriagesJob : IJobEntity
                 //Instantiate Carriages
                 Entity carriage = ECB.Instantiate(MLCarriage.carriage);
 
+
                 ECB.SetComponent(carriage, new CarriageIDComponent
                 {
                     id = j,
@@ -133,3 +135,4 @@ public partial struct SetupCarriagesJob : IJobEntity
         }
     }
 }
+
