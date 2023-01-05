@@ -20,16 +20,20 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
+            var transformLookup = state.GetComponentLookup<LocalToWorld>(true);
 
+            var job = new PassengerJob { worldTransforms = transformLookup };
+
+            job.Run();
         }
 
         public partial struct PassengerJob : IJobEntity
         {
-            public EntityCommandBuffer ECB;
-            public ComponentLookup<CarriagePassengerSeatsComponent> carriageSeats;
+            //public EntityCommandBuffer ECB;
+            //public ComponentLookup<CarriagePassengerSeatsComponent> carriageSeats;
             public ComponentLookup<LocalToWorld> worldTransforms;
 
-            public void Execute(in Entity e, in LocalToWorld worldTransform, in PassengerComponent passenger, in CommuterComponent commuter, ref LocalTransform transformm)
+            public void Execute(in PassengerComponent passenger, ref LocalTransform transformm)
             {
                 if (passenger.currentCarriage == Entity.Null)
                     return;
@@ -40,9 +44,11 @@ namespace Assets.DOTS.Systems
 
                 // Otherwise:
                 // Set rotation and position
-                var seatPos = worldTransforms[passenger.carriageSeat].Position;
-                var transform = LocalTransform.FromPosition(seatPos);
-                ECB.SetComponent(e, transform);
+                //var seatPos = worldTransforms[passenger.carriageSeat].Position;
+                //var transform = LocalTransform.FromPosition(seatPos);
+                //ECB.SetComponent(e, transform);
+
+                transformm.Position = worldTransforms[passenger.carriageSeat].Position;
 
                 //LocalTransform.FromPosition(posOnRail);
             }

@@ -9,8 +9,9 @@ public struct PlatformComponent : IComponentData
     public NativeArray<Entity> neighborPlatforms; // Platforms that commuter can walk to
     public Entity oppositePlatform; // Opposite platform, perhaps obsolete
     public Entity nextPlatform; // Next station
+    public Entity currentTrain; // The current train that is on the platform
     public float3 platform_entrance2; // Foot of the stairs, closest to platform: commuters walk here
     public float3 platform_entrance1; // Top of the stairs, middle point: commuters walk here
-    public float3 platform_entrance0; // Entrance to the platform from the outside: commuters walk here
+    public float3 platform_entrance0; // Entrance to the platform from other platforms: commuters walk here
     public float3 carriage_entrance; // Entrance to the platform from the carriages
 }

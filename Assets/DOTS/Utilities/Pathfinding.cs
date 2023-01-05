@@ -55,7 +55,7 @@ public static class Pathfinding
                 if (explored[neighbor])
                     continue;
 
-                float alt = dist[u];
+                float alt = dist[u] + 1;
                 if (alt < dist[neighbor])
                 {
                     dist[neighbor] = alt;
@@ -67,7 +67,7 @@ public static class Pathfinding
             Entity next = platformComponents[u].nextPlatform;
             if (!explored[next])
             {
-                float alt = dist[u] + 1;
+                float alt = dist[u] + 10;
                 if (alt < dist[next])
                 {
                     dist[next] = alt;
@@ -84,6 +84,7 @@ public static class Pathfinding
             t = previous[t];
         }
 
+        //return path;
         return (NativeList<Entity>)path.Reverse(); // Is reverse in-place? Otherwise this doesn't work.
     }
 

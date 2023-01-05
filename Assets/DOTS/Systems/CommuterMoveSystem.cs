@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Assets.DOTS.Utilities.Stack;
+using JetBrains.Annotations;
 using System.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -21,36 +22,44 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
-            var job = new CommuterMovementJob();
+            //Time.ElapsedTime
+            var job = new CommuterMovementJob { deltaTime = SystemAPI.Time.DeltaTime };
 
             state.Dependency = job.Schedule(state.Dependency);
+
+            Debug.Log("OnUpdate for commuter move system.");
 
             state.Dependency.Complete();
         }
 
         public partial struct CommuterMovementJob : IJobEntity
         {
+            public float deltaTime;
+
             public void Execute(ref LocalTransform transform, in CommuterComponent commuter, ref WalkComponent walk)
             {
                 if (walk.destinations.IsEmpty)
                     return;
 
-                if (DOT(walk.velocity, walk.destinations[walk.destinations.Length - 1] - transform.Position) < 0)
+                if (DOT(walk.velocity, walk.destinations.LastElement() - transform.Position) < 0)
                 {
                     // Reached intermediate destination
-                    walk.destinations.RemoveAt(walk.destinations.Length - 1);
+                    walk.destinations.Pop();
                     walk.velocity = new float3(0f, 0f, 0f);
                 }
                 else
                 {
                     // Didn't reach intermediate destination, instead change velocity
                     walk.velocity =
-                        math.normalize(walk.destinations[walk.destinations.Length - 1] - transform.Position) * walk.speed;
+                        math.normalize(walk.destinations.LastElement() - transform.Position) * walk.speed;
                 }
 
-                float3 newPos = transform.Position + walk.velocity;
+                float3 newPos = transform.Position + walk.velocity * deltaTime;
 
+                // Update transform
                 transform.Position = newPos;
+
+                Debug.Log("Newpos: " + newPos);
             }
 
             public static float DOT(float3 a, float3 b)
