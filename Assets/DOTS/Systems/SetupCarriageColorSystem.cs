@@ -101,10 +101,10 @@ public partial struct SetupCarriageColorSystem : ISystem
         public ComponentLookup<CarriageIDComponent> carriageLookUp;
         public NativeList<Entity> carriages;
         //public ComponentLookup<CarriageIDComponent> carriages;
-        public void Execute(in Entity ent, TrainIDComponent trainID)
+        public void Execute(in Entity ent, TrainIDComponent trainID, EnableComponent enable)
         {
-            UnityEngine.Debug.Log("TEST");
-
+            if (enable.value)
+                return;
 
             //var platformToAdd = carriages.GetRefRO(_platform).ValueRO;
             for (int i = 0; i < carriages.Length; i++)
@@ -117,6 +117,7 @@ public partial struct SetupCarriageColorSystem : ISystem
                 ECB.AddComponent(_CA_ENT, new Parent { Value = ent });
             }
 
+            enable.value = true;
         }
     }
 
