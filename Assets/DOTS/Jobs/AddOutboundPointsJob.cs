@@ -78,7 +78,6 @@ namespace DOTS.Jobs
             // Sorting platforms
             platforms.Sort(new PlatformComparer());
             // TODO: If platform driving fucks up look at this
-            Debug.Log("Length " + platforms.Length);
             for (int i = 0; i < platforms.Length; i++)
             {
                 var p = platforms[i];

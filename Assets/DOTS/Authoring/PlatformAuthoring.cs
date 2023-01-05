@@ -15,7 +15,7 @@ namespace DOTS.Authoring
         {
             AddComponent(new PlatformComponent
             {
-                neighborPlatforms = new NativeList<Entity>(10, Allocator.Persistent)
+                neighborPlatforms = new NativeList<Entity>( Allocator.Persistent)
             });
             AddComponent(new OppositePlatformComponent());
         }

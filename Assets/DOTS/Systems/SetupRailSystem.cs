@@ -36,11 +36,10 @@ public partial struct SetupRailSystem : ISystem
     // [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         // TODO: Instead of looking up railmarkers look up children and get the components from there maybe ?
-  
+
         #region SetupRails
 
         // Creating an EntityCommandBuffer to defer the structural changes required by instantiation.
@@ -59,24 +58,27 @@ public partial struct SetupRailSystem : ISystem
             .Schedule(dependency0);
         outboundsJob.Complete();
         ecb.Playback(state.EntityManager);
-        
+
         var platforms =
             platformQuery.ToEntityListAsync(Allocator.Persistent, out var platformJobHandle);
 
+        new ConnectOppositePlatformsJob().Run();
         // var dependency2 = JobHandle.CombineDependencies(rotatePlatformsJob, platformJobHandle, state.Dependency);
         var dependency2 = JobHandle.CombineDependencies(platformJobHandle, state.Dependency);
-        
+
         dependency2.Complete();
         platformComponentLookup.Update(ref state);
-        new AddMissingPlatformsJob
+        var addMissingPlatformsJob = new AddMissingPlatformsJob
         {
             PlatformsEntities = platforms,
             platformLookUp = platformComponentLookup
-        }.Run();
-        
-       // state.Dependency.Complete();
-       platform2ComponentLookup.Update(ref state);
-       new FooJob{platforms = platform2ComponentLookup}.Run();
+        }.Schedule(dependency2);
+
+        // state.Dependency.Complete();
+        var dependency3 = JobHandle.CombineDependencies(addMissingPlatformsJob, state.Dependency);
+        platform2ComponentLookup.Update(ref state);
+        state.Dependency = new FooJob {platforms = platform2ComponentLookup}.Schedule(dependency3);
+
         #endregion
 
         #region Trains
@@ -118,16 +120,17 @@ public partial struct SetupRailSystem : ISystem
     public partial struct FooJob : IJobEntity
     {
         public ComponentLookup<PlatformComponent> platforms;
+
         public void Execute(in Entity ent)
         {
             var thisOne = platforms.GetRefRO(ent).ValueRO;
+            Debug.Log("Length: " + thisOne.neighborPlatforms.Length);
             foreach (var platform in thisOne.neighborPlatforms)
             {
                 var foo = platforms.GetRefRO(platform).ValueRO;
-                Debug.Log($"{thisOne.parentMetroName}_{thisOne.platformIndex} -- {foo.parentMetroName}_{foo.platformIndex}");
+                Debug.Log(
+                    $"{thisOne.parentMetroName}_{thisOne.platformIndex} -- {foo.parentMetroName}_{foo.platformIndex}");
             }
         }
     }
-    
-    
 }
