@@ -11,6 +11,8 @@ namespace DOTS.Authoring
         // public float BezierHandleReach = 0.15f;
         public byte MetroLineID;
         public GameObject RailPrefab;
+        public GameObject PlatformPrefab;
+        public char metroName;
     }
 
 
@@ -21,7 +23,9 @@ namespace DOTS.Authoring
             AddComponent(new MetroLineComponent
             {
                 MetroLineID = authoring.MetroLineID,
-                railPrefab = GetEntity(authoring.RailPrefab)
+                railPrefab = GetEntity(authoring.RailPrefab),
+                platformPrefab = GetEntity(authoring.PlatformPrefab),
+                metroLineName = authoring.metroName
             });
             //var data = authoring.GetComponentsInChildren<RailMarkerAuthoring>();
             //var railMarkers = new NativeArray<RailMarkerStruct>(data.Length, Allocator.Persistent);

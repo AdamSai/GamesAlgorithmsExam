@@ -153,6 +153,50 @@ MonoBehaviour:
   MetroLineID: 2
   PointIndex: 20
   RailMarkerType: 0
+--- !u!1 &45217519
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 45217521}
+  - component: {fileID: 45217520}
+  m_Layer: 0
+  m_Name: Config
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &45217520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45217519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 921ba0d666a24152b7c32c39fae1dade, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &45217521
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45217519}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &87018568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,6 +316,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MetroLineID: 3
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
+  PlatformPrefab: {fileID: 1891511846621564, guid: a0cbb139defe5487682373a84145af42,
+    type: 3}
+  metroName: 66
 --- !u!114 &333389899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,6 +333,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MetroLineID: 2
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
+  PlatformPrefab: {fileID: 1891511846621564, guid: a0cbb139defe5487682373a84145af42,
+    type: 3}
+  metroName: 89
 --- !u!114 &333389900
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300,6 +350,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MetroLineID: 1
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
+  PlatformPrefab: {fileID: 1891511846621564, guid: a0cbb139defe5487682373a84145af42,
+    type: 3}
+  metroName: 71
 --- !u!114 &333389901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -314,6 +367,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MetroLineID: 0
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
+  PlatformPrefab: {fileID: 1891511846621564, guid: a0cbb139defe5487682373a84145af42,
+    type: 3}
+  metroName: 82
 --- !u!114 &368284769
 MonoBehaviour:
   m_ObjectHideFlags: 0

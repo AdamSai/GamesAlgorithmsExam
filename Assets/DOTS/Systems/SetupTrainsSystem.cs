@@ -1,5 +1,8 @@
 using DOTS.Components;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Rendering;
+using UnityEngine;
 
 public enum TrainStateDOTS
 {
@@ -12,6 +15,7 @@ public enum TrainStateDOTS
     DEPARTING,
     EMERGENCY_STOP
 }
+[UpdateAfter(typeof(SetupRailSystem))]
 public partial struct SetupTrainsSystem : ISystem
 {
     EntityCommandBuffer ecb;
@@ -49,8 +53,9 @@ public partial struct SetupTrainsSystem : ISystem
 public partial struct SetupTrainsJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
-    public void Execute(MetroLineTrainDataComponent MLTDC, in MetroLineComponent MLA)
+    public void Execute(MetroLineTrainDataComponent MLTDC, MetroLineComponent MLA)
     {
+        Debug.Log("Setup trains");
         float trainSpacing = 1 / MLTDC.maxTrains;
 
         for (byte i = 0; i < MLTDC.maxTrains; i++)
@@ -93,7 +98,9 @@ public partial struct SetupCarriagesJob : IJobEntity
     public EntityManager EM;
 
     public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, in MetroLineComponent MLID, ColorComponent color)
+    //public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, MetroLineComponent MLID)
     {
+        Debug.Log("Setup carriages");
         for (int i = 0; i < MLTrain.maxTrains; i++)
         {
             for (int j = 0; j < MLCarriage.carriages; j++)
