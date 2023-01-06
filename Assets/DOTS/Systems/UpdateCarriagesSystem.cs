@@ -109,4 +109,49 @@ public partial struct UpdateCarriageJob : IJobEntity
         transform.Rotation = rot;
         ECB.SetComponent(ent, transform);
     }
+
+    public partial struct UpdateTrainStatesJob : IJobEntity
+    {
+        public void Execute(TrainStateComponent TSC)
+        {
+            switch (TSC.value)
+            {
+                case TrainStateDOTS.EN_ROUTE:
+                    break;
+
+                case TrainStateDOTS.ARRIVING:
+                    //Change State
+                    {
+                        //Set Speed to Speed on Arrival
+                    }
+
+                    break;
+
+                case TrainStateDOTS.DOORS_OPEN:
+                    break;
+
+                case TrainStateDOTS.UNLOADING:
+
+                    //If Passengers to Disembark are 0, change state to Loading
+                    TSC.value = TrainStateDOTS.LOADING;
+                    break;
+
+                case TrainStateDOTS.LOADING:
+                    break;
+                case TrainStateDOTS.DOORS_CLOSE:
+                    break;
+                case TrainStateDOTS.DEPARTING:
+
+                    //1 Second Delay
+                    //Update Next Platform train needs to go to
+
+                    break;
+                case TrainStateDOTS.EMERGENCY_STOP:
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
 }
