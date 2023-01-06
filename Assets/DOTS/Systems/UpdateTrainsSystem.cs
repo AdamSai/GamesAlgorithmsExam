@@ -48,11 +48,6 @@ public partial struct UpdateTrainStatesJob : IJobEntity
                 break;
 
             case TrainStateDOTS.ARRIVING:
-                //Change State
-                {
-                    //Set Speed to Speed on Arrival
-                }
-
                 break;
 
             case TrainStateDOTS.DOORS_OPEN:
@@ -72,6 +67,7 @@ public partial struct UpdateTrainStatesJob : IJobEntity
 
                 break;
             case TrainStateDOTS.EMERGENCY_STOP:
+                // skip for now
                 break;
 
             default:

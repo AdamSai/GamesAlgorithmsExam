@@ -36,14 +36,40 @@ public partial struct UpdateCarriagesSystem : ISystem
         var metroLines =
             metroLineQuery.ToEntityArray(Allocator.Persistent);
 
-        var carriageJob = new UpdateCarriageJob { trains = trains, ECB = ECB, metroLines = metroLines, EM = state.EntityManager };
-        carriageJob.Run();
+        var trainJob = new UpdateTrainsPositionsJob { deltaTime = SystemAPI.Time.DeltaTime };
+        state.Dependency = trainJob.Schedule(state.Dependency);
+        state.Dependency.Complete();
+
+        var carriageJob = new UpdateCarriageJob { trains = trains, 
+            ECB = ECB, 
+            metroLines = metroLines, 
+            EM = state.EntityManager,
+            tPos = state.GetComponentLookup<TrainPositionComponent>() };
+        state.Dependency = carriageJob.Schedule(state.Dependency);
+        state.Dependency.Complete();
 
         // var dependency = JobHandle.CombineDependencies(trainJobHandle, state.Dependency);
         // state.Dependency = new UpdateCarriageJob {trains = trains}.Schedule(dependency);
     }
 }
 
+public partial struct UpdateTrainsPositionsJob : IJobEntity
+{
+    public float deltaTime;
+
+    public void Execute(in Entity ent, ref TrainPositionComponent tpos, in TrainSpeedComponent speed)
+    {
+        // Set initial speed and position
+        var pos = tpos.value;
+        var Speed = speed.speed;
+        var Friction = speed.friction;
+
+        pos = ((pos += Speed * deltaTime) % 1f);
+        Speed *= Friction; // TODO: See Train_railFriction on Metro.cs
+
+        tpos.value = pos;
+    }
+}
 
 public partial struct UpdateCarriageJob : IJobEntity
 {
@@ -51,6 +77,7 @@ public partial struct UpdateCarriageJob : IJobEntity
     public EntityCommandBuffer ECB;
     public NativeArray<Entity> trains;
     public NativeArray<Entity> metroLines;
+    public ComponentLookup<TrainPositionComponent> tPos;
 
     public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, ref CarriagePositionComponent carriagePos)
     {
@@ -77,30 +104,15 @@ public partial struct UpdateCarriageJob : IJobEntity
             }
         }
 
-
-        // Set initial speed and position
-        var pos = EM.GetComponentData<TrainPositionComponent>(trainEntity).value;
-        var Speed = EM.GetComponentData<TrainSpeedComponent>(trainEntity).speed;
-        var Friction = EM.GetComponentData<TrainSpeedComponent>(trainEntity).friction;
-
-
-
-        pos = ((pos += Speed) % 1f);
-        Speed *= Friction; // TODO: See Train_railFriction on Metro.cs
-
-        ECB.SetComponent(trainEntity, new TrainPositionComponent { value = pos });
-        ECB.SetComponent(trainEntity, new TrainSpeedComponent()
-        {
-            friction = Friction,
-            speed = Speed
-        });
-
         // UpdateCarriages
         // Update position on the bezier
-        carriagePos.value = pos;
         var bezier = EM.GetComponentData<BezierPathComponent>(metroLine);
+        float carriageOffset = 10f;
+        float pos = tPos[trainEntity].value + carriageIDComponent.id * carriageOffset / bezier.distance;
+        carriagePos.value = pos;
         var posOnRail = BezierUtility.Get_Position(pos, bezier.distance, bezier.points);
         var rotOnRail = BezierUtility.Get_NormalAtPosition(pos, bezier.distance, bezier.points);
+        Debug.Log(carriageIDComponent.lineIndex + ":" + carriageIDComponent.id + ": " + carriageIDComponent.id * carriageOffset);
 
         // Set rotation and position
         var transform = LocalTransform.FromPosition(posOnRail);
