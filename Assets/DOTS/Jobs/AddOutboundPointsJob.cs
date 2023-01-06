@@ -191,9 +191,9 @@ namespace DOTS.Jobs
 
         private void InstantiateRails(BezierPathComponent path, MetroLineComponent metroLine)
         {
-            Entity e = ECB.Instantiate(metroLine.railPrefab);
-            ECB.RemoveComponent<RailMarkerComponent>(e);
-            ECB.SetName(e, "Rails");
+            // Entity e = ECB.Instantiate(metroLine.railPrefab);
+            // ECB.RemoveComponent<RailMarkerComponent>(e);
+            // ECB.SetName(e, "Rails");
             float _DIST = 0f;
             while (_DIST < path.distance)
             {
@@ -208,7 +208,7 @@ namespace DOTS.Jobs
                 ECB.SetComponent(rail, transform);
                 // TODO: See Metro.RAIL_SPACING
                 _DIST += 0.5f;
-                ECB.AddComponent(rail, new Parent { Value = e });
+                // ECB.AddComponent(rail, new Parent { Value = e });
             }
         }
 

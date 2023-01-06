@@ -6,7 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 // Run the system after  SetupTrainsSystem
-[UpdateAfter(typeof(SetupRailSystem))]
+[UpdateAfter(typeof(SetupTrainsSystem))]
 public partial struct UpdateCarriagesSystem : ISystem
 {
     private EntityQuery trainQuery;
@@ -81,6 +81,7 @@ public partial struct UpdateCarriageJob : IJobEntity
 
     public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, ref CarriagePositionComponent carriagePos)
     {
+
         Entity trainEntity = default;
         Entity metroLine = default;
 
@@ -116,8 +117,53 @@ public partial struct UpdateCarriageJob : IJobEntity
 
         // Set rotation and position
         var transform = LocalTransform.FromPosition(posOnRail);
-        var rot = Quaternion.LookRotation(transform.Position - rotOnRail, Vector3.up);
+        var rot = Quaternion.LookRotation(transform.Position - (transform.Position - rotOnRail), Vector3.up);
         transform.Rotation = rot;
         ECB.SetComponent(ent, transform);
+    }
+
+    public partial struct UpdateTrainStatesJob : IJobEntity
+    {
+        public void Execute(TrainStateComponent TSC)
+        {
+            switch (TSC.value)
+            {
+                case TrainStateDOTS.EN_ROUTE:
+                    break;
+
+                case TrainStateDOTS.ARRIVING:
+                    //Change State
+                    {
+                        //Set Speed to Speed on Arrival
+                    }
+
+                    break;
+
+                case TrainStateDOTS.DOORS_OPEN:
+                    break;
+
+                case TrainStateDOTS.UNLOADING:
+
+                    //If Passengers to Disembark are 0, change state to Loading
+                    TSC.value = TrainStateDOTS.LOADING;
+                    break;
+
+                case TrainStateDOTS.LOADING:
+                    break;
+                case TrainStateDOTS.DOORS_CLOSE:
+                    break;
+                case TrainStateDOTS.DEPARTING:
+
+                    //1 Second Delay
+                    //Update Next Platform train needs to go to
+
+                    break;
+                case TrainStateDOTS.EMERGENCY_STOP:
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 }
