@@ -1,7 +1,5 @@
 using DOTS.Components;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Rendering;
 using UnityEngine;
 
 public enum TrainStateDOTS
@@ -55,8 +53,10 @@ public partial struct SetupTrainsJob : IJobEntity
     public EntityCommandBuffer ECB;
     public void Execute(MetroLineTrainDataComponent MLTDC, MetroLineComponent MLA)
     {
-        Debug.Log("Setup trains");
-        float trainSpacing = 1 / MLTDC.maxTrains;
+        float trainSpacing = 1f / MLTDC.maxTrains;
+        Debug.Log("Max Trains: " + MLTDC.maxTrains);
+        Debug.Log("TrainSpacing: " + trainSpacing);
+
 
         for (byte i = 0; i < MLTDC.maxTrains; i++)
         {
@@ -82,6 +82,11 @@ public partial struct SetupTrainsJob : IJobEntity
                 speed = MLTDC.maxTrainSpeed,
                 friction = MLTDC.friction
 
+            });
+
+            ECB.SetComponent(train, new MaxTrainSpeedComponent
+            {
+                value = MLTDC.maxTrainSpeed
             });
 
             ECB.SetComponent(train, new TrainStateComponent
