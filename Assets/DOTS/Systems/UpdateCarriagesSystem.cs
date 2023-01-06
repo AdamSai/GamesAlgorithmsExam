@@ -2,6 +2,7 @@ using DOTS.Components;
 using DOTS.Utility;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -110,10 +111,15 @@ public partial struct UpdateCarriageJob : IJobEntity
         var bezier = EM.GetComponentData<BezierPathComponent>(metroLine);
         float carriageOffset = 10f;
         float pos = tPos[trainEntity].value + carriageIDComponent.id * carriageOffset / bezier.distance;
+        
+        if (pos >= 1f)
+            pos %= 1f;
+        
         carriagePos.value = pos;
+
         var posOnRail = BezierUtility.Get_Position(pos, bezier.distance, bezier.points);
         var rotOnRail = BezierUtility.Get_NormalAtPosition(pos, bezier.distance, bezier.points);
-        Debug.Log(carriageIDComponent.lineIndex + ":" + carriageIDComponent.id + ": " + carriageIDComponent.id * carriageOffset);
+        // Debug.Log(carriageIDComponent.lineIndex + ":" + carriageIDComponent.id + ": " + carriageIDComponent.id * carriageOffset);
 
         // Set rotation and position
         var transform = LocalTransform.FromPosition(posOnRail);
