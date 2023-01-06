@@ -58,7 +58,7 @@ public partial struct UpdateTrainsPositionsJob : IJobEntity
 {
     public float deltaTime;
 
-    public void Execute(in Entity ent, ref TrainPositionComponent tpos, in TrainSpeedComponent speed)
+    public void Execute(in Entity ent, ref TrainPositionComponent tpos, ref TrainSpeedComponent speed)
     {
         // Set initial speed and position
         var pos = tpos.value;
@@ -67,7 +67,8 @@ public partial struct UpdateTrainsPositionsJob : IJobEntity
 
         pos = ((pos += Speed * deltaTime) % 1f);
         Speed *= Friction; // TODO: See Train_railFriction on Metro.cs
-
+        
+        speed.speed = Speed;
         tpos.value = pos;
     }
 }
@@ -89,7 +90,8 @@ public partial struct UpdateCarriageJob : IJobEntity
         // Find the correct Train
         for (var i = 0; i < trains.Length; i++)
         {
-            if (EM.GetComponentData<TrainIDComponent>(trains[i]).LineIndex == carriageIDComponent.lineIndex)
+            if (EM.GetComponentData<TrainIDComponent>(trains[i]).LineIndex == carriageIDComponent.lineIndex &&
+                EM.GetComponentData<TrainIDComponent>(trains[i]).TrainIndex == carriageIDComponent.trainIndex)
             {
                 trainEntity = trains[i];
                 break;

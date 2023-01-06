@@ -1,7 +1,8 @@
 using DOTS.Components;
+using DOTS.Components.Train;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Rendering;
 using UnityEngine;
 
 public enum TrainStateDOTS
@@ -18,10 +19,14 @@ public enum TrainStateDOTS
 [UpdateAfter(typeof(SetupRailSystem))]
 public partial struct SetupTrainsSystem : ISystem
 {
-    EntityCommandBuffer ecb;
+    private EntityQuery trainQuery;
+    private ComponentLookup<TrainIDComponent> trainIDLookup;
 
     public void OnCreate(ref SystemState state)
     {
+        trainQuery =
+            new EntityQueryBuilder(Allocator.Temp).WithAll<TrainAheadComponent>().Build(ref state);
+        trainIDLookup = state.GetComponentLookup<TrainIDComponent>();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -30,22 +35,38 @@ public partial struct SetupTrainsSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
+        var setupTrainsECB = new EntityCommandBuffer(Allocator.Persistent);
 
         var SetupTrainsJob = new SetupTrainsJob
         {
-            ECB = ecb
+            ECB = setupTrainsECB
         };
         SetupTrainsJob.Run();
+        setupTrainsECB.Playback(state.EntityManager);
+
+        var trains =
+            trainQuery.ToEntityArray(Allocator.Persistent);
+        trainIDLookup.Update(ref state);
+        var SetupTrainAheadJob = new SetupTrainAheadJob
+        {
+            trainIdLookup = trainIDLookup,
+            trains = trains
+        };
+
+        SetupTrainAheadJob.Schedule();
+        var setupCarriagesECB = new EntityCommandBuffer(Allocator.Persistent);
 
         var SetupCarriagesJob = new SetupCarriagesJob
         {
-            ECB = ecb,
+            ECB = setupCarriagesECB,
             EM = state.EntityManager
         };
 
         SetupCarriagesJob.Run();
+        setupCarriagesECB.Playback(state.EntityManager);
 
+        setupTrainsECB.Dispose();
+        setupCarriagesECB.Dispose();
         state.Enabled = false;
     }
 }
@@ -56,7 +77,7 @@ public partial struct SetupTrainsJob : IJobEntity
     public void Execute(MetroLineTrainDataComponent MLTDC, MetroLineComponent MLA)
     {
         Debug.Log("Setup trains");
-        float trainSpacing = 1 / MLTDC.maxTrains;
+        float trainSpacing = 1f / MLTDC.maxTrains;
 
         for (byte i = 0; i < MLTDC.maxTrains; i++)
         {
@@ -64,7 +85,6 @@ public partial struct SetupTrainsJob : IJobEntity
             //Add TrainIDComponent, TrainData and State
 
             Entity train = ECB.Instantiate(MLTDC.trainPrefab);
-
             ECB.SetComponent(train, new TrainIDComponent
             {
                 LineIndex = MLA.MetroLineID,
@@ -72,6 +92,7 @@ public partial struct SetupTrainsJob : IJobEntity
             });
 
             float pos = trainSpacing * i;
+            Debug.Log($"train pos {MLA.MetroLineID}: "+ pos);
             ECB.SetComponent(train, new TrainPositionComponent
             {
                 value = pos
@@ -88,6 +109,8 @@ public partial struct SetupTrainsJob : IJobEntity
             {
                 value = TrainStateDOTS.DEPARTING
             });
+            
+            ECB.AddComponent(train, new TrainAheadComponent());
         }
     }
 }
@@ -138,6 +161,36 @@ public partial struct SetupCarriagesJob : IJobEntity
                 //ECB.Instantiate()
                 //Set Colour to Line Colour
                 //Set Colour to Carriages Material
+            }
+        }
+    }
+}
+
+public partial struct SetupTrainAheadJob : IJobEntity
+{
+    public ComponentLookup<TrainIDComponent> trainIdLookup;
+    public NativeArray<Entity> trains;
+
+    public void Execute(in Entity entity, ref TrainAheadComponent trainAheadComponent)
+    {
+        Debug.Log("Setup train ahead. Entities size: " + trains.Length);
+        foreach (var train in trains)
+        {
+            var trainID = trainIdLookup.GetRefRO(entity).ValueRO;
+            var other = trainIdLookup.GetRefRO(train).ValueRO;
+            if (other.LineIndex == trainID.LineIndex)
+            {
+                if (trainID.TrainIndex == 3 && other.TrainIndex == 0)
+                {
+                    trainAheadComponent.Value = train;
+                    return;
+                }
+                if (other.TrainIndex == trainID.TrainIndex + 1)
+                {
+                    trainAheadComponent.Value = train;
+                    return;
+
+                }
             }
         }
     }
