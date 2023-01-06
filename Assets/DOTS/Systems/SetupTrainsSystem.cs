@@ -89,6 +89,11 @@ public partial struct SetupTrainsJob : IJobEntity
                 value = MLTDC.maxTrainSpeed
             });
 
+            ECB.SetComponent(train, new AmountOfTrainsInLineComponent
+            {
+                value = MLTDC.maxTrains
+            });
+
             ECB.SetComponent(train, new TrainStateComponent
             {
                 value = TrainStateDOTS.DEPARTING
