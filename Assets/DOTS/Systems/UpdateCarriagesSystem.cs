@@ -105,7 +105,7 @@ public partial struct UpdateCarriageJob : IJobEntity
 
         // Set rotation and position
         var transform = LocalTransform.FromPosition(posOnRail);
-        var rot = Quaternion.LookRotation(transform.Position - rotOnRail, Vector3.up);
+        var rot = Quaternion.LookRotation(transform.Position - (transform.Position - rotOnRail), Vector3.up);
         transform.Rotation = rot;
         ECB.SetComponent(ent, transform);
     }
