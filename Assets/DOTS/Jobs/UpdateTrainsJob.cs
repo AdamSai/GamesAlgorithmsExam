@@ -25,7 +25,7 @@ namespace DOTS.Jobs
             var trainID = trainIDs.GetRefRO(entity).ValueRO;
             var bezierPath = bezierPaths.First(x => x.MetroLineID == trainID.LineIndex);
             var currentPos = trainsPositions.GetRefRO(entity).ValueRO.value;
-            var nextPlatform = platforms.GetRefRW(nextPlatformComponent.value, false);
+            var nextPlatform = platforms.GetRefRW(nextPlatformComponent.value, false).ValueRO;
 
             switch (TSC.value)
             {
@@ -59,7 +59,7 @@ namespace DOTS.Jobs
 
                     // ===== CHANGE STATE =====
                     if (BezierUtility.GetRegionIndex(currentPos, bezierPath.points) ==
-                        nextPlatform.ValueRO.point_platform_START.index)
+                        nextPlatform.point_platform_START.index)
                     {
                         TSC.value = TrainStateDOTS.ARRIVING;
                         speed.speedOnPlatformArriving =
@@ -68,10 +68,25 @@ namespace DOTS.Jobs
                     break;
 
                 case TrainStateDOTS.ARRIVING:
+                    var _platform_start = nextPlatform.point_platform_START.distanceAlongPath;
+                    float _platform_end = nextPlatform.point_platform_END.distanceAlongPath;
+                    float _platform_length = _platform_end - _platform_start;
+                    float arrivalProgress =
+                        (BezierUtility.Get_proportionAsDistance(currentPos, bezierPath.distance) - _platform_start) /
+                        _platform_length;
+
+                    arrivalProgress = 1f - math.cos(arrivalProgress * math.PI * 0.5f);
+                    speed.speed = speed.speedOnPlatformArriving * (1f - arrivalProgress);
+
+                    if (arrivalProgress >= 0.975f) // see Metro.PLATFORM_ARRIVAL_THRESHOLD
+                    {
+                        TSC.value = TrainStateDOTS.DOORS_OPEN;
+                        speed.speed = 0f;
+                    }
+                    
+
                     //Change State
-                {
                     //Set Speed to Speed on Arrival
-                }
 
                     break;
 

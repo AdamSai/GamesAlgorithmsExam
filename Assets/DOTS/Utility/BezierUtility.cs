@@ -148,5 +148,10 @@ namespace DOTS.Utility
             }
             return result;
         }
+        
+        public static float Get_proportionAsDistance(float _proportion, float distance)
+        {
+            return distance * _proportion;
+        }
     }
 }
