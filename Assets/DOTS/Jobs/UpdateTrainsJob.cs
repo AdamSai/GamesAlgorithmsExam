@@ -8,14 +8,14 @@ using Unity.Mathematics;
 
 namespace DOTS.Jobs
 {
-   public partial struct UpdateTrainStatesJob : IJobEntity
+    public partial struct UpdateTrainStatesJob : IJobEntity
     {
         public ComponentLookup<TrainPositionComponent> trainsPositions;
         public ComponentLookup<TrainIDComponent> trainIDs;
         public ComponentLookup<PlatformComponent> platforms;
-        public NativeList<BezierPathComponent> bezierPaths;
+        public NativeArray<BezierPathComponent> bezierPaths;
 
-        public NativeList<Entity> platformEntities;
+        public NativeArray<Entity> platformEntities;
 
         public void Execute(in Entity entity, ref TrainStateComponent TSC, in TrainAheadComponent trainAheadOfMeComp,
             in AmountOfTrainsInLineComponent maxTrains, ref TrainSpeedComponent speed,
@@ -23,7 +23,17 @@ namespace DOTS.Jobs
         {
             float accelerationStrength = 0.000001f;
             var trainID = trainIDs.GetRefRO(entity).ValueRO;
-            var bezierPath = bezierPaths.First(x => x.MetroLineID == trainID.LineIndex);
+            BezierPathComponent bezierPath = default;
+
+            foreach (var bezier in bezierPaths)
+            {
+                if (bezier.MetroLineID == trainID.LineIndex)
+                {
+                    bezierPath = bezier;
+                    break;
+                }
+            }
+
             var currentPos = trainsPositions.GetRefRO(entity).ValueRO.value;
             var nextPlatform = platforms.GetRefRW(nextPlatformComponent.value, false).ValueRO;
 
@@ -65,6 +75,7 @@ namespace DOTS.Jobs
                         speed.speedOnPlatformArriving =
                             math.clamp(speed.speed, maxTrainSpeed.value * 0.1f, maxTrainSpeed.value);
                     }
+
                     break;
 
                 case TrainStateDOTS.ARRIVING:
@@ -72,7 +83,8 @@ namespace DOTS.Jobs
                     float _platform_end = nextPlatform.point_platform_END.distanceAlongPath;
                     float _platform_length = _platform_end - _platform_start;
                     float arrivalProgress =
-                        (BezierUtility.Get_proportionAsDistance(currentPos, bezierPath.distance) - _platform_start) /
+                        (BezierUtility.Get_proportionAsDistance(currentPos, bezierPath.distance) -
+                         _platform_start) /
                         _platform_length;
 
                     arrivalProgress = 1f - math.cos(arrivalProgress * math.PI * 0.5f);
@@ -80,10 +92,11 @@ namespace DOTS.Jobs
 
                     if (arrivalProgress >= 0.975f) // see Metro.PLATFORM_ARRIVAL_THRESHOLD
                     {
+                        // ===== CHANGE STATE =====
                         TSC.value = TrainStateDOTS.DOORS_OPEN;
                         speed.speed = 0f;
                     }
-                    
+
 
                     //Change State
                     //Set Speed to Speed on Arrival
@@ -91,27 +104,42 @@ namespace DOTS.Jobs
                     break;
 
                 case TrainStateDOTS.DOORS_OPEN:
+                    // This should just open the doors, and then move on to the next state
+                    // ===== CHANGE STATE =====
+                    TSC.value = TrainStateDOTS.UNLOADING;
+                    //TODO: PrepareDisembark
+
                     break;
 
                 case TrainStateDOTS.UNLOADING:
 
+                    // TODO: If Passengers_To_Disembark is 0, change to loading state
                     //If Passengers to Disembark are 0, change state to Loading
+                    // ===== CHANGE STATE =====
                     TSC.value = TrainStateDOTS.LOADING;
+                    // TODO: Prepare_EMbark
                     break;
 
                 case TrainStateDOTS.LOADING:
+                    // If passengers_to_embark is 0 change state
+                    // ===== CHANGE STATE =====
+                    TSC.value = TrainStateDOTS.DOORS_CLOSE;
+                    // TODO: Empty passengers to embark and disembark lists
                     break;
                 case TrainStateDOTS.DOORS_CLOSE:
                     // TODO: Doors actually close ?
-                    UpdatePlatform(ref nextPlatformComponent, bezierPath, currentPos);
+
+                    // ===== CHANGE STATE =====
+                    UpdatePlatform(ref nextPlatformComponent, bezierPath, currentPos, entity);
                     TSC.value = TrainStateDOTS.DEPARTING;
                     // stateDelay = Metro.INSTANCE.Train_delay_departure;
 
-                
+
                     break;
                 case TrainStateDOTS.DEPARTING:
+                    // ===== CHANGE STATE =====
                     TSC.value = TrainStateDOTS.EN_ROUTE;
-                    
+
                     // Get_NextPlatform
                     //1 Second Delay
                     //Update Next Platform train needs to go to
@@ -125,8 +153,9 @@ namespace DOTS.Jobs
             }
         }
 
-        private void UpdatePlatform(ref TrainsNextPlatformComponent nextPlatformComponent, BezierPathComponent bezierPath,
-            float currentPos)
+        private void UpdatePlatform(ref TrainsNextPlatformComponent nextPlatformComponent,
+            BezierPathComponent bezierPath,
+            float currentPos, Entity trainEntity)
         {
             int totalPoints = bezierPath.points.Length;
             int currentRegionIndex = BezierUtility.GetRegionIndex(currentPos, bezierPath.points);
@@ -137,9 +166,13 @@ namespace DOTS.Jobs
                 foreach (var platformEnt in platformEntities)
                 {
                     var platform = platforms.GetRefRO(platformEnt).ValueRO;
-                    if (platform.point_platform_START.index == testIndex && !nextPlatformComponent.value.Equals(platformEnt))
+                    if (platform.point_platform_START.index == testIndex &&
+                        !nextPlatformComponent.value.Equals(platformEnt))
                     {
                         nextPlatformComponent.value = platformEnt;
+                        // TODO: Maybe this will mess up if a current train is in the nextPlatform and we overwrite it.
+                        platforms.GetRefRW(platformEnt, false).ValueRW.currentTrain = trainEntity;
+                        // TODO; Also add Train to platform
                     }
                 }
             }
