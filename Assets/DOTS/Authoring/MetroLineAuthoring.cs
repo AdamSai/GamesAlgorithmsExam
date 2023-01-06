@@ -15,7 +15,6 @@ namespace DOTS.Authoring
         public char metroName;
     }
 
-
     public class MetroLineBaker : Baker<MetroLineAuthoring>
     {
         public override void Bake(MetroLineAuthoring authoring)
@@ -48,8 +47,6 @@ namespace DOTS.Authoring
             {
                 points = new NativeList<BezierPoint>(Allocator.Persistent)
             });
-
-
         }
     }
 }

@@ -41,11 +41,14 @@ public partial struct UpdateCarriagesSystem : ISystem
         state.Dependency = trainJob.Schedule(state.Dependency);
         state.Dependency.Complete();
 
-        var carriageJob = new UpdateCarriageJob { trains = trains, 
-            ECB = ECB, 
-            metroLines = metroLines, 
+        var carriageJob = new UpdateCarriageJob
+        {
+            trains = trains,
+            ECB = ECB,
+            metroLines = metroLines,
             EM = state.EntityManager,
-            tPos = state.GetComponentLookup<TrainPositionComponent>() };
+            tPos = state.GetComponentLookup<TrainPositionComponent>()
+        };
         state.Dependency = carriageJob.Schedule(state.Dependency);
         state.Dependency.Complete();
 
@@ -113,6 +116,7 @@ public partial struct UpdateCarriageJob : IJobEntity
         var bezier = EM.GetComponentData<BezierPathComponent>(metroLine);
         float carriageOffset = 10f;
         float pos = tPos[trainEntity].value + carriageIDComponent.id * carriageOffset / bezier.distance;
+
         
         if (pos >= 1f)
             pos %= 1f;

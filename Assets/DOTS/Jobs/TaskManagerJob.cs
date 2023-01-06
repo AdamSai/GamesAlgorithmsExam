@@ -65,9 +65,9 @@ namespace Assets.DOTS.Jobs
                         walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance2);
                         walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance1);
                         walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance0);
-                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_entrance0);
-                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_entrance1);
-                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_entrance2);
+                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_exit0);
+                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_exit1);
+                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_exit2);
                         break;
                     case CommuterState.GET_ON_TRAIN:
                         // Get on train that is already stopped
