@@ -14,8 +14,14 @@ public partial struct UpdateCarriagesSystem : ISystem
 {
     private EntityQuery trainQuery;
     private EntityQuery metroLineQuery;
+    private EntityQuery bezierPathQuery;
     private EntityCommandBuffer ECB;
 
+    private ComponentLookup<TrainPositionComponent> trainPosLookUp;
+    private ComponentLookup<TrainIDComponent> trainIDs;
+    private ComponentLookup<PlatformComponent> platforms;
+    
+    
     public void OnCreate(ref SystemState state)
     {
         trainQuery =
@@ -23,6 +29,8 @@ public partial struct UpdateCarriagesSystem : ISystem
                 .WithAll<TrainPositionComponent, TrainIDComponent, TrainSpeedComponent>().Build(ref state);
         metroLineQuery =
             new EntityQueryBuilder(Allocator.Temp).WithAll<BezierPathComponent, MetroLineComponent>().Build(ref state);
+        bezierPathQuery =
+            new EntityQueryBuilder(Allocator.Temp).WithAll<BezierPathComponent>().Build(ref state);
     }
 
     public void OnDestroy(ref SystemState state)
@@ -183,15 +191,14 @@ public partial struct UpdateCarriageJob : IJobEntity
                     // Get platfrom from this
                     var platform = platforms.GetRefRO(nextPlatformComponent.value).ValueRO;
 
+                    // ===== CHANGE STATE =====
                     if (BezierUtility.GetRegionIndex(currentPos, bezierPath.points) ==
                         platform.point_platform_START.index)
                     {
-                        // TODO: Change state to Arriving
                         TSC.value = TrainStateDOTS.ARRIVING;
                         speed.speedOnPlatformArriving =
                             math.clamp(speed.speed, maxTrainSpeed.value * 0.1f, maxTrainSpeed.value);
                     }
-
                     break;
 
                 case TrainStateDOTS.ARRIVING:
