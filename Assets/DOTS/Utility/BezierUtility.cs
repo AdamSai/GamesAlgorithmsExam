@@ -1,5 +1,6 @@
 ﻿using DOTS.Components;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -7,50 +8,50 @@ namespace DOTS.Utility
 {
     public class BezierUtility
     {
-        public static void AddPoint(float3 location, ref BezierPathComponent path)
+        public static void AddPoint(float3 location, ref DynamicBuffer<BezierPoint> path)
         {
-            BezierPoint result = new BezierPoint(path.points.Length, location, location, location);
-            path.points.Add(result);
-            if (path.points.Length > 1)
+            BezierPoint result = new BezierPoint(path.Length, location, location, location);
+            path.Add(result);
+            if (path.Length > 1)
             {
-                BezierPoint prev = path.points[path.points.Length - 2];
-                var currentIdx = path.points.Length - 1;
-                path.points[currentIdx] = SetHandles(currentIdx, prev.location, path.points);
+                BezierPoint prev = path[path.Length - 2];
+                var currentIdx = path.Length - 1;
+                path[currentIdx] = SetHandles(currentIdx, prev.location, path);
             }
         }
 
-        static BezierPoint SetHandles(int _currentIdx, float3 _prevPointLocation, NativeList<BezierPoint> points)
+        static BezierPoint SetHandles(int _currentIdx, float3 _prevPointLocation, DynamicBuffer<BezierPoint> points)
         {
             float3 distPrevCurrent = math.normalize(points[_currentIdx].location - _prevPointLocation);
         
             return points[_currentIdx].SetHandles(distPrevCurrent);
         }
         
-        public static float MeasurePath(ref BezierPathComponent path)
+        public static float MeasurePath(ref DynamicBuffer<BezierPoint> points)
         {
             float distance = 0f;
-            var point = path.points[0];
+            var point = points[0];
             point.distanceAlongPath = 0.000001f;
-            path.points[0] = point;
+            points[0] = point;
 
-            for (int i = 1; i < path.points.Length; i++)
+            for (int i = 1; i < points.Length; i++)
             {
-                var currentPoint = path.points[i];
-                currentPoint.distanceAlongPath = MeasurePoint(i, i - 1, path.points, ref distance);
-                path.points[i] = currentPoint;
+                var currentPoint = points[i];
+                currentPoint.distanceAlongPath = MeasurePoint(i, i - 1, points, ref distance);
+                points[i] = currentPoint;
             }
 
             // add last stretch (return loop to point ZERO)
-            return distance + Get_AccurateDistanceBetweenPoints(0, path.points.Length - 1, path.points);
+            return distance + Get_AccurateDistanceBetweenPoints(0, points.Length - 1, points);
         }
 
-        public static float MeasurePoint(int _currentPoint, int _prevPoint, NativeList<BezierPoint> points, ref float distance)
+        public static float MeasurePoint(int _currentPoint, int _prevPoint, DynamicBuffer<BezierPoint> points, ref float distance)
         {
             distance += Get_AccurateDistanceBetweenPoints(_currentPoint, _prevPoint, points);
             return distance;
         }
 
-        public static float Get_AccurateDistanceBetweenPoints(int _current, int _prev, NativeList<BezierPoint> points)
+        public static float Get_AccurateDistanceBetweenPoints(int _current, int _prev, DynamicBuffer<BezierPoint> points)
         {
             BezierPoint _currentPoint = points[_current];
             BezierPoint _prevPoint = points[_prev];
@@ -82,25 +83,25 @@ namespace DOTS.Utility
             return result;
         }
         
-        public static float3 GetPoint_PerpendicularOffset(BezierPoint _point, float _offset, float distance, NativeList<BezierPoint> points)
+        public static float3 GetPoint_PerpendicularOffset(BezierPoint _point, float _offset, float distance, DynamicBuffer<BezierPoint> points)
         {
             return _point.location + Get_TangentAtPosition(_point.distanceAlongPath / distance, distance, points) * _offset;
         }
         
-        public static float3 Get_TangentAtPosition(float _position, float distance, NativeList<BezierPoint> points)
+        public static float3 Get_TangentAtPosition(float _position, float distance, DynamicBuffer<BezierPoint> points)
         {
             float3 normal = Get_NormalAtPosition(_position, distance, points);
             return new float3(-normal.z, normal.y, normal.x);
         }
         
-        public static float3 Get_NormalAtPosition(float _position, float distance, NativeList<BezierPoint> points)
+        public static float3 Get_NormalAtPosition(float _position, float distance, DynamicBuffer<BezierPoint> points)
         {
             var _current = Get_Position(_position, distance, points);
             var _ahead = Get_Position((_position + 0.0001f) % 1f, distance, points);
             return (_ahead - _current) / math.distance(_ahead, _current);
         }
         
-        public static float3 Get_Position(float _progress, float distance, NativeList<BezierPoint> points)
+        public static float3 Get_Position(float _progress, float distance, DynamicBuffer<BezierPoint> points)
         {
             float progressDistance = distance * _progress;
             int pointIndex_region_start = GetRegionIndex(progressDistance, points);
@@ -118,14 +119,20 @@ namespace DOTS.Utility
             // Round 1 --> Origins to handles, handle to handle
             return BezierLerp(point_region_start, point_region_end, regionProgress);
         }
-        
-        public static int GetRegionIndex(float _progress, NativeList<BezierPoint> points)
+
+        private static int i = 0;
+        public static int GetRegionIndex(float _progress, DynamicBuffer<BezierPoint> points)
         {
             int result = 0;
             int totalPoints = points.Length;
             for (int i = 0; i < totalPoints; i++)
             {
                 BezierPoint _PT = points[i];
+                // i++;
+                // if (i > 5000)
+                // {
+                //     Debug.Log(_PT.distanceAlongPath + " " + _progress);
+                // }
                 if (_PT.distanceAlongPath <= _progress)
                 {
                     if (i == totalPoints - 1)

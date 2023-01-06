@@ -45,8 +45,9 @@ namespace DOTS.Authoring
 
             AddComponent(new BezierPathComponent
             {
-                points = new NativeList<BezierPoint>(Allocator.Persistent)
             });
+
+            AddBuffer<BezierPoint>();
         }
     }
 }
