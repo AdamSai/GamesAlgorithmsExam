@@ -1,4 +1,6 @@
+using System.Linq;
 using DOTS.Components;
+using DOTS.Components.Train;
 using DOTS.Utility;
 using Unity.Collections;
 using Unity.Entities;
@@ -17,7 +19,8 @@ public partial struct UpdateCarriagesSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         trainQuery =
-            new EntityQueryBuilder(Allocator.Temp).WithAll<TrainPositionComponent, TrainIDComponent, TrainSpeedComponent>().Build(ref state);
+            new EntityQueryBuilder(Allocator.Temp)
+                .WithAll<TrainPositionComponent, TrainIDComponent, TrainSpeedComponent>().Build(ref state);
         metroLineQuery =
             new EntityQueryBuilder(Allocator.Temp).WithAll<BezierPathComponent, MetroLineComponent>().Build(ref state);
     }
@@ -28,7 +31,8 @@ public partial struct UpdateCarriagesSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        ECB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
+        ECB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
+            .CreateCommandBuffer(state.WorldUnmanaged);
 
         var trains =
             trainQuery.ToEntityArray(Allocator.Persistent);
@@ -37,7 +41,7 @@ public partial struct UpdateCarriagesSystem : ISystem
         var metroLines =
             metroLineQuery.ToEntityArray(Allocator.Persistent);
 
-        var trainJob = new UpdateTrainsPositionsJob { deltaTime = SystemAPI.Time.DeltaTime };
+        var trainJob = new UpdateTrainsPositionsJob {deltaTime = SystemAPI.Time.DeltaTime};
         state.Dependency = trainJob.Schedule(state.Dependency);
         state.Dependency.Complete();
 
@@ -70,7 +74,7 @@ public partial struct UpdateTrainsPositionsJob : IJobEntity
 
         pos = ((pos += Speed * deltaTime) % 1f);
         Speed *= Friction; // TODO: See Train_railFriction on Metro.cs
-        
+
         speed.speed = Speed;
         tpos.value = pos;
     }
@@ -86,7 +90,6 @@ public partial struct UpdateCarriageJob : IJobEntity
 
     public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, ref CarriagePositionComponent carriagePos)
     {
-
         Entity trainEntity = default;
         Entity metroLine = default;
 
@@ -117,10 +120,10 @@ public partial struct UpdateCarriageJob : IJobEntity
         float carriageOffset = 10f;
         float pos = tPos[trainEntity].value + carriageIDComponent.id * carriageOffset / bezier.distance;
 
-        
+
         if (pos >= 1f)
             pos %= 1f;
-        
+
         carriagePos.value = pos;
 
         var posOnRail = BezierUtility.Get_Position(pos, bezier.distance, bezier.points);
@@ -136,18 +139,66 @@ public partial struct UpdateCarriageJob : IJobEntity
 
     public partial struct UpdateTrainStatesJob : IJobEntity
     {
-        public void Execute(TrainStateComponent TSC)
+        public ComponentLookup<TrainPositionComponent> trainsPositions;
+        public ComponentLookup<TrainIDComponent> trainIDs;
+        public ComponentLookup<PlatformComponent> platforms;
+        public NativeList<BezierPathComponent> bezierPaths;
+
+        public void Execute(in Entity entity, ref TrainStateComponent TSC, in TrainAheadComponent trainAheadOfMeComp,
+            in AmountOfTrainsInLineComponent maxTrains, ref TrainSpeedComponent speed,
+            in MaxTrainSpeedComponent maxTrainSpeed, ref TrainsNextPlatformComponent nextPlatformComponent)
         {
+            float accelerationStrength = 0.000001f;
+            var trainID = trainIDs.GetRefRO(entity).ValueRO;
+            var bezierPath = bezierPaths.First(x => x.MetroLineID == trainID.LineIndex);
             switch (TSC.value)
             {
                 case TrainStateDOTS.EN_ROUTE:
+                    var trainAheadOfMe = trainAheadOfMeComp.Value;
+                    // TODO: Maybe make RW?
+                    float trainAhead_stopPoint = trainsPositions.GetRefRO(trainAheadOfMe).ValueRO.value;
+
+                    int index = trainID.TrainIndex;
+                    int trainAheadIndex = trainIDs.GetRefRO(trainAheadOfMe).ValueRO.TrainIndex;
+
+                    if (trainAheadIndex < index)
+                    {
+                        trainAhead_stopPoint += 1f;
+                    }
+
+                    var currentPos = trainsPositions.GetRefRO(entity).ValueRO.value;
+                    float distanceToTrainAhead = math.abs(trainAhead_stopPoint - currentPos);
+                    if (distanceToTrainAhead > 0.05f || maxTrains.value == 1)
+                    {
+                        if (speed.speed <= maxTrainSpeed.value)
+                        {
+                            speed.speed += accelerationStrength;
+                        }
+                    }
+                    else
+                    {
+                        speed.speed *= 0.85f;
+                    }
+
+                    // Get platfrom from this
+                    var platform = platforms.GetRefRO(nextPlatformComponent.value).ValueRO;
+
+                    if (BezierUtility.GetRegionIndex(currentPos, bezierPath.points) ==
+                        platform.point_platform_START.index)
+                    {
+                        // TODO: Change state to Arriving
+                        TSC.value = TrainStateDOTS.ARRIVING;
+                        speed.speedOnPlatformArriving =
+                            math.clamp(speed.speed, maxTrainSpeed.value * 0.1f, maxTrainSpeed.value);
+                    }
+
                     break;
 
                 case TrainStateDOTS.ARRIVING:
                     //Change State
-                    {
-                        //Set Speed to Speed on Arrival
-                    }
+                {
+                    //Set Speed to Speed on Arrival
+                }
 
                     break;
 

@@ -10,5 +10,6 @@ namespace DOTS.Components
         public NativeList<BezierPoint> points;
         public float pathLength;
         public float distance;
+        public int MetroLineID;
     }
 }

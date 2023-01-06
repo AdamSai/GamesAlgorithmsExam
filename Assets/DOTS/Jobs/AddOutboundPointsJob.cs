@@ -21,6 +21,7 @@ namespace DOTS.Jobs
             var lineRailMarkers = new NativeList<RailMarkerComponent>(Allocator.Temp);
             var platforms = new NativeList<PlatformComponent>(Allocator.Temp);
             var platformEntities = new NativeList<Entity>(Allocator.Temp);
+            path.MetroLineID = metroLine.MetroLineID;
             Debug.Log("Running on metroLine: " + metroLine.MetroLineID);
             // Sort the rail markers by PointIndex
             railMarkers.Sort(new RailMarkerComparer());

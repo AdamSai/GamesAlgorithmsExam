@@ -181,16 +181,15 @@ public partial struct SetupTrainAheadJob : IJobEntity
     public ComponentLookup<TrainIDComponent> trainIdLookup;
     public NativeArray<Entity> trains;
 
-    public void Execute(in Entity entity, ref TrainAheadComponent trainAheadComponent)
+    public void Execute(in Entity entity, ref TrainAheadComponent trainAheadComponent, in AmountOfTrainsInLineComponent maxTrains)
     {
-        Debug.Log("Setup train ahead. Entities size: " + trains.Length);
         foreach (var train in trains)
         {
             var trainID = trainIdLookup.GetRefRO(entity).ValueRO;
             var other = trainIdLookup.GetRefRO(train).ValueRO;
             if (other.LineIndex == trainID.LineIndex)
             {
-                if (trainID.TrainIndex == 3 && other.TrainIndex == 0)
+                if (trainID.TrainIndex == maxTrains.value - 1 && other.TrainIndex == 0)
                 {
                     trainAheadComponent.Value = train;
                     return;
