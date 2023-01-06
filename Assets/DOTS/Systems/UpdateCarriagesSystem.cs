@@ -6,7 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 // Run the system after  SetupTrainsSystem
-[UpdateAfter(typeof(SetupRailSystem))]
+[UpdateAfter(typeof(SetupTrainsSystem))]
 public partial struct UpdateCarriagesSystem : ISystem
 {
     private EntityQuery trainQuery;
@@ -54,6 +54,7 @@ public partial struct UpdateCarriageJob : IJobEntity
 
     public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, ref CarriagePositionComponent carriagePos)
     {
+
         Entity trainEntity = default;
         Entity metroLine = default;
 
