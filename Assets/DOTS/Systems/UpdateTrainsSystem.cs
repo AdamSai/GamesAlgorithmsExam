@@ -38,42 +38,42 @@ public partial struct UpdateTrainsSystem : ISystem
 //        //Get All Carriages From that Train
 //    }
 //}
-public partial struct UpdateTrainStatesJob : IJobEntity
-{
-    public void Execute(TrainStateComponent TSC)
-    {
-        switch (TSC.value)
-        {
-            case TrainStateDOTS.EN_ROUTE:
-                break;
-
-            case TrainStateDOTS.ARRIVING:
-                break;
-
-            case TrainStateDOTS.DOORS_OPEN:
-                break;
-
-            case TrainStateDOTS.UNLOADING:
-                break;
-
-            case TrainStateDOTS.LOADING:
-                break;
-            case TrainStateDOTS.DOORS_CLOSE:
-                break;
-            case TrainStateDOTS.DEPARTING:
-
-                //1 Second Delay
-                //Update Next Platform train needs to go to
-
-                break;
-            case TrainStateDOTS.EMERGENCY_STOP:
-                // skip for now
-                break;
-
-            default:
-                break;
-        }
-    }
+// public partial struct UpdateTrainStatesJob : IJobEntity
+// {
+//     public void Execute(TrainStateComponent TSC)
+//     {
+//         switch (TSC.value)
+//         {
+//             case TrainStateDOTS.EN_ROUTE:
+//                 break;
+//
+//             case TrainStateDOTS.ARRIVING:
+//                 break;
+//
+//             case TrainStateDOTS.DOORS_OPEN:
+//                 break;
+//
+//             case TrainStateDOTS.UNLOADING:
+//                 break;
+//
+//             case TrainStateDOTS.LOADING:
+//                 break;
+//             case TrainStateDOTS.DOORS_CLOSE:
+//                 break;
+//             case TrainStateDOTS.DEPARTING:
+//
+//                 //1 Second Delay
+//                 //Update Next Platform train needs to go to
+//
+//                 break;
+//             case TrainStateDOTS.EMERGENCY_STOP:
+//                 // skip for now
+//                 break;
+//
+//             default:
+//                 break;
+//         }
+//     }
 
     //void ChangeState(TrainStateDOTS _newState)
     //{
@@ -116,7 +116,7 @@ public partial struct UpdateTrainStatesJob : IJobEntity
     //            break;
     //    }
     //}
-}
+// }
 
 
 //public partial struct UpdateCarriagesJob : IJobEntity

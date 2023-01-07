@@ -1,5 +1,6 @@
 
 using DOTS.Components;
+using DOTS.Components.Train;
 using Unity.Entities;
 using UnityEngine;
 

@@ -7,8 +7,10 @@ namespace DOTS.Components
 {
     public struct BezierPathComponent : IComponentData
     {
-        public NativeList<BezierPoint> points;
+        // public NativeList<BezierPoint> points;
+        
         public float pathLength;
         public float distance;
+        public int MetroLineID;
     }
 }

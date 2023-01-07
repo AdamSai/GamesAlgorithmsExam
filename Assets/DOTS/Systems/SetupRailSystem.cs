@@ -15,6 +15,7 @@ public partial struct SetupRailSystem : ISystem
     private EntityQuery platformQuery;
     private ComponentLookup<PlatformComponent> platformComponentLookup;
     private ComponentLookup<PlatformComponent> platform2ComponentLookup;
+    private BufferLookup<DOTS.BezierPoint> bezierPointBufferLookup;
 
     // [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -25,6 +26,7 @@ public partial struct SetupRailSystem : ISystem
             new EntityQueryBuilder(Allocator.Temp).WithAll<PlatformComponent>().Build(ref state);
         platformComponentLookup = state.GetComponentLookup<PlatformComponent>();
         platform2ComponentLookup = state.GetComponentLookup<PlatformComponent>();
+        bezierPointBufferLookup = state.GetBufferLookup<DOTS.BezierPoint>();
     }
 
     // [BurstCompile]
@@ -44,12 +46,13 @@ public partial struct SetupRailSystem : ISystem
             railMarkerQuery.ToComponentDataListAsync<RailMarkerComponent>(Allocator.Persistent,
                 out var railMarkerJobHandle);
         var railmarkerJobHandle = JobHandle.CombineDependencies(railMarkerJobHandle, state.Dependency);
-        
+        bezierPointBufferLookup.Update(ref state);
         // Create the bezier curves for the metrolines and spawn platforms and rails.
         var outboundsJob = new AddOutboundPointsJob()
         {
             railMarkers = railMarkers,
             ECB = ecb,
+            bezierPoints = bezierPointBufferLookup
             // lineRailMarkers = linerRailMarkers
         }.Schedule(railmarkerJobHandle);
         outboundsJob.Complete();

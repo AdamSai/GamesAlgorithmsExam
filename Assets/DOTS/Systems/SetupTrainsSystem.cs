@@ -93,6 +93,7 @@ public partial struct SetupTrainsJob : IJobEntity
 
             float pos = trainSpacing * i;
             Debug.Log($"train pos {MLA.MetroLineID}: "+ pos);
+            ECB.SetName(train, $"Train_{MLA.MetroLineID}:{i}");
             ECB.SetComponent(train, new TrainPositionComponent
             {
                 value = pos
@@ -120,7 +121,9 @@ public partial struct SetupTrainsJob : IJobEntity
                 value = TrainStateDOTS.DEPARTING
             });
             
-            ECB.AddComponent(train, new TrainAheadComponent());
+            ECB.AddComponent<TrainAheadComponent>(train);
+            
+            ECB.AddComponent<TimerComponent>(train);
         }
     }
 }
@@ -140,7 +143,6 @@ public partial struct SetupCarriagesJob : IJobEntity
             {
                 //Instantiate Carriages
                 Entity carriage = ECB.Instantiate(MLCarriage.carriage);
-
 
                 ECB.SetComponent(carriage, new CarriageIDComponent
                 {
@@ -181,16 +183,18 @@ public partial struct SetupTrainAheadJob : IJobEntity
     public ComponentLookup<TrainIDComponent> trainIdLookup;
     public NativeArray<Entity> trains;
 
-    public void Execute(in Entity entity, ref TrainAheadComponent trainAheadComponent)
+    public void Execute(in Entity entity, ref TrainAheadComponent trainAheadComponent, in AmountOfTrainsInLineComponent maxTrains)
     {
-        Debug.Log("Setup train ahead. Entities size: " + trains.Length);
         foreach (var train in trains)
         {
             var trainID = trainIdLookup.GetRefRO(entity).ValueRO;
             var other = trainIdLookup.GetRefRO(train).ValueRO;
             if (other.LineIndex == trainID.LineIndex)
             {
-                if (trainID.TrainIndex == 3 && other.TrainIndex == 0)
+                if (entity.Index == train.Index)
+                    continue;
+                
+                if (trainID.TrainIndex == maxTrains.value - 1 && other.TrainIndex == 0)
                 {
                     trainAheadComponent.Value = train;
                     return;
@@ -199,7 +203,6 @@ public partial struct SetupTrainAheadJob : IJobEntity
                 {
                     trainAheadComponent.Value = train;
                     return;
-
                 }
             }
         }
