@@ -6,6 +6,6 @@ namespace Assets.DOTS.Components
 {
     public struct NavTag : IComponentData
     {
-        
+        public bool init;
     }
 }

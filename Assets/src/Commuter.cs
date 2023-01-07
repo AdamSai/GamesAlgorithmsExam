@@ -14,6 +14,7 @@ public enum CommuterState
     GET_ON_TRAIN,
     GET_OFF_TRAIN,
     WAIT_FOR_STOP,
+    SPAWN_WALK,
 }
 
 public class CommuterTask

@@ -59,31 +59,41 @@ namespace Assets.DOTS.Systems
             {
                 Debug.Log("This far: 0");
                 // No task: get random destination?
-                int r = RNG(entity.Index, platformEntities.Length-1);
+                int r = RNG(entity.Index + commuter.r, platformEntities.Length-1);
+                while(commuter.currentPlatform == platformEntities[r])
+                {
+                    r = RNG(r, platformEntities.Length - 1);
+                }
                 Debug.Log("This far: 1. r is " + r);
                 Debug.Log(platformEntities[r]);
                 Entity e = platformEntities[r];
                 Debug.Log("This far: 2");
                 NativeList<Entity> path = Pathfinding.GetPath(platformEntities, platformComponents, commuter.currentPlatform, e);
 
-                NativeList<CommuterComponentTask> tasks = commuter.tasks;
-                Debug.Log("This far: 3");
-                for (int i = 0; i < path.Length - 2; i++)
+                Debug.Log("This far: 3. Path length: " + path.Length);
+                for (int i = 0; i < path.Length - 1; i++)
                 {
-                    Entity from = path[i];
-                    Entity to = path[i + 1];
-                    tasks.Push(new CommuterComponentTask(CommuterState.GET_OFF_TRAIN, from, to));
-                    tasks.Push(new CommuterComponentTask(CommuterState.WAIT_FOR_STOP, from, to));
-                    tasks.Push(new CommuterComponentTask(CommuterState.GET_ON_TRAIN, from, to));
-                    tasks.Push(new CommuterComponentTask(CommuterState.QUEUE, from, to));
+                    Entity to = path[i];
+                    Entity from = path[i + 1];
                     if (platformComponents[from].neighborPlatforms.Contains(to))
                     {
                         // Change platform
-                        tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
+                    } else
+                    {
+                        // Get on train
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_OFF_TRAIN, from, to));
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.WAIT_FOR_STOP, from, to));
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_ON_TRAIN, from, to));
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.QUEUE, from, to));
                     }
                 }
+                //commuter.tasks.Push(new CommuterComponentTask(CommuterState.SPAWN_WALK, commuter.currentPlatform, commuter.currentPlatform));
+                Debug.Log("This far: 4. Task list length: " + commuter.tasks.Length + ". Path length: " + path.Length);
+                if (!commuter.tasks.IsEmpty)
+                    Debug.Log("This far: 5. Start entity: " + path.NextElement() + ". First task entity: " + commuter.tasks.NextElement().endPlatform);
+                
                 path.Dispose();
-                Debug.Log("This far: 4");
             }
         }
 
@@ -92,6 +102,9 @@ namespace Assets.DOTS.Systems
             // Random number generator
             int a = 42;
             int r = (a + seed * a + 1) % size;
+            r = (r * a + 1) % size;
+            r = (r * a + 1) % size;
+            r = (r * a + 1) % size;
             r = (r * a + 1) % size;
             r = (r * a + 1) % size;
             r = (r * a + 1) % size;

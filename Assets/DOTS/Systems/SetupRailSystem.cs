@@ -76,29 +76,18 @@ public partial struct SetupRailSystem : ISystem
         ecb.Dispose();
         state.CompleteDependency();
 
+        state.Dependency = new PlatformInitJob().Schedule(state.Dependency);
+        state.Dependency.Complete();
+
         // Stop the job
         state.Enabled = false;
     }
 }
 
-public partial struct SpawnCommutersJob : IJobEntity
+public partial struct PlatformInitJob : IJobEntity
 {
-    EntityCommandBuffer ECB;
-
-    public void Execute(in Entity entity, in CommuterSpawnComponent spawner, in LocalTransform transform)
+    public void Execute(ref PlatformComponent platform)
     {
-        for (int i = 0; i < spawner.amount; i++)
-        {
-            Entity commuter = ECB.Instantiate(spawner.commuter);
-
-            ECB.SetComponent<LocalTransform>(commuter, LocalTransform.FromPosition(transform.Position));
-            ECB.SetComponent<CommuterComponent>(commuter, new CommuterComponent
-            {
-                tasks = new NativeList<CommuterComponentTask>(Allocator.Persistent),
-                currentPlatform = entity
-            });
-        }
-
-        ECB.RemoveComponent<SpawnCommutersJob>(entity);
+        platform.init = true;
     }
 }

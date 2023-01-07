@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -85,9 +84,10 @@ public static class Pathfinding
             path.Add(t);
             t = previous[t];
         }
+        path.Add(startPlatform);
 
-        //return path;
-        return (NativeList<Entity>)path.Reverse(); // Is reverse in-place? Otherwise this doesn't work.
+        return path;
+        //return (NativeList<Entity>)path.Reverse(); // Is reverse in-place? Otherwise this doesn't work.
     }
 
     private static Entity GetShortest(NativeList<Entity> unexplored, NativeHashMap<Entity, float> dist)

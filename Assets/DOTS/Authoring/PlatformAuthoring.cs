@@ -21,7 +21,7 @@ namespace DOTS.Authoring
                 init = false
             });
             AddComponent(new OppositePlatformComponent());
-            AddComponent(new NavTag());
+            AddComponent(new NavTag { init = false });
         }
     }
 }

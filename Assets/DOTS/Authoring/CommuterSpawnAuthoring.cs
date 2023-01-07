@@ -18,7 +18,8 @@ namespace Assets.DOTS.Authoring
             AddComponent<CommuterSpawnComponent>(new CommuterSpawnComponent
             {
                 commuter = GetEntity(authoring.prefab),
-                amount = authoring.amount
+                amount = authoring.amount,
+                hasSpawned = false
             });
         }
     }

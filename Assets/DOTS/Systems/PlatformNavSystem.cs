@@ -2,14 +2,17 @@
 using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
 namespace Assets.DOTS.Systems
 {
-    [UpdateAfter(typeof(SetupRailSystem))]
+    [UpdateAfter(typeof(SetupSeatsSystem))]
     public partial struct PlatformNavSystem : ISystem
     {
+
+
         public void OnCreate(ref SystemState state)
         {
 
@@ -22,6 +25,9 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
+            if (SystemAPI.Time.ElapsedTime < 2)
+                return;
+
             // Setting nav points for all platforms
             Debug.Log("Nav System!");
             EntityCommandBuffer ECB = new EntityCommandBuffer(Allocator.Persistent);
@@ -29,32 +35,81 @@ namespace Assets.DOTS.Systems
             var platformNavJob = new PlatformNavJob
             {
                 ECB = ECB,
-                navTransforms = state.GetComponentLookup<LocalToWorld>(),
+                worldTransforms = state.GetComponentLookup<WorldTransform>(),
+                localTransforms = state.GetComponentLookup<LocalTransform>(),
                 navPoints = state.GetComponentLookup<NavPointComponent>(),
                 EM = state.EntityManager
             };
             state.Dependency = platformNavJob.Schedule(state.Dependency);
 
             state.Dependency.Complete();
+            ECB.Playback(state.EntityManager);
             ECB.Dispose();
+
+            ECB = new EntityCommandBuffer(Allocator.Persistent);
+            var spawnJob = new SpawnCommutersJob { ECB = ECB };
+
+            state.Dependency = spawnJob.Schedule(state.Dependency);
+            state.Dependency.Complete();
+            ECB.Playback(state.EntityManager);
+            ECB.Dispose();
+        }
+    }
+
+    public partial struct SpawnCommutersJob : IJobEntity
+    {
+        public EntityCommandBuffer ECB;
+
+        public void Execute(ref CommuterSpawnComponent spawner, in Entity entity, in LocalTransform transform, in PlatformComponent platform)
+        {
+            Debug.Log("Spawning commuter job!");
+            // TODO make so only run once
+            if (spawner.hasSpawned)
+                return;
+
+            for (int i = 0; i < spawner.amount; i++)
+            {
+                Entity commuter = ECB.Instantiate(spawner.commuter);
+                Debug.Log("Spawning commuter: " + commuter);
+
+                ECB.SetComponent<LocalTransform>(commuter, LocalTransform.FromPosition(platform.platform_exit0));
+                ECB.SetComponent<CommuterComponent>(commuter, new CommuterComponent
+                {
+                    tasks = new NativeList<CommuterComponentTask>(Allocator.Persistent),
+                    currentPlatform = entity
+                });
+            }
+
+            spawner.hasSpawned = true;
+
+            ECB.RemoveComponent<CommuterSpawnComponent>(entity);
         }
     }
 
     public partial struct PlatformNavJob : IJobEntity
     {
         public EntityCommandBuffer ECB;
-        public ComponentLookup<LocalToWorld> navTransforms;
+        public ComponentLookup<WorldTransform> worldTransforms;
+        public ComponentLookup<LocalTransform> localTransforms;
         public ComponentLookup<NavPointComponent> navPoints;
         public EntityManager EM;
 
-        public void Execute(in NavTag tag, in Entity entity, ref PlatformComponent platform)
+        public void Execute(ref NavTag tag, in Entity entity, ref PlatformComponent platform)
         {
+            // TODO make so only run once
             Debug.Log("Nav Job! before");
             if (!platform.init)
                 return;
 
+            if (tag.init)
+            {
+                ECB.RemoveComponent<NavTag>(entity);
+                return;
+            }
+
+            tag.init = true;
+
             var buffer = EM.GetBuffer<LinkedEntityGroup>(entity);
-            bool done = false;
             Debug.Log("Nav Job! after");
             foreach (var item in buffer)
             {
@@ -62,28 +117,28 @@ namespace Assets.DOTS.Systems
 
                 if (EM.HasComponent<NavPointComponent>(e))
                 {
-                    done = true;
                     Debug.Log("Setting nav point: " + navPoints[e].pointID);
                     switch (navPoints[e].pointID)
                     {
                         case 0:
-                            platform.platform_entrance0 = navTransforms[e].Position;
+                            Debug.Log($"{worldTransforms[e].Position} vs {localTransforms[entity].Position}");
+                            platform.platform_entrance0 = worldTransforms[e].Position;
                             break;
                         case 1:
-                            platform.platform_entrance1 = navTransforms[e].Position;
+                            platform.platform_entrance1 = worldTransforms[e].Position;
                             break;
                         case 2:
-                            platform.platform_entrance2 = navTransforms[e].Position;
+                            platform.platform_entrance2 = worldTransforms[e].Position;
                             break;
                         case 10:
                             // Exit nav points IDs are offset by 10
-                            platform.platform_exit0 = navTransforms[e].Position;
+                            platform.platform_exit0 = worldTransforms[e].Position;
                             break;
                         case 11:
-                            platform.platform_exit1 = navTransforms[e].Position;
+                            platform.platform_exit1 = worldTransforms[e].Position;
                             break;
                         case 12:
-                            platform.platform_exit2 = navTransforms[e].Position;
+                            platform.platform_exit2 = worldTransforms[e].Position;
                             break;
                         default:
                             Debug.Log("ERROR: Nav points ID don't match!");
@@ -91,8 +146,6 @@ namespace Assets.DOTS.Systems
                     }
                 }
             }
-            if (done)
-                ECB.RemoveComponent<NavTag>(entity);
         }
     }
 }

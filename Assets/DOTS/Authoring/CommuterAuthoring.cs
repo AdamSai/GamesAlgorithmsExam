@@ -16,8 +16,6 @@ namespace Assets.DOTS.Authoring
         public override void Bake(CommuterAuthoring authoring)
         {
             NativeList<float3> destinations = new NativeList<float3>(Allocator.Persistent);
-            destinations.Add(new float3(5, 5, 0));
-            destinations.Add(new float3(5, 0, 0));
 
             AddComponent(new WalkComponent
             {
@@ -30,7 +28,8 @@ namespace Assets.DOTS.Authoring
             {
                 tasks = new NativeList<CommuterComponentTask>(Allocator.Persistent),
                 //currentCarriage = Entity.Null,
-                currentPlatform = Entity.Null
+                currentPlatform = Entity.Null,
+                r = 0,
             });
 
             AddComponent(new PassengerComponent

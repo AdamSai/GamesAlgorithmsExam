@@ -8,5 +8,6 @@ namespace Assets.DOTS.Components
     {
         public int amount;
         public Entity commuter;
+        public bool hasSpawned;
     }
 }

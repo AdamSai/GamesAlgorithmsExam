@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using static UnityEngine.UI.Image;
 
 namespace DOTS.Jobs
 {
@@ -38,8 +39,11 @@ namespace DOTS.Jobs
                         {
                             Add_AdjacentPlatform(entity, _PB_ENT);
                         }
-                    }
                 }
+                }
+            //var originalPlatform = platformLookUp.GetRefRW(entity, false).ValueRW;
+            //originalPlatform.init = true;
+
             Debug.Log("Counter: " + counter);
         }
 
