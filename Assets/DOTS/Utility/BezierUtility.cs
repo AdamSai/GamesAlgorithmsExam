@@ -120,7 +120,6 @@ namespace DOTS.Utility
             return BezierLerp(point_region_start, point_region_end, regionProgress);
         }
 
-        private static int i = 0;
         public static int GetRegionIndex(float _progress, DynamicBuffer<BezierPoint> points)
         {
             int result = 0;
@@ -128,11 +127,6 @@ namespace DOTS.Utility
             for (int i = 0; i < totalPoints; i++)
             {
                 BezierPoint _PT = points[i];
-                // i++;
-                // if (i > 5000)
-                // {
-                //     Debug.Log(_PT.distanceAlongPath + " " + _progress);
-                // }
                 if (_PT.distanceAlongPath <= _progress)
                 {
                     if (i == totalPoints - 1)

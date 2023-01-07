@@ -93,6 +93,7 @@ public partial struct SetupTrainsJob : IJobEntity
 
             float pos = trainSpacing * i;
             Debug.Log($"train pos {MLA.MetroLineID}: "+ pos);
+            ECB.SetName(train, $"Train_{MLA.MetroLineID}:{i}");
             ECB.SetComponent(train, new TrainPositionComponent
             {
                 value = pos
@@ -143,7 +144,6 @@ public partial struct SetupCarriagesJob : IJobEntity
                 //Instantiate Carriages
                 Entity carriage = ECB.Instantiate(MLCarriage.carriage);
 
-
                 ECB.SetComponent(carriage, new CarriageIDComponent
                 {
                     id = j,
@@ -191,6 +191,9 @@ public partial struct SetupTrainAheadJob : IJobEntity
             var other = trainIdLookup.GetRefRO(train).ValueRO;
             if (other.LineIndex == trainID.LineIndex)
             {
+                if (entity.Index == train.Index)
+                    continue;
+                
                 if (trainID.TrainIndex == maxTrains.value - 1 && other.TrainIndex == 0)
                 {
                     trainAheadComponent.Value = train;
@@ -200,7 +203,6 @@ public partial struct SetupTrainAheadJob : IJobEntity
                 {
                     trainAheadComponent.Value = train;
                     return;
-
                 }
             }
         }

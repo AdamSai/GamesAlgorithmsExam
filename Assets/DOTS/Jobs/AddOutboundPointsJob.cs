@@ -45,7 +45,6 @@ namespace DOTS.Jobs
             FixReturnHandles(ref bezierPointBuffer, returnStartIndex);
             path.distance = BezierUtility.MeasurePath(ref bezierPointBuffer);
 
-            // TODO: Platforms
             // now that the rails have been laid - let's put the platforms on
             int totalPoints = bezierPointBuffer.Length;
 
@@ -78,6 +77,7 @@ namespace DOTS.Jobs
 
             // Sorting platforms
             platforms.Sort(new PlatformComparer());
+            Debug.Log($"Total platforms {metroLine.MetroLineID}: " + platforms.Length);
             // TODO: If platform driving fucks up look at this
             for (int i = 0; i < platforms.Length; i++)
             {
@@ -111,7 +111,8 @@ namespace DOTS.Jobs
                 point_platform_END = _PT_END,
                 carriageCount = metroLineCarriageData.carriages,
                 neighborPlatforms = new NativeList<Entity>(Allocator.Persistent),
-                parentMetroName = metroLine.metroLineName
+                parentMetroName = metroLine.metroLineName,
+                metroLineID = metroLine.MetroLineID
             };
             platforms.Add(platformComponent);
 

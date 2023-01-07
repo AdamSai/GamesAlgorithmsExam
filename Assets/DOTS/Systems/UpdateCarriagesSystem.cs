@@ -29,6 +29,7 @@ public partial struct UpdateCarriagesSystem : ISystem
     private EntityQuery bezierPathQuery;
     private EntityQuery platformEntitiesQuery;
     private BufferLookup<DOTS.BezierPoint> bezierLookup;
+    private BufferLookup<DOTS.BezierPoint> bezierLookup2;
 
 
     public void OnCreate(ref SystemState state)
@@ -49,6 +50,7 @@ public partial struct UpdateCarriagesSystem : ISystem
         trainIDs2 = state.GetComponentLookup<TrainIDComponent>();
         platforms = state.GetComponentLookup<PlatformComponent>();
         bezierLookup = state.GetBufferLookup<DOTS.BezierPoint>(true);
+        bezierLookup2 = state.GetBufferLookup<DOTS.BezierPoint>(true);
         metroLineLookUp = state.GetComponentLookup<MetroLineComponent>();
         metroLineLookUp2 = state.GetComponentLookup<MetroLineComponent>();
         bezierPathLookup = state.GetComponentLookup<BezierPathComponent>();
@@ -72,6 +74,7 @@ public partial struct UpdateCarriagesSystem : ISystem
         platforms.Update(ref state);
         bezierLookup.Update(ref state);
         metroLineLookUp.Update(ref state);
+        var ecb = new EntityCommandBuffer(Allocator.Persistent);
         var updateTrainsJob = new UpdateTrainStatesJob
         {
             trainsPositions = trainPosLookUp,
@@ -82,25 +85,27 @@ public partial struct UpdateCarriagesSystem : ISystem
             bezierLookup = bezierLookup,
             metroLineComponents = metroLineLookUp,
             metroLines = metroLines2,
-            deltaTime = SystemAPI.Time.DeltaTime
+            deltaTime = SystemAPI.Time.DeltaTime,
         };
+        updateTrainsJob.Run();
+        // updateTrainHandle.Complete();
+        ecb.Playback(state.EntityManager);
+        ecb.Dispose();
+        // updateTrainHandle.Complete();
 
-        var updateTrainHandle = updateTrainsJob.Schedule(state.Dependency);
-        updateTrainHandle.Complete();
-
-        var trainPositionDependencies = JobHandle.CombineDependencies(updateTrainHandle, state.Dependency);
         var trainJob = new UpdateTrainsPositionsJob {deltaTime = SystemAPI.Time.DeltaTime};
-        state.Dependency = trainJob.Schedule(trainPositionDependencies);
-        state.Dependency.Complete();
+        var updateTrainPosHandle = trainJob.Schedule(state.Dependency);
+
+        var carriageDependency = JobHandle.CombineDependencies(updateTrainPosHandle, state.Dependency);
 
         var trains =
             trainQuery.ToEntityArray(Allocator.Persistent);
         var metroLines =
             metroLineQuery.ToEntityArray(Allocator.Persistent);
 
-        bezierLookup.Update(ref state);
         metroLineLookUp2.Update(ref state);
         trainIDs2.Update(ref state);
+        bezierLookup2.Update(ref state);
         bezierPathLookup.Update(ref state);
         var carriageJob = new UpdateCarriageJob
         {
@@ -108,14 +113,14 @@ public partial struct UpdateCarriagesSystem : ISystem
             ECB = ECB,
             metroLines = metroLines,
             tPos = state.GetComponentLookup<TrainPositionComponent>(),
-            bezierPoints = bezierLookup,
+            bezierPoints = bezierLookup2,
             MetroLineComponents = metroLineLookUp2,
             trainIDs = trainIDs2,
             BezierPaths = bezierPathLookup
         };
-        state.Dependency = carriageJob.Schedule(state.Dependency);
-        state.Dependency.Complete();
-
+        state.Dependency = carriageJob.Schedule(carriageDependency);
+        // state.Dependency.Complete();
+        state.CompleteDependency();
         // var dependency = JobHandle.CombineDependencies(trainJobHandle, state.Dependency);
         // state.Dependency = new UpdateCarriageJob {trains = trains}.Schedule(dependency);
     }
@@ -128,15 +133,12 @@ public partial struct UpdateTrainsPositionsJob : IJobEntity
     public void Execute(in Entity ent, ref TrainPositionComponent tpos, ref TrainSpeedComponent speed)
     {
         // Set initial speed and position
-        var pos = tpos.value;
-        var Speed = speed.speed;
-        var Friction = speed.friction;
+        // var pos = tpos.value;
 
-        pos = ((pos += Speed * deltaTime) % 1f);
-        Speed *= Friction; // TODO: See Train_railFriction on Metro.cs
+        tpos.value = ((tpos.value += speed.speed * deltaTime) % 1f);
+        speed.speed *= speed.friction; // TODO: See Train_railFriction on Metro.cs
 
-        speed.speed = Speed;
-        tpos.value = pos;
+        // tpos.value = pos;
         }
 }
 
@@ -182,8 +184,8 @@ public partial struct UpdateCarriageJob : IJobEntity
         // UpdateCarriages
         // Update position on the bezier
         var bezier = BezierPaths.GetRefRO(metroLine).ValueRO;
-        float carriageOffset = 10f;
-        float pos = tPos[trainEntity].value + carriageIDComponent.id * carriageOffset / bezier.distance;
+        float carriageOffset = 5f;
+        float pos = tPos[trainEntity].value - carriageIDComponent.id * carriageOffset / bezier.distance;
 
 
         if (pos >= 1f)
