@@ -29,7 +29,7 @@ namespace Assets.DOTS.Authoring
             AddComponent(new CommuterComponent
             {
                 tasks = new NativeList<CommuterComponentTask>(Allocator.Persistent),
-                currentCarriage = Entity.Null,
+                //currentCarriage = Entity.Null,
                 currentPlatform = Entity.Null
             });
 

@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Linq;
 using DOTS.Components;
 using static UnityEngine.EventSystems.EventTrigger;
-using Assets.DOTS.Utilities.Stack;
+using Assets.DOTS.Utility.Stack;
 
 namespace Assets.DOTS.Systems
 {
@@ -15,7 +15,8 @@ namespace Assets.DOTS.Systems
 
         public void OnCreate(ref SystemState state)
         {
-            
+            platformQuery =
+            new EntityQueryBuilder(Allocator.Persistent).WithAll<PlatformComponent>().Build(ref state);
         }
 
         public void OnDestroy(ref SystemState state)
@@ -25,11 +26,8 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
-            return; // TODO: remove this and make it work
+            //return; // TODO: remove this and make it work
             var platformComponents = state.GetComponentLookup<PlatformComponent>();
-
-            platformQuery =
-            new EntityQueryBuilder(Allocator.Persistent).WithAll<PlatformComponent>().Build(ref state);
 
             var platformEntities =
             platformQuery.ToEntityArray(Allocator.Persistent);
@@ -42,6 +40,8 @@ namespace Assets.DOTS.Systems
             state.Dependency = job.Schedule(state.Dependency);
 
             state.Dependency.Complete();
+            platformEntities.Dispose();
+            //platformQuery.Dispose();
         }
     }
 
@@ -59,8 +59,6 @@ namespace Assets.DOTS.Systems
             {
                 Debug.Log("This far: 0");
                 // No task: get random destination?
-                //int r = UnityEngine.Random.Range(0, platformEntities.Length);
-                //z = a*z % m
                 int r = RNG(entity.Index, platformEntities.Length-1);
                 Debug.Log("This far: 1. r is " + r);
                 Debug.Log(platformEntities[r]);
@@ -84,6 +82,7 @@ namespace Assets.DOTS.Systems
                         tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
                     }
                 }
+                path.Dispose();
                 Debug.Log("This far: 4");
             }
         }

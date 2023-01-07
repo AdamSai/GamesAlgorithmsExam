@@ -55,16 +55,6 @@ public partial struct SetupRailSystem : ISystem
         outboundsJob.Complete();
         ecb.Playback(state.EntityManager);
 
-        // Setting nav points for all platforms
-        var platformNavJob = new PlatformNavJob
-        {
-            navTransforms = state.GetComponentLookup<WorldTransform>(),
-            navPoints = state.GetComponentLookup<NavPointComponent>(),
-            EM = state.EntityManager
-        };
-        state.Dependency = platformNavJob.Schedule(state.Dependency);
-        state.Dependency.Complete();
-
         // Connect plaforms to the ones on the opposite side of the tracks
         new ConnectOppositePlatformsJob().Run();
 
@@ -91,49 +81,24 @@ public partial struct SetupRailSystem : ISystem
     }
 }
 
-public partial struct PlatformNavJob : IJobEntity
+public partial struct SpawnCommutersJob : IJobEntity
 {
-    public ComponentLookup<WorldTransform> navTransforms;
-    public ComponentLookup<NavPointComponent> navPoints;
-    public EntityManager EM;
+    EntityCommandBuffer ECB;
 
-    public void Execute(in Entity entity, ref PlatformComponent platform)
+    public void Execute(in Entity entity, in CommuterSpawnComponent spawner, in LocalTransform transform)
     {
-        var buffer = EM.GetBuffer<LinkedEntityGroup>(entity);
-        Debug.Log("Nav Job!");
-        foreach (var item in buffer)
+        for (int i = 0; i < spawner.amount; i++)
         {
-            Entity e = item.Value;
+            Entity commuter = ECB.Instantiate(spawner.commuter);
 
-            if (EM.HasComponent<NavPointComponent>(e))
+            ECB.SetComponent<LocalTransform>(commuter, LocalTransform.FromPosition(transform.Position));
+            ECB.SetComponent<CommuterComponent>(commuter, new CommuterComponent
             {
-                Debug.Log("Setting nav point: " + navPoints[e].pointID);
-                switch (navPoints[e].pointID)
-                {
-                    case 0:
-                        platform.platform_entrance0 = navTransforms[e].Position;
-                        break;
-                    case 1:
-                        platform.platform_entrance1 = navTransforms[e].Position;
-                        break;
-                    case 2:
-                        platform.platform_entrance2 = navTransforms[e].Position;
-                        break;
-                    case 10:
-                        // Exit nav points IDs are offset by 10
-                        platform.platform_exit0 = navTransforms[e].Position;
-                        break;
-                    case 11:
-                        platform.platform_exit1 = navTransforms[e].Position;
-                        break;
-                    case 12:
-                        platform.platform_exit2 = navTransforms[e].Position;
-                        break;
-                    default:
-                        Debug.Log("ERROR: Nav points ID don't match!");
-                        break;
-                }
-            }
+                tasks = new NativeList<CommuterComponentTask>(Allocator.Persistent),
+                currentPlatform = entity
+            });
         }
+
+        ECB.RemoveComponent<SpawnCommutersJob>(entity);
     }
 }

@@ -3,7 +3,7 @@ using System.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
-using Assets.DOTS.Utilities.Stack;
+using Assets.DOTS.Utility.Stack;
 
 namespace Assets.DOTS.Jobs
 {
@@ -24,7 +24,7 @@ namespace Assets.DOTS.Jobs
         {
             bool jobFinished = false;
 
-            var currentTask = commuter.tasks.LastElement();
+            var currentTask = commuter.tasks.NextElement();
 
             switch (currentTask.state)
             {
@@ -55,7 +55,7 @@ namespace Assets.DOTS.Jobs
                 commuter.tasks.Pop();
 
                 // Get new task
-                var newTask = commuter.tasks.LastElement();
+                var newTask = commuter.tasks.NextElement();
 
                 switch (newTask.state)
                 {

@@ -6,6 +6,7 @@ using UnityEngine;
 
 public struct PlatformComponent : IComponentData
 {
+    public bool init;
     public NativeList<Entity> neighborPlatforms; // Platforms that commuter can walk to
     public Entity oppositePlatform; // Opposite platform, perhaps obsolete
     public Entity nextPlatform; // Next station

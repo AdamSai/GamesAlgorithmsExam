@@ -13,6 +13,7 @@ namespace DOTS.Jobs
         {
             Debug.Log("Connect opposite platforms");
             platformComponent.oppositePlatform = oppositePlatformComponent.OppositePlatform.entity;
+            platformComponent.init = true;
         }
 
         public static Vector3 ToEulerAngles(Quaternion q)

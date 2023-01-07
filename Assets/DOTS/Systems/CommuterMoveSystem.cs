@@ -1,10 +1,11 @@
-﻿using Assets.DOTS.Utilities.Stack;
+﻿using Assets.DOTS.Utility;
 using JetBrains.Annotations;
 using System.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Assets.DOTS.Utility.Stack;
 
 namespace Assets.DOTS.Systems
 {
@@ -39,7 +40,7 @@ namespace Assets.DOTS.Systems
                 if (walk.destinations.IsEmpty)
                     return;
 
-                if (DOT(walk.velocity, walk.destinations.LastElement() - transform.Position) < 0)
+                if (DOT(walk.velocity, walk.destinations.NextElement() - transform.Position) < 0)
                 {
                     // Reached intermediate destination
                     walk.destinations.Pop();
@@ -49,7 +50,7 @@ namespace Assets.DOTS.Systems
                 {
                     // Didn't reach intermediate destination, instead change velocity
                     walk.velocity =
-                        math.normalize(walk.destinations.LastElement() - transform.Position) * walk.speed;
+                        math.normalize(walk.destinations.NextElement() - transform.Position) * walk.speed;
                 }
 
                 float3 newPos = transform.Position + walk.velocity * deltaTime;

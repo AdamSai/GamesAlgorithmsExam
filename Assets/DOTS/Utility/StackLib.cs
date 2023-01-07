@@ -4,7 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-namespace Assets.DOTS.Utilities.Stack
+namespace Assets.DOTS.Utility.Stack
 {
     public static class StackLib
     {
@@ -20,7 +20,7 @@ namespace Assets.DOTS.Utilities.Stack
             return element;
         }
 
-        public static T LastElement<T>(this NativeList<T> stack) where T : unmanaged
+        public static T NextElement<T>(this NativeList<T> stack) where T : unmanaged
         {
             return stack[stack.Length - 1];
         }

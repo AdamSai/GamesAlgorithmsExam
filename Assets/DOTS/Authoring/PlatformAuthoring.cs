@@ -1,3 +1,4 @@
+using Assets.DOTS.Components;
 using DOTS.Components;
 using Unity.Collections;
 using Unity.Entities;
@@ -7,6 +8,7 @@ namespace DOTS.Authoring
 {
     public class PlatformAuthoring : MonoBehaviour
     {
+        
     }
 
     public class PlatformBaker : Baker<PlatformAuthoring>
@@ -15,9 +17,11 @@ namespace DOTS.Authoring
         {
             AddComponent(new PlatformComponent
             {
-                neighborPlatforms = new NativeList<Entity>( Allocator.Persistent)
+                neighborPlatforms = new NativeList<Entity>( Allocator.Persistent),
+                init = false
             });
             AddComponent(new OppositePlatformComponent());
+            AddComponent(new NavTag());
         }
     }
 }

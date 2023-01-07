@@ -50,6 +50,8 @@ public static class Pathfinding
                 break;
 
             // Add neighbors of platform
+            Debug.Log(u);
+            Debug.Log(platformComponents[u]);
             foreach (Entity neighbor in platformComponents[u].neighborPlatforms)
             {
                 if (explored[neighbor])

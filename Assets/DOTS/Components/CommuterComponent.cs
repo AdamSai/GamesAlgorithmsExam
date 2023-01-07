@@ -32,6 +32,6 @@ public struct CommuterComponentTask
 public struct CommuterComponent : IComponentData
 {
     public NativeList<CommuterComponentTask> tasks;
-    public Entity currentCarriage;
+    //public Entity currentCarriage;
     public Entity currentPlatform;
 }
