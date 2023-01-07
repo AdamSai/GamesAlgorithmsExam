@@ -20,7 +20,7 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
-            var transformLookup = state.GetComponentLookup<LocalToWorld>();
+            var transformLookup = state.GetComponentLookup<WorldTransform>();
 
             var job = new PassengerJob { worldTransforms = transformLookup };
 
@@ -31,7 +31,7 @@ namespace Assets.DOTS.Systems
         {
             //public EntityCommandBuffer ECB;
             //public ComponentLookup<CarriagePassengerSeatsComponent> carriageSeats;
-            public ComponentLookup<LocalToWorld> worldTransforms;
+            public ComponentLookup<WorldTransform> worldTransforms;
 
             public void Execute(in PassengerComponent passenger, ref LocalTransform transformm)
             {

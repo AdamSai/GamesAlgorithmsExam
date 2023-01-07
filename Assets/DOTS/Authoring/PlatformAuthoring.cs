@@ -22,6 +22,16 @@ namespace DOTS.Authoring
             });
             AddComponent(new OppositePlatformComponent());
             AddComponent(new NavTag { init = false });
+
+            // Queue stuff
+            AddComponent(new QueueComponent { 
+                queue0 = new NativeList<Entity>(Allocator.Persistent),
+                queue1 = new NativeList<Entity>(Allocator.Persistent),
+                queue2 = new NativeList<Entity>(Allocator.Persistent),
+                queue3 = new NativeList<Entity>(Allocator.Persistent),
+                queue4 = new NativeList<Entity>(Allocator.Persistent),
+            });
+            AddBuffer<QueueEntryComponent>();
         }
     }
 }

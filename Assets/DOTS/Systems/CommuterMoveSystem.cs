@@ -40,7 +40,7 @@ namespace Assets.DOTS.Systems
                 if (walk.destinations.IsEmpty)
                     return;
 
-                if (DOT(walk.velocity, walk.destinations.NextElement() - transform.Position) < 0)
+                if (DOT(walk.velocity, walk.destinations.NextStackElement() - transform.Position) < 0)
                 {
                     // Reached intermediate destination
                     walk.destinations.Pop();
@@ -50,7 +50,7 @@ namespace Assets.DOTS.Systems
                 {
                     // Didn't reach intermediate destination, instead change velocity
                     walk.velocity =
-                        math.normalize(walk.destinations.NextElement() - transform.Position) * walk.speed;
+                        math.normalize(walk.destinations.NextStackElement() - transform.Position) * walk.speed;
                 }
 
                 float3 newPos = transform.Position + walk.velocity * deltaTime;

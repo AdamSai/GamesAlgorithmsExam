@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.DOTS.Components;
+using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -36,6 +37,16 @@ namespace Assets.DOTS.Authoring
             {
                 currentCarriage = Entity.Null,
                 carriageSeat = Entity.Null
+            });
+
+            AddComponent(new CommuterQueuerComponent { 
+                inQueue = false,
+                queueIndex = 0,
+                readyForBoarding = false,
+                finishedTask = false,
+                queueStartPosition = new float3(0),
+                queueDirection = new float3(0),
+                state = QueueState.None,
             });
         }
     }

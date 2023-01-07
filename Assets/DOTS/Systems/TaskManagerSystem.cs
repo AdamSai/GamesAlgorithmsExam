@@ -58,7 +58,7 @@ namespace Assets.DOTS.Systems
 
             bool jobFinished = false;
 
-            var currentTask = commuter.tasks.NextElement();
+            var currentTask = commuter.tasks.NextStackElement();
 
             switch (currentTask.state)
             {
@@ -95,7 +95,7 @@ namespace Assets.DOTS.Systems
                 }
 
                 // Get new task
-                var newTask = commuter.tasks.NextElement();
+                var newTask = commuter.tasks.NextStackElement();
 
                 switch (newTask.state)
                 {

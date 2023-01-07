@@ -1,4 +1,5 @@
-﻿using DOTS.Components;
+﻿using Assets.DOTS.Components;
+using DOTS.Components;
 using DOTS.Utility;
 using Unity.Collections;
 using Unity.Entities;
@@ -109,11 +110,20 @@ namespace DOTS.Jobs
                 neighborPlatforms = new NativeList<Entity>(Allocator.Persistent),
                 parentMetroName = metroLine.metroLineName
             };
+
             platforms.Add(platformComponent);
 
             ECB.SetComponent(plat, new ColorComponent
             {
                 value = color.value
+            });
+
+            ECB.SetComponent(plat, new QueueComponent{
+                queue0 = new NativeList<Entity>(Allocator.Persistent),
+                queue1 = new NativeList<Entity>(Allocator.Persistent),
+                queue2 = new NativeList<Entity>(Allocator.Persistent),
+                queue3 = new NativeList<Entity>(Allocator.Persistent),
+                queue4 = new NativeList<Entity>(Allocator.Persistent),
             });
             // ECB.SetComponent(plat, platformComponent);
             // TODO: setup color, queues, walkways, neighborPlatforms

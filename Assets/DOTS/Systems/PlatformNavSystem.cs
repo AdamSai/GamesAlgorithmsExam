@@ -32,6 +32,7 @@ namespace Assets.DOTS.Systems
             Debug.Log("Nav System!");
             EntityCommandBuffer ECB = new EntityCommandBuffer(Allocator.Persistent);
 
+            // Set nav points
             var platformNavJob = new PlatformNavJob
             {
                 ECB = ECB,
@@ -46,6 +47,7 @@ namespace Assets.DOTS.Systems
             ECB.Playback(state.EntityManager);
             ECB.Dispose();
 
+            // Spawn commuters
             ECB = new EntityCommandBuffer(Allocator.Persistent);
             var spawnJob = new SpawnCommutersJob { ECB = ECB };
 
@@ -60,7 +62,8 @@ namespace Assets.DOTS.Systems
     {
         public EntityCommandBuffer ECB;
 
-        public void Execute(ref CommuterSpawnComponent spawner, in Entity entity, in LocalTransform transform, in PlatformComponent platform)
+        public void Execute(ref CommuterSpawnComponent spawner, 
+            in Entity entity, in LocalTransform transform, in PlatformComponent platform, QueueComponent queueC)
         {
             Debug.Log("Spawning commuter job!");
             // TODO make so only run once
@@ -72,11 +75,17 @@ namespace Assets.DOTS.Systems
                 Entity commuter = ECB.Instantiate(spawner.commuter);
                 Debug.Log("Spawning commuter: " + commuter);
 
-                ECB.SetComponent<LocalTransform>(commuter, LocalTransform.FromPosition(platform.platform_exit0));
+                ECB.SetComponent<LocalTransform>(commuter, LocalTransform.FromPosition(platform.platform_entrance0));
                 ECB.SetComponent<CommuterComponent>(commuter, new CommuterComponent
                 {
                     tasks = new NativeList<CommuterComponentTask>(Allocator.Persistent),
                     currentPlatform = entity
+                });
+                ECB.SetComponent(commuter, new WalkComponent
+                {
+                    speed = 2f,
+                    velocity = new float3(0),
+                    destinations = new NativeList<float3>(Allocator.Persistent),
                 });
             }
 
@@ -94,7 +103,7 @@ namespace Assets.DOTS.Systems
         public ComponentLookup<NavPointComponent> navPoints;
         public EntityManager EM;
 
-        public void Execute(ref NavTag tag, in Entity entity, ref PlatformComponent platform)
+        public void Execute(ref NavTag tag, in Entity entity, ref PlatformComponent platform, ref QueueComponent queueC)
         {
             // TODO make so only run once
             Debug.Log("Nav Job! before");
@@ -140,6 +149,40 @@ namespace Assets.DOTS.Systems
                         case 12:
                             platform.platform_exit2 = worldTransforms[e].Position;
                             break;
+
+                        case 100:
+                            //Debug.Log($"Queue point: {worldTransforms[e].Position}.");
+                            queueC.queuePoint0 = worldTransforms[e].Position;
+                            break;
+                        case 101:
+                            queueC.queuePoint0_1 = worldTransforms[e].Position;
+                            break;
+                        case 110:
+                            queueC.queuePoint1 = worldTransforms[e].Position;
+                            break;
+                        case 111:
+                            queueC.queuePoint1_1 = worldTransforms[e].Position;
+                            break;
+                        case 120:
+                            queueC.queuePoint2 = worldTransforms[e].Position;
+                            break;
+                        case 121:
+                            queueC.queuePoint2_1 = worldTransforms[e].Position;
+                            break;
+                        case 130:
+                            queueC.queuePoint3 = worldTransforms[e].Position;
+                            break;
+                        case 131:
+                            queueC.queuePoint3_1 = worldTransforms[e].Position;
+                            break;
+                        case 140:
+                            queueC.queuePoint4 = worldTransforms[e].Position;
+                            break;
+                        case 141:
+                            queueC.queuePoint4_1 = worldTransforms[e].Position;
+                            break;
+
+
                         default:
                             Debug.Log("ERROR: Nav points ID don't match!");
                             break;

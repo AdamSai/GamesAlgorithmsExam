@@ -57,20 +57,20 @@ namespace Assets.DOTS.Systems
         {
             if (commuter.tasks.IsEmpty && platformEntities.IsCreated)
             {
-                Debug.Log("This far: 0");
+                //Debug.Log("This far: 0");
                 // No task: get random destination?
                 int r = RNG(entity.Index + commuter.r, platformEntities.Length-1);
                 while(commuter.currentPlatform == platformEntities[r])
                 {
                     r = RNG(r, platformEntities.Length - 1);
                 }
-                Debug.Log("This far: 1. r is " + r);
-                Debug.Log(platformEntities[r]);
+                //Debug.Log("This far: 1. r is " + r);
+                //Debug.Log(platformEntities[r]);
                 Entity e = platformEntities[r];
-                Debug.Log("This far: 2");
+                //Debug.Log("This far: 2");
                 NativeList<Entity> path = Pathfinding.GetPath(platformEntities, platformComponents, commuter.currentPlatform, e);
 
-                Debug.Log("This far: 3. Path length: " + path.Length);
+                //Debug.Log("This far: 3. Path length: " + path.Length);
                 for (int i = 0; i < path.Length - 1; i++)
                 {
                     Entity to = path[i];
@@ -89,9 +89,9 @@ namespace Assets.DOTS.Systems
                     }
                 }
                 //commuter.tasks.Push(new CommuterComponentTask(CommuterState.SPAWN_WALK, commuter.currentPlatform, commuter.currentPlatform));
-                Debug.Log("This far: 4. Task list length: " + commuter.tasks.Length + ". Path length: " + path.Length);
-                if (!commuter.tasks.IsEmpty)
-                    Debug.Log("This far: 5. Start entity: " + path.NextElement() + ". First task entity: " + commuter.tasks.NextElement().endPlatform);
+                //Debug.Log("This far: 4. Task list length: " + commuter.tasks.Length + ". Path length: " + path.Length);
+                //if (!commuter.tasks.IsEmpty)
+                //    Debug.Log("This far: 5. Start entity: " + path.NextStackElement() + ". First task entity: " + commuter.tasks.NextStackElement().endPlatform);
                 
                 path.Dispose();
             }

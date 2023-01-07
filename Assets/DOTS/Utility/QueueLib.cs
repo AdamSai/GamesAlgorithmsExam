@@ -18,7 +18,7 @@ namespace Assets.DOTS.Utility.Queue
             return element;
         }
 
-        public static T NextElement<T>(this NativeList<T> queue) where T : unmanaged
+        public static T NextQueueElement<T>(this NativeList<T> queue) where T : unmanaged
         {
             return queue[0];
         }

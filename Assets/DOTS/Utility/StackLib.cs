@@ -20,7 +20,7 @@ namespace Assets.DOTS.Utility.Stack
             return element;
         }
 
-        public static T NextElement<T>(this NativeList<T> stack) where T : unmanaged
+        public static T NextStackElement<T>(this NativeList<T> stack) where T : unmanaged
         {
             return stack[stack.Length - 1];
         }
