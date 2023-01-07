@@ -23,5 +23,6 @@ public struct PlatformComponent : IComponentData
     public byte carriageCount; // Number of carriages
     public int platformIndex; // Number of carriages
     public char parentMetroName;
+    public int metroLineID;
 
 }

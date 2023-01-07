@@ -1,10 +1,11 @@
 ﻿using System.Numerics;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
 namespace DOTS
 {
-    public struct BezierPoint
+    public struct BezierPoint : IBufferElementData
     {
         public int index;
         public float3 location, handle_in, handle_out;
