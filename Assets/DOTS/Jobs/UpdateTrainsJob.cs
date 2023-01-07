@@ -15,26 +15,31 @@ namespace DOTS.Jobs
         public ComponentLookup<TrainIDComponent> trainIDs;
         public ComponentLookup<PlatformComponent> platforms;
         public ComponentLookup<MetroLineComponent> metroLineComponents;
-        
+
         public NativeArray<BezierPathComponent> bezierPathComponents;
 
         public NativeArray<Entity> platformEntities;
         public BufferLookup<BezierPoint> bezierLookup;
         public NativeArray<Entity> metroLines;
 
+        public float deltaTime;
+
 
         public void Execute(in Entity entity, ref TrainStateComponent TSC, in TrainAheadComponent trainAheadOfMeComp,
             in AmountOfTrainsInLineComponent maxTrains, ref TrainSpeedComponent speed,
-            in MaxTrainSpeedComponent maxTrainSpeed, ref TrainsNextPlatformComponent nextPlatformComponent)
+            in MaxTrainSpeedComponent maxTrainSpeed, ref TrainsNextPlatformComponent nextPlatformComponent,
+            ref TimerComponent timer)
         {
-            float accelerationStrength = 0.000001f;
+            // float accelerationStrength = 0.000001f;
+            float accelerationStrength = 0.001f;
             var trainID = trainIDs.GetRefRO(entity).ValueRO;
             DynamicBuffer<BezierPoint> bezierBuffer = default;
             BezierPathComponent bezierPath = default;
 
+
             foreach (var metroLine in metroLines)
             {
-                if (metroLineComponents.GetRefRO(metroLine).ValueRO.MetroLineID ==  trainID.LineIndex)
+                if (metroLineComponents.GetRefRO(metroLine).ValueRO.MetroLineID == trainID.LineIndex)
                 {
                     bezierBuffer = bezierLookup[metroLine];
                     break;
@@ -54,15 +59,15 @@ namespace DOTS.Jobs
 
             if (nextPlatformComponent.value == default)
             {
-                Debug.Log("Value null");
-                UpdatePlatform(ref nextPlatformComponent, bezierBuffer, currentPos, entity);
+                UpdatePlatform(ref nextPlatformComponent, bezierBuffer, currentPos, entity, bezierPath);
             }
+
             var nextPlatform = platforms.GetRefRW(nextPlatformComponent.value, false).ValueRO;
 
             switch (TSC.value)
             {
                 case TrainStateDOTS.EN_ROUTE:
-                    // Debug.Log("En route");
+                    Debug.Log("State: En route");
                     var trainAheadOfMe = trainAheadOfMeComp.Value;
                     // TODO: Maybe make RW?
                     float trainAhead_stopPoint = trainsPositions.GetRefRO(trainAheadOfMe).ValueRO.value;
@@ -85,14 +90,14 @@ namespace DOTS.Jobs
                     }
                     else
                     {
+                        Debug.Log("Too close ot train ahead, slowing down");
                         speed.speed *= 0.85f;
                     }
 
                     // Get platfrom from this
 
                     // ===== CHANGE STATE =====
-                    // Debug.Log("Region " + BezierUtility.GetRegionIndex(currentPos, bezierBuffer) + " " + nextPlatform.point_platform_START.index);
-                    if (BezierUtility.GetRegionIndex(currentPos, bezierBuffer) ==
+                    if (Get_RegionIndex(currentPos, bezierPath, bezierBuffer) ==
                         nextPlatform.point_platform_START.index)
                     {
                         TSC.value = TrainStateDOTS.ARRIVING;
@@ -103,7 +108,7 @@ namespace DOTS.Jobs
                     break;
 
                 case TrainStateDOTS.ARRIVING:
-                    Debug.Log("Arriving");
+                    Debug.Log("State: Arriving");
                     var _platform_start = nextPlatform.point_platform_START.distanceAlongPath;
                     float _platform_end = nextPlatform.point_platform_END.distanceAlongPath;
                     float _platform_length = _platform_end - _platform_start;
@@ -118,6 +123,7 @@ namespace DOTS.Jobs
                     if (arrivalProgress >= 0.975f) // see Metro.PLATFORM_ARRIVAL_THRESHOLD
                     {
                         // ===== CHANGE STATE =====
+                        timer.duration = 1f;
                         TSC.value = TrainStateDOTS.DOORS_OPEN;
                         speed.speed = 0f;
                     }
@@ -129,16 +135,19 @@ namespace DOTS.Jobs
                     break;
 
                 case TrainStateDOTS.DOORS_OPEN:
-                    Debug.Log("Doors open");
-                    // This should just open the doors, and then move on to the next state
-                    // ===== CHANGE STATE =====
-                    TSC.value = TrainStateDOTS.UNLOADING;
-                    //TODO: PrepareDisembark
+                    Debug.Log("State: Doors open");
+                    if (TimerUtility.RunTimer(ref timer, deltaTime))
+                    {
+                        // This should just open the doors, and then move on to the next state
+                        // ===== CHANGE STATE =====
+                        TSC.value = TrainStateDOTS.UNLOADING;
+                        //TODO: PrepareDisembark
+                    }
 
                     break;
 
                 case TrainStateDOTS.UNLOADING:
-                    Debug.Log("Unloading");
+                    Debug.Log("State: Unloading");
                     // TODO: If Passengers_To_Disembark is 0, change to loading state
                     //If Passengers to Disembark are 0, change state to Loading
                     // ===== CHANGE STATE =====
@@ -147,35 +156,42 @@ namespace DOTS.Jobs
                     break;
 
                 case TrainStateDOTS.LOADING:
-                    Debug.Log("Loading");
+                    Debug.Log("State: Loading");
                     // If passengers_to_embark is 0 change state
                     // ===== CHANGE STATE =====
                     TSC.value = TrainStateDOTS.DOORS_CLOSE;
+                    timer.duration = 1f;
                     // TODO: Empty passengers to embark and disembark lists
                     break;
                 case TrainStateDOTS.DOORS_CLOSE:
-                    Debug.Log("Doors close");
-                    // TODO: Doors actually close ?
+                    Debug.Log("State: Doors close");
+                    if (TimerUtility.RunTimer(ref timer, deltaTime))
+                    {
+                        // TODO: Doors actually close ?
 
-                    // ===== CHANGE STATE =====
-                    UpdatePlatform(ref nextPlatformComponent, bezierBuffer, currentPos, entity);
-                    TSC.value = TrainStateDOTS.DEPARTING;
-                    // stateDelay = Metro.INSTANCE.Train_delay_departure;
+                        // ===== CHANGE STATE =====
+                        timer.duration = 2f;
+                        UpdatePlatform(ref nextPlatformComponent, bezierBuffer, currentPos, entity, bezierPath);
+                        TSC.value = TrainStateDOTS.DEPARTING;
+                        // stateDelay = Metro.INSTANCE.Train_delay_departure;
+                    }
 
 
                     break;
                 case TrainStateDOTS.DEPARTING:
-                    Debug.Log("Departing");
-                    // ===== CHANGE STATE =====
-                    TSC.value = TrainStateDOTS.EN_ROUTE;
-
+                    Debug.Log("State: Departing");
+                    if (TimerUtility.RunTimer(ref timer, deltaTime))
+                    {
+                        // ===== CHANGE STATE =====
+                        TSC.value = TrainStateDOTS.EN_ROUTE;
+                    }
                     // Get_NextPlatform
                     //1 Second Delay
                     //Update Next Platform train needs to go to
 
                     break;
                 case TrainStateDOTS.EMERGENCY_STOP:
-                    Debug.LogError("Departing");
+                    Debug.LogError("State: Departing");
 
                     break;
 
@@ -186,10 +202,10 @@ namespace DOTS.Jobs
 
         private void UpdatePlatform(ref TrainsNextPlatformComponent nextPlatformComponent,
             DynamicBuffer<BezierPoint> bezierBuffer,
-            float currentPos, Entity trainEntity)
+            float currentPos, Entity trainEntity, BezierPathComponent path)
         {
             int totalPoints = bezierBuffer.Length;
-            int currentRegionIndex = BezierUtility.GetRegionIndex(currentPos, bezierBuffer);
+            int currentRegionIndex = Get_RegionIndex(currentPos, path, bezierBuffer);
 
             for (int i = 0; i < totalPoints; i++)
             {
@@ -201,12 +217,20 @@ namespace DOTS.Jobs
                         !nextPlatformComponent.value.Equals(platformEnt))
                     {
                         nextPlatformComponent.value = platformEnt;
-                        // TODO: Maybe this will mess up if a current train is in the nextPlatform and we overwrite it.
+                        Debug.Log("Update platform ahead");
+                        
                         platforms.GetRefRW(platformEnt, false).ValueRW.currentTrain = trainEntity;
+                        return;
                         // TODO; Also add Train to platform
                     }
                 }
             }
         }
+        
+        public int Get_RegionIndex(float _proportion, BezierPathComponent path, DynamicBuffer<BezierPoint> bezierBuffer)
+        {
+            return BezierUtility.GetRegionIndex(BezierUtility.Get_proportionAsDistance(_proportion, path.distance), bezierBuffer);
+        }
+
     }
 }

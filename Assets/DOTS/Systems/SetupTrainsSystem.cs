@@ -120,7 +120,9 @@ public partial struct SetupTrainsJob : IJobEntity
                 value = TrainStateDOTS.DEPARTING
             });
             
-            ECB.AddComponent(train, new TrainAheadComponent());
+            ECB.AddComponent<TrainAheadComponent>(train);
+            
+            ECB.AddComponent<TimerComponent>(train);
         }
     }
 }

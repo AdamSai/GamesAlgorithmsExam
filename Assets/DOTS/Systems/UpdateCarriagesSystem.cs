@@ -82,6 +82,7 @@ public partial struct UpdateCarriagesSystem : ISystem
             bezierLookup = bezierLookup,
             metroLineComponents = metroLineLookUp,
             metroLines = metroLines2,
+            deltaTime = SystemAPI.Time.DeltaTime
         };
 
         var updateTrainHandle = updateTrainsJob.Schedule(state.Dependency);
@@ -136,7 +137,7 @@ public partial struct UpdateTrainsPositionsJob : IJobEntity
 
         speed.speed = Speed;
         tpos.value = pos;
-    }
+        }
 }
 
 public partial struct UpdateCarriageJob : IJobEntity
