@@ -38,8 +38,10 @@ public static class Pathfinding
         unexplored.Add(startPlatform);
 
         bool done = false;
-        while (!done)
+        int iterations = 100;
+        while (!done && iterations > 0)
         {
+            iterations++;
             Entity u = GetShortest(unexplored, dist);
             int i = unexplored.IndexOf(u);
             unexplored.RemoveAt(i);

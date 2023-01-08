@@ -23,18 +23,28 @@ namespace Assets.DOTS.Systems
         public void OnUpdate(ref SystemState state)
         {
             EntityCommandBuffer ECB = new EntityCommandBuffer(Allocator.Persistent);
+            ComponentLookup<PlatformComponent> platformComponent = state.GetComponentLookup<PlatformComponent>();
+            platformComponent.Update(ref state);
+            ComponentLookup<LocalToWorld> worldTransforms = state.GetComponentLookup<LocalToWorld>();
+            worldTransforms.Update(ref state);
+            ComponentLookup<CarriagePassengerSeatsComponent> seatsComponent = state.GetComponentLookup<CarriagePassengerSeatsComponent>();
+            seatsComponent.Update(ref state);
+            ComponentLookup<CarriageNavPointsComponent> carriageNavPoints = state.GetComponentLookup<CarriageNavPointsComponent>();
+            carriageNavPoints.Update(ref state);
 
             var job = new TaskManagerJob
             {
                 ECB = ECB,
-                platformComponent = state.GetComponentLookup<PlatformComponent>(),
-                worldTransforms = state.GetComponentLookup<LocalToWorld>(),
-                seatsComponent = state.GetComponentLookup<CarriagePassengerSeatsComponent>(),
-                carriageNavPoints = state.GetComponentLookup<CarriageNavPointsComponent>(),
+                platformComponent = platformComponent,
+                worldTransforms = worldTransforms,
+                seatsComponent = seatsComponent,
+                carriageNavPoints = carriageNavPoints,
             };
 
             state.Dependency = job.Schedule(state.Dependency);
             state.Dependency.Complete();
+
+            ECB.Dispose();
         }
     }
 
@@ -100,16 +110,19 @@ namespace Assets.DOTS.Systems
                 switch (newTask.state)
                 {
                     case CommuterState.WALK:
+                        Debug.Log($"Task is: walk");
                         // Walk from one platform to another platform
                         // Note: Stack push, therefore destinations are added in reverse order
-                        walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance2);
-                        walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance1);
+                        Debug.Log($"Walk task target: {platformComponent[newTask.startPlatform].platform_exit0} with component: {newTask.startPlatform}");
                         walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance0);
-                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_exit0);
-                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_exit1);
+                        walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance1);
+                        walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance2);
                         walker.destinations.Push(platformComponent[newTask.startPlatform].platform_exit2);
+                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_exit1);
+                        walker.destinations.Push(platformComponent[newTask.startPlatform].platform_exit0);
                         break;
                     case CommuterState.GET_ON_TRAIN:
+                        Debug.Log($"Task is: get on train");
                         // Get on train that is already stopped
                         // Get train entity
                         // Get carriage entity
@@ -119,6 +132,7 @@ namespace Assets.DOTS.Systems
                         // Set it unavailable and walk there
                         break;
                     case CommuterState.GET_OFF_TRAIN:
+                        Debug.Log($"Task is: get off train");
                         // Get off train that is already stopped
                         // Get train entity
                         // Get platform entity
@@ -126,10 +140,12 @@ namespace Assets.DOTS.Systems
                         // walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance2);
                         break;
                     case CommuterState.QUEUE:
+                        Debug.Log($"Task is: queue");
                         // Wait for train to stop, when on platform
                         // If there is time, make a fancy queue
                         break;
                     case CommuterState.WAIT_FOR_STOP:
+                        Debug.Log($"Task is: wait for stop");
                         // Wait for train to stop, when on train
                         // Get train entity and see if it is in a stopped state
                         break;

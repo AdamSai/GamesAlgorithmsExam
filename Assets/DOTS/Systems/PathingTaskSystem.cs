@@ -28,20 +28,19 @@ namespace Assets.DOTS.Systems
         {
             //return; // TODO: remove this and make it work
             var platformComponents = state.GetComponentLookup<PlatformComponent>();
+            platformComponents.Update(ref state);
 
             var platformEntities =
             platformQuery.ToEntityArray(Allocator.Persistent);
 
             var job = new PathingTaskJob { 
-                platformComponents = state.GetComponentLookup<PlatformComponent>(),
+                platformComponents = platformComponents,
                 platformEntities = platformEntities
             };
 
             state.Dependency = job.Schedule(state.Dependency);
 
             state.Dependency.Complete();
-            platformEntities.Dispose();
-            //platformQuery.Dispose();
         }
     }
 
@@ -79,6 +78,7 @@ namespace Assets.DOTS.Systems
                     {
                         // Change platform
                         commuter.tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
+                        Debug.Log($"Walk platform: {from}");
                     } else
                     {
                         // Get on train

@@ -113,7 +113,16 @@ namespace DOTS.Jobs
                 carriageCount = metroLineCarriageData.carriages,
                 neighborPlatforms = new NativeList<Entity>(Allocator.Persistent),
                 parentMetroName = metroLine.metroLineName,
-                metroLineID = metroLine.MetroLineID
+                metroLineID = metroLine.MetroLineID,
+                platform_entrance0 = new float3(0),
+                platform_entrance1 = new float3(0),
+                platform_entrance2 = new float3(0),
+                platform_exit0 = new float3(0),
+                platform_exit1 = new float3(0),
+                platform_exit2 = new float3(0),
+                carriage_entrance = new float3(0),
+                oppositePlatform = Entity.Null,
+                nextPlatform = Entity.Null,
             };
 
             platforms.Add(platformComponent);
@@ -130,6 +139,7 @@ namespace DOTS.Jobs
                 queue3 = new NativeList<Entity>(Allocator.Persistent),
                 queue4 = new NativeList<Entity>(Allocator.Persistent),
             });
+
             // ECB.SetComponent(plat, platformComponent);
             // TODO: setup color, queues, walkways, neighborPlatforms
 
