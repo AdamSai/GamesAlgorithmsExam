@@ -21,6 +21,7 @@ namespace Assets.DOTS.Systems
         public void OnUpdate(ref SystemState state)
         {
             var transformLookup = state.GetComponentLookup<WorldTransform>();
+            transformLookup.Update(ref state);
 
             var job = new PassengerJob { worldTransforms = transformLookup };
 

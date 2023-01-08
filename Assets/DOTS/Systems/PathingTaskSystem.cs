@@ -26,6 +26,9 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
+            if (SystemAPI.Time.ElapsedTime < 2.6f)
+                return;
+
             //return; // TODO: remove this and make it work
             var platformComponents = state.GetComponentLookup<PlatformComponent>();
             platformComponents.Update(ref state);
@@ -59,9 +62,11 @@ namespace Assets.DOTS.Systems
                 //Debug.Log("This far: 0");
                 // No task: get random destination?
                 int r = RNG(entity.Index + commuter.r, platformEntities.Length-1);
-                while(commuter.currentPlatform == platformEntities[r])
+                if (commuter.currentPlatform == platformEntities[r])
                 {
                     r = RNG(r, platformEntities.Length - 1);
+                    commuter.r = r;
+                    return;
                 }
                 //Debug.Log("This far: 1. r is " + r);
                 //Debug.Log(platformEntities[r]);

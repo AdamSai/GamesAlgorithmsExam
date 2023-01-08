@@ -53,7 +53,7 @@ public partial struct SetupTrainsSystem : ISystem
             trains = trains
         };
 
-        SetupTrainAheadJob.Schedule();
+        SetupTrainAheadJob.Run();
         var setupCarriagesECB = new EntityCommandBuffer(Allocator.Persistent);
 
         var SetupCarriagesJob = new SetupCarriagesJob
