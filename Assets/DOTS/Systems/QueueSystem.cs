@@ -280,33 +280,29 @@ namespace Assets.DOTS.Systems
                     }
                     break;
                 case QueueState.ReadyForBoarding:
+                    Entity platform = commuter.currentPlatform;
+                    Entity train = platformComponent[platform].currentTrain;
+                    TrainIDComponent trainC = trainIDComponents[train];
+                    Entity carriage = GetCarriageFromTrain(trainC.LineIndex, trainC.TrainIndex, queuer.queueIndex, carriageIDComponents, carriageIDEntities);
+                    CarriagePassengerSeatsComponent seatsCollection = seatsComponent[carriage];
+                    NativeList<Entity> seats = seatsCollection.seats;
+                    for (int j = 0; j < seats.Length; j++)
+                    {
+                        CarriageSeatComponent seatC = seatComponents.GetRefRW(seats[j], false).ValueRW;
+                        if (seatC.available)
+                        {
+                            // STUFF
+                            seatC.available = false;
+                            passenger.currentCarriage = carriage;
+                            passenger.carriageSeat = seats[j];
+                            queuer.state = QueueState.Boarding;
+                            break;
+                        }
+                        ECB.SetComponent(seats[j], seatC);
+                    }
                     break;
                 case QueueState.Boarding:
                     break;
-            }
-
-            if (queuer.state == QueueState.ReadyForBoarding)
-            {
-                Entity platform = commuter.currentPlatform;
-                Entity train = platformComponent[platform].currentTrain;
-                TrainIDComponent trainC = trainIDComponents[train];
-                Entity carriage = GetCarriageFromTrain(trainC.LineIndex, trainC.TrainIndex, queuer.queueIndex, carriageIDComponents, carriageIDEntities);
-                CarriagePassengerSeatsComponent seatsCollection = seatsComponent[carriage];
-                NativeList<Entity> seats = seatsCollection.seats;
-                for (int j = 0; j < seats.Length; j++)
-                {
-                    CarriageSeatComponent seatC = seatComponents.GetRefRW(seats[j], false).ValueRW;
-                    if (seatC.available)
-                    {
-                        // STUFF
-                        seatC.available = false;
-                        passenger.currentCarriage = carriage;
-                        passenger.carriageSeat = seats[j];
-                        queuer.state = QueueState.Boarding;
-                        break;
-                    }
-                    ECB.SetComponent(seats[j], seatC);
-                }
             }
         }
 

@@ -87,6 +87,8 @@ namespace Assets.DOTS.Systems
                     velocity = new float3(0),
                     destinations = new NativeList<float3>(Allocator.Persistent),
                 });
+
+                ECB.SetName(commuter, $"Commuter: ({platform.metroLineID}/{platform.platformIndex}/{i})");
             }
 
             spawner.hasSpawned = true;

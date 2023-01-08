@@ -5392,7 +5392,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 1598512793004306, guid: ee49268b4dce1684782da0e5afdbc0c8, type: 3}
-  amount: 17
+  amount: 1
 --- !u!114 &7992246966798538833
 MonoBehaviour:
   m_ObjectHideFlags: 0
