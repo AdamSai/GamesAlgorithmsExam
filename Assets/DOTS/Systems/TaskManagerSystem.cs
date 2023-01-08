@@ -1,18 +1,15 @@
 ﻿using Assets.DOTS.Components;
 using Assets.DOTS.Components.Train;
 using Assets.DOTS.Utility.Stack;
-using DOTS.Authoring;
 using DOTS.Components;
-using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Entities.UniversalDelegates;
 using Unity.Transforms;
 using UnityEngine;
 
 namespace Assets.DOTS.Systems
 {
-    [UpdateAfter(typeof(SetupCarriageColorSystem))]
+    [UpdateAfter(typeof(SetupCarriagesSystem))]
     [UpdateAfter(typeof(SetupSeatsSystem))]
     public partial struct TaskManagerSystem : ISystem
     {
@@ -225,5 +222,5 @@ namespace Assets.DOTS.Systems
         }
     }
 
-    
+
 }
