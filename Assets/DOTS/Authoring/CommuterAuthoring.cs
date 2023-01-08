@@ -3,13 +3,14 @@ using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 namespace Assets.DOTS.Authoring
 {
     public class CommuterAuthoring : MonoBehaviour
     {
-
+        public float speed = 4f;
     }
 
     public class CommuterBaker : Baker<CommuterAuthoring>
@@ -21,7 +22,7 @@ namespace Assets.DOTS.Authoring
             AddComponent(new WalkComponent
             {
                 destinations = destinations,
-                speed = 2f,
+                speed = authoring.speed,
                 velocity = new float3(0, 0, 0)
             });
 

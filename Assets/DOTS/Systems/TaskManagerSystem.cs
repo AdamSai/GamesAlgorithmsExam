@@ -85,7 +85,7 @@ namespace Assets.DOTS.Systems
 
         // IMPORTANT: CANNOT BE SCHEDULED IN PARRALLEL
         public void Execute(in Entity entity, ref PassengerComponent passenger,
-            ref CommuterComponent commuter, ref WalkComponent walker, in CommuterQueuerComponent queuer)
+            ref CommuterComponent commuter, ref WalkComponent walker, ref CommuterQueuerComponent queuer)
         {
             if (commuter.tasks.IsEmpty)
                 return;
@@ -192,6 +192,7 @@ namespace Assets.DOTS.Systems
                                         passenger.carriageSeat = seats[j];
                                         walker.destinations.Push(worldTransforms[carriageNavPoints[carriage].entrancePointEntity].Position);
                                         walker.destinations.Push(worldTransforms[seats[j]].Position);
+                                        queuer.state = QueueState.Boarding;
                                         omegaBreak = true;
                                         break;
                                     }
