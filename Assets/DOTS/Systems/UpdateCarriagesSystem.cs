@@ -184,7 +184,7 @@ public partial struct UpdateCarriageJob : IJobEntity
         // UpdateCarriages
         // Update position on the bezier
         var bezier = BezierPaths.GetRefRO(metroLine).ValueRO;
-        float carriageOffset = 5f;
+        float carriageOffset = 3f;
         float pos = tPos[trainEntity].value - carriageIDComponent.id * carriageOffset / bezier.distance;
 
 

@@ -3157,7 +3157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e91d144606723c4fae54b65b2b437a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Carriages: 4
+  Carriages: 5
   CarriagesSpeed: 0.0005
   Carriage: {fileID: 5593063280175603151, guid: c25f4b2e7f379444c98c3e0a8687d8c9,
     type: 3}
@@ -4205,7 +4205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e91d144606723c4fae54b65b2b437a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Carriages: 4
+  Carriages: 5
   CarriagesSpeed: 0.0005
   Carriage: {fileID: 5593063280175603151, guid: c25f4b2e7f379444c98c3e0a8687d8c9,
     type: 3}
@@ -4367,7 +4367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e91d144606723c4fae54b65b2b437a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Carriages: 4
+  Carriages: 5
   CarriagesSpeed: 0.0005
   Carriage: {fileID: 5593063280175603151, guid: c25f4b2e7f379444c98c3e0a8687d8c9,
     type: 3}
@@ -4659,7 +4659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e91d144606723c4fae54b65b2b437a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Carriages: 4
+  Carriages: 5
   CarriagesSpeed: 0.0005
   Carriage: {fileID: 5593063280175603151, guid: c25f4b2e7f379444c98c3e0a8687d8c9,
     type: 3}
