@@ -95,6 +95,7 @@ namespace Assets.DOTS.Systems
                 seatsComponent = seatsComponent,
                 worldTransforms = worldTransforms,
                 carriageIDEntities = carriageIDEntities,
+                EM = state.EntityManager,
             };
             state.Dependency = queuerJob.Schedule(state.Dependency);
             state.Dependency.Complete();
@@ -252,6 +253,7 @@ namespace Assets.DOTS.Systems
         public ComponentLookup<CarriagePassengerSeatsComponent> seatsComponent;
         public ComponentLookup<WorldTransform> worldTransforms;
         public NativeArray<Entity> carriageIDEntities;
+        public EntityManager EM;
 
         public void Execute(in Entity entity, ref CommuterQueuerComponent queuer, ref WalkComponent walker, 
             in CommuterComponent commuter, ref PassengerComponent passenger)
@@ -286,6 +288,7 @@ namespace Assets.DOTS.Systems
                     Entity carriage = GetCarriageFromTrain(trainC.LineIndex, trainC.TrainIndex, queuer.queueIndex, carriageIDComponents, carriageIDEntities);
                     CarriagePassengerSeatsComponent seatsCollection = seatsComponent[carriage];
                     NativeList<Entity> seats = seatsCollection.seats;
+                    Debug.Log($"{EM.GetName(entity)} is going to train {EM.GetName(train)} on platform {EM.GetName(commuter.currentPlatform)}");
                     for (int j = 0; j < seats.Length; j++)
                     {
                         CarriageSeatComponent seatC = seatComponents.GetRefRW(seats[j], false).ValueRW;

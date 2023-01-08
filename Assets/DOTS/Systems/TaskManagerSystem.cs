@@ -138,7 +138,7 @@ namespace Assets.DOTS.Systems
                 switch (newTask.state)
                 {
                     case CommuterState.WALK:
-                        Debug.Log($"Task is: walk");
+                        //Debug.Log($"Task is: walk");
                         // Walk from one platform to another platform
                         // Note: Stack push, therefore destinations are added in reverse order
                         Debug.Log($"Walk task target: {platformComponent[newTask.startPlatform].platform_exit0} with component: {newTask.startPlatform}");
@@ -150,7 +150,7 @@ namespace Assets.DOTS.Systems
                         walker.destinations.Push(platformComponent[newTask.startPlatform].platform_exit0);
                         break;
                     case CommuterState.GET_ON_TRAIN:
-                        Debug.Log($"Task is: get on train");
+                        //Debug.Log($"Task is: get on train");
                         // Get on train that is already stopped
                         // Get train entity
                         // Get carriage entity
@@ -164,7 +164,7 @@ namespace Assets.DOTS.Systems
                         walker.destinations.Push(worldTransforms[passenger.carriageSeat].Position);
                         break;
                     case CommuterState.GET_OFF_TRAIN:
-                        Debug.Log($"Task is: get off train");
+                        //Debug.Log($"Task is: get off train");
                         // Get off train that is already stopped
                         // Get train entity
                         // Get platform entity
@@ -172,13 +172,13 @@ namespace Assets.DOTS.Systems
                         // walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance2);
                         break;
                     case CommuterState.QUEUE:
-                        Debug.Log($"Queue state in TaskManagerSystem: {queuer.state}");
+                        //Debug.Log($"Queue state in TaskManagerSystem: {queuer.state}");
                         // Wait for train to stop, when on platform
                         // If there is time, make a fancy queue
 
                         break;
                     case CommuterState.WAIT_FOR_STOP:
-                        Debug.Log($"Task is: wait for stop");
+                        //Debug.Log($"Task is: wait for stop");
                         // Wait for train to stop, when on train
                         // Get train entity and see if it is in a stopped state
                         break;

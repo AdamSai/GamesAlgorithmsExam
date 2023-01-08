@@ -65,7 +65,7 @@ namespace Assets.DOTS.Systems
         public void Execute(ref CommuterSpawnComponent spawner, 
             in Entity entity, in LocalTransform transform, in PlatformComponent platform, QueueComponent queueC)
         {
-            Debug.Log("Spawning commuter job!");
+            //Debug.Log("Spawning commuter job!");
             // TODO make so only run once
             if (spawner.hasSpawned)
                 return;
@@ -73,7 +73,7 @@ namespace Assets.DOTS.Systems
             for (int i = 0; i < spawner.amount; i++)
             {
                 Entity commuter = ECB.Instantiate(spawner.commuter);
-                Debug.Log("Spawning commuter: " + commuter);
+                //Debug.Log("Spawning commuter: " + commuter);
 
                 ECB.SetComponent<LocalTransform>(commuter, LocalTransform.FromPosition(platform.platform_entrance0));
                 ECB.SetComponent<CommuterComponent>(commuter, new CommuterComponent
