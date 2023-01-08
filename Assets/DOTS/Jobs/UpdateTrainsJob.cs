@@ -38,8 +38,8 @@ namespace DOTS.Jobs
             BezierPathComponent bezierPath = default;
 
 
-            var unloadDelay = 0f;
-            var loadDelay = 0f;
+            var unloadDelay = 4f;
+            var loadDelay = 4f;
             var doorsCloseDelay = 1f;
             var departingDelay = 2f;
 
@@ -125,6 +125,15 @@ namespace DOTS.Jobs
                     break;
 
                 case TrainStateDOTS.ARRIVING:
+                    
+                    var currentPlatform = nextPlatformComponent.value;
+                    if (currentPlatform != Entity.Null)
+                    {
+                        var platform = platforms.GetRefRW(currentPlatform, false).ValueRW;
+                        platform.currentTrain = entity;
+                        ECB.SetComponent(currentPlatform, platform);
+                    }
+                    
                     var _platform_start = nextPlatform.point_platform_START.distanceAlongPath;
                     float _platform_end = nextPlatform.point_platform_END.distanceAlongPath;
                     float _platform_length = _platform_end - _platform_start;
@@ -255,10 +264,6 @@ namespace DOTS.Jobs
                         !nextPlatformComponent.value.Equals(platformEnt))
                     {
                         nextPlatformComponent.value = platformEnt;
-                        platform.currentTrain = trainEntity;
-                        ECB.SetComponent(platformEnt, platform);
-                        Debug.Log(
-                            $"Platform: {platformEnt}{platform.metroLineID}:{platform.platformIndex} set train to: {trainEntity}");
                         return;
                     }
                 }
