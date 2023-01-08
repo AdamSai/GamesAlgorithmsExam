@@ -21,6 +21,7 @@ namespace DOTS.Jobs
         public NativeArray<Entity> platformEntities;
         public BufferLookup<BezierPoint> bezierLookup;
         public NativeArray<Entity> metroLines;
+        public EntityCommandBuffer ECB;
 
         public float deltaTime;
 
@@ -36,6 +37,11 @@ namespace DOTS.Jobs
             DynamicBuffer<BezierPoint> bezierBuffer = default;
             BezierPathComponent bezierPath = default;
 
+
+            var unloadDelay = 0f;
+            var loadDelay = 0f;
+            var doorsCloseDelay = 1f;
+            var departingDelay = 2f;
 
             foreach (var metroLine in metroLines)
             {
@@ -60,7 +66,8 @@ namespace DOTS.Jobs
 
             if (nextPlatformComponent.value == default)
             {
-                UpdatePlatform(ref nextPlatformComponent, bezierBuffer, currentPos, entity, bezierPath, trainID.LineIndex);
+                UpdatePlatform(ref nextPlatformComponent, bezierBuffer, currentPos, entity, bezierPath,
+                    trainID.LineIndex);
             }
 
             var nextPlatform = platforms.GetRefRO(nextPlatformComponent.value).ValueRO;
@@ -105,7 +112,7 @@ namespace DOTS.Jobs
                             speed.speed *= 0.85f;
                         }
                     }
-                    
+
                     if (Get_RegionIndex(currentPos, bezierPath, bezierBuffer) ==
                         nextPlatform.point_platform_START.index)
                     {
@@ -151,26 +158,38 @@ namespace DOTS.Jobs
                     {
                         // This should just open the doors, and then move on to the next state
                         // ===== CHANGE STATE =====
+
                         TSC.value = TrainStateDOTS.UNLOADING;
+                        timer.duration = unloadDelay;
+
                         //TODO: PrepareDisembark
                     }
 
                     break;
 
                 case TrainStateDOTS.UNLOADING:
-                    // TODO: If Passengers_To_Disembark is 0, change to loading state
-                    //If Passengers to Disembark are 0, change state to Loading
-                    // ===== CHANGE STATE =====
-                    TSC.value = TrainStateDOTS.LOADING;
-                    // TODO: Prepare_EMbark
+                    if (RunTimer(ref timer, deltaTime))
+                    {
+                        // TODO: If Passengers_To_Disembark is 0, change to loading state
+                        //If Passengers to Disembark are 0, change state to Loading
+                        // ===== CHANGE STATE =====
+                        TSC.value = TrainStateDOTS.LOADING;
+                        timer.duration = loadDelay;
+                        // TODO: Prepare_EMbark
+                    }
+
                     break;
 
                 case TrainStateDOTS.LOADING:
-                    // If passengers_to_embark is 0 change state
-                    // ===== CHANGE STATE =====
-                    TSC.value = TrainStateDOTS.DOORS_CLOSE;
-                    timer.duration = 1f;
-                    // TODO: Empty passengers to embark and disembark lists
+                    if (RunTimer(ref timer, deltaTime))
+                    {
+                        // If passengers_to_embark is 0 change state
+                        // ===== CHANGE STATE =====
+                        TSC.value = TrainStateDOTS.DOORS_CLOSE;
+                        timer.duration = doorsCloseDelay;
+                        // TODO: Empty passengers to embark and disembark lists
+                    }
+
                     break;
                 case TrainStateDOTS.DOORS_CLOSE:
                     if (RunTimer(ref timer, deltaTime))
@@ -178,11 +197,13 @@ namespace DOTS.Jobs
                         // TODO: Doors actually close ?
 
                         // ===== CHANGE STATE =====
-                        timer.duration = 2f;
-                        UpdatePlatform(ref nextPlatformComponent, bezierBuffer, currentPos, entity, bezierPath, trainID.LineIndex);
+                        timer.duration = departingDelay;
+                        UpdatePlatform(ref nextPlatformComponent, bezierBuffer, currentPos, entity, bezierPath,
+                            trainID.LineIndex);
                         TSC.value = TrainStateDOTS.DEPARTING;
                         // stateDelay = Metro.INSTANCE.Train_delay_departure;
                     }
+
                     break;
                 case TrainStateDOTS.DEPARTING:
                     if (RunTimer(ref timer, deltaTime))
@@ -209,6 +230,18 @@ namespace DOTS.Jobs
             DynamicBuffer<BezierPoint> bezierBuffer,
             float currentPos, Entity trainEntity, BezierPathComponent path, int metroID)
         {
+            // Delete this train from the previous platform before we update it
+            var currentPlatform = nextPlatformComponent.value;
+            if (currentPlatform != Entity.Null)
+            {
+                var previousPlatform = platforms.GetRefRW(currentPlatform, false).ValueRW;
+                if (previousPlatform.currentTrain == trainEntity)
+                {
+                    previousPlatform.currentTrain = Entity.Null;
+                    ECB.SetComponent(currentPlatform, previousPlatform);
+                }
+            }
+
             int totalPoints = bezierBuffer.Length;
             int currentRegionIndex = Get_RegionIndex(currentPos, path, bezierBuffer);
 
@@ -221,10 +254,11 @@ namespace DOTS.Jobs
                     if (platform.metroLineID == metroID && platform.point_platform_START.index == testIndex &&
                         !nextPlatformComponent.value.Equals(platformEnt))
                     {
-                        Debug.Log("Update platform ahead");
                         nextPlatformComponent.value = platformEnt;
-                        // nextPlatformComponent.value = platformEnt;
                         platform.currentTrain = trainEntity;
+                        ECB.SetComponent(platformEnt, platform);
+                        Debug.Log(
+                            $"Platform: {platformEnt}{platform.metroLineID}:{platform.platformIndex} set train to: {trainEntity}");
                         return;
                     }
                 }
@@ -247,7 +281,6 @@ namespace DOTS.Jobs
                 {
                     timerComponent.time = 0;
                     timerComponent.isRunning = false;
-                    Debug.Log("Timer stopped");
 
                     return true;
                 }
