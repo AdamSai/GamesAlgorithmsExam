@@ -37,8 +37,14 @@ namespace Assets.DOTS.Systems
             state.Dependency.Complete();
 
             queueEntires.Update(ref state);
+            ComponentLookup<TrainStateComponent> trainStateComponents = state.GetComponentLookup<TrainStateComponent>();
+            trainStateComponents.Update(ref state);
             EntityCommandBuffer ECB = new EntityCommandBuffer(Allocator.Persistent);
-            var queueJob = new QueueJob { buffer = queueEntires, ECB = ECB };
+            var queueJob = new QueueJob { 
+                buffer = queueEntires, 
+                ECB = ECB,
+                trainStateComponents = trainStateComponents,
+            };
             state.Dependency = queueJob.Schedule(state.Dependency);
             state.Dependency.Complete();
             ECB.Playback(state.EntityManager);
@@ -76,18 +82,11 @@ namespace Assets.DOTS.Systems
     {
         public BufferLookup<QueueEntryComponent> buffer;
         public EntityCommandBuffer ECB;
+        public ComponentLookup<TrainStateComponent> trainStateComponents;
 
         public void Execute(in Entity entity, in PlatformComponent platform, 
             in QueueComponent queueC)
         {
-            // Find a queue for entrying commuters
-            //foreach (var item in buffer[entity])
-            //{
-            //    var list = SmallestQueue(queueC);
-
-            //    list.Enqueue(item.val);
-            //}
-
             if (buffer[entity].IsEmpty)
                 return;
 
@@ -95,28 +94,51 @@ namespace Assets.DOTS.Systems
             list.Enqueue(buffer[entity][0].val);
             buffer[entity].RemoveAt(0);
 
+            TrainStateDOTS trainState = TrainStateDOTS.ARRIVING;
+
+            
+
+            if (platform.currentTrain != Entity.Null)
+            {
+                trainState = trainStateComponents[platform.currentTrain].value;
+            }
+            Debug.Log($"Current train on platform: {platform.currentTrain}");
+            Debug.Log($"Current train on platform state: {trainState}");
+
             // Update existing queues
             UpdateCommuters(ECB, queueC.queue0, 
-                queueC.queuePoint0, queueC.queuePoint0_1);
+                queueC.queuePoint0, queueC.queuePoint0_1, trainState);
             UpdateCommuters(ECB, queueC.queue1,
-                queueC.queuePoint1, queueC.queuePoint1_1);
+                queueC.queuePoint1, queueC.queuePoint1_1, trainState);
             UpdateCommuters(ECB, queueC.queue2,
-                queueC.queuePoint2, queueC.queuePoint2_1);
+                queueC.queuePoint2, queueC.queuePoint2_1, trainState);
             UpdateCommuters(ECB, queueC.queue3,
-                queueC.queuePoint3, queueC.queuePoint3_1);
+                queueC.queuePoint3, queueC.queuePoint3_1, trainState);
             UpdateCommuters(ECB, queueC.queue4,
-                queueC.queuePoint4, queueC.queuePoint4_1);
+                queueC.queuePoint4, queueC.queuePoint4_1, trainState);
 
             // See if train is boarding
 
         }
 
         public void UpdateCommuters(EntityCommandBuffer ECB, 
-            NativeList<Entity> queue, float3 queuePos0, float3 queuePos1)
+            NativeList<Entity> queue, float3 queuePos0, float3 queuePos1, TrainStateDOTS trainState)
         {
             Debug.Log($"Queue pos: {queuePos0}");
             for (int i = 0; i < queue.Length; i++)
             {
+                QueueState state = QueueState.InQueue;
+
+                if (i == 0 && trainState == TrainStateDOTS.LOADING)
+                {
+                    Debug.Log($"ReadyForBoarding");
+                    state = QueueState.ReadyForBoarding;
+                } else
+                {
+                    Debug.Log($"InQueue");
+                }
+                    
+
                 ECB.SetComponent<CommuterQueuerComponent>(queue[i], new CommuterQueuerComponent
                 {
                     inQueue = true,
@@ -125,7 +147,7 @@ namespace Assets.DOTS.Systems
                     finishedTask = false,
                     queueStartPosition = queuePos0,
                     queueDirection = queuePos1 - queuePos0,
-                    state = QueueState.InQueue,
+                    state = state,
                 });
             }
         }

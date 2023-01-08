@@ -38,8 +38,8 @@ namespace DOTS.Jobs
             BezierPathComponent bezierPath = default;
 
 
-            var unloadDelay = 0f;
-            var loadDelay = 0f;
+            var unloadDelay = 4f;
+            var loadDelay = 4f;
             var doorsCloseDelay = 1f;
             var departingDelay = 2f;
 

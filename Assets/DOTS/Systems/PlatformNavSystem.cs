@@ -83,7 +83,7 @@ namespace Assets.DOTS.Systems
                 });
                 ECB.SetComponent(commuter, new WalkComponent
                 {
-                    speed = 2f,
+                    speed = 8f,
                     velocity = new float3(0),
                     destinations = new NativeList<float3>(Allocator.Persistent),
                 });
