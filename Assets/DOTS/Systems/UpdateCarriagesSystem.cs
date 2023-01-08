@@ -86,6 +86,7 @@ public partial struct UpdateCarriagesSystem : ISystem
             metroLineComponents = metroLineLookUp,
             metroLines = metroLines2,
             deltaTime = SystemAPI.Time.DeltaTime,
+            ECB = ecb
         };
         updateTrainsJob.Run();
         // updateTrainHandle.Complete();
@@ -153,7 +154,7 @@ public partial struct UpdateCarriageJob : IJobEntity
     public ComponentLookup<BezierPathComponent> BezierPaths;
     public BufferLookup<DOTS.BezierPoint> bezierPoints;
 
-    public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, ref CarriagePositionComponent carriagePos)
+    public void Execute(Entity ent, CarriageIDComponent carriageIDComponent, ref CarriagePositionComponent carriagePos, in CarriageAheadOfMeComponent carriageAheadOfMeComp)
     {
         Entity trainEntity = default;
         Entity metroLine = default;
@@ -183,6 +184,13 @@ public partial struct UpdateCarriageJob : IJobEntity
 
         // UpdateCarriages
         // Update position on the bezier
+
+        if (carriageAheadOfMeComp.Value == Entity.Null)
+        {
+            //Move carriage relative to the carriage ahead of me
+            var trainPos = tPos.GetRefRO(trainEntity).ValueRO;
+        }
+        
         var bezier = BezierPaths.GetRefRO(metroLine).ValueRO;
         float carriageOffset = 3f;
         float pos = tPos[trainEntity].value - carriageIDComponent.id * carriageOffset / bezier.distance;
