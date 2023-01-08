@@ -86,6 +86,8 @@ namespace DOTS.Jobs
                 p.platformIndex = i;
                 p.nextPlatform = platformEntities[(i + 1) % platforms.Length];
                 ECB.SetComponent(platformEntities[i], p);
+                ECB.SetName(platformEntities[i], $"Platform_{metroLine.MetroLineID}:{i}");
+
             }
 
             metroLine.SpeedRatio = path.distance * trainData.maxTrainSpeed;
