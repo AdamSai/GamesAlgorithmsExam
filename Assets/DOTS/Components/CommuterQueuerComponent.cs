@@ -9,6 +9,7 @@ namespace Assets.DOTS.Components
     {
         public bool inQueue;
         public int queueIndex;
+        public int lineIndex;
         public bool readyForBoarding;
         public bool finishedTask;
         public QueueState state;

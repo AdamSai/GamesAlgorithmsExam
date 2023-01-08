@@ -20,6 +20,8 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
+            return;
+
             var transformLookup = state.GetComponentLookup<WorldTransform>();
             transformLookup.Update(ref state);
 

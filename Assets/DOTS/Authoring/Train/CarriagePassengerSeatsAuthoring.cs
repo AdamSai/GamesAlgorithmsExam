@@ -24,6 +24,11 @@ namespace Assets.DOTS.Authoring.Train
                 seats = new NativeList<Entity>(Allocator.Persistent),
                 init = false
             });
+            AddComponent(new CarriageNavPointsComponent
+            {
+                entrancePointEntity = Entity.Null,
+                init = false
+            });
 
             //SystemAPI.enti
         }

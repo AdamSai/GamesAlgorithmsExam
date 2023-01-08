@@ -42,7 +42,7 @@ namespace Assets.DOTS.Authoring
 
             AddComponent(new CommuterQueuerComponent { 
                 inQueue = false,
-                queueIndex = 0,
+                lineIndex = 0,
                 readyForBoarding = false,
                 finishedTask = false,
                 queueStartPosition = new float3(0),

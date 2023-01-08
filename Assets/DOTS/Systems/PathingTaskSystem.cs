@@ -83,7 +83,6 @@ namespace Assets.DOTS.Systems
                     {
                         // Change platform
                         commuter.tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
-                        Debug.Log($"Walk platform: {from}");
                     } else
                     {
                         // Get on train

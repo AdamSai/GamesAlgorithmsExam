@@ -113,6 +113,10 @@ namespace Assets.DOTS.Systems
                     break;
                 case CommuterState.QUEUE:
                     // See if there is a train available
+                    if (queuer.state == QueueState.Boarding)
+                    {
+                        jobFinished = true;
+                    }
                     break;
                 case CommuterState.WAIT_FOR_STOP:
                     // See if train has stopped and is open
@@ -157,6 +161,10 @@ namespace Assets.DOTS.Systems
                         // Set walk to that entity's world position
                         // Iterate carriage seat entities to find one available
                         // Set it unavailable and walk there
+                        //Debug.Log("Here0 " + passenger.currentCarriage);
+                        //Debug.Log("Here1 " + carriageNavPoints[passenger.currentCarriage].entrancePointEntity);
+                        walker.destinations.Push(worldTransforms[carriageNavPoints[passenger.currentCarriage].entrancePointEntity].Position);
+                        walker.destinations.Push(worldTransforms[passenger.carriageSeat].Position);
                         break;
                     case CommuterState.GET_OFF_TRAIN:
                         Debug.Log($"Task is: get off train");
@@ -167,41 +175,10 @@ namespace Assets.DOTS.Systems
                         // walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance2);
                         break;
                     case CommuterState.QUEUE:
-                        Debug.Log($"Task is: queue");
+                        Debug.Log($"Queue state in TaskManagerSystem: {queuer.state}");
                         // Wait for train to stop, when on platform
                         // If there is time, make a fancy queue
-                        if (queuer.state == QueueState.ReadyForBoarding)
-                        {
-                            Entity platform = commuter.currentPlatform;
-                            Entity train = platformComponent[platform].currentTrain;
-                            TrainIDComponent trainC = trainIDComponents[train];
-                            bool omegaBreak = false;
-                            for (int i = 0; i < 5; i++)
-                            {
-                                if (omegaBreak)
-                                    break;
 
-                                Entity carriage = GetCarriageFromTrain(trainC.TrainIndex, i, carriageIDComponents, carriageIDEntities);
-                                CarriagePassengerSeatsComponent seatsCollection = seatsComponent[carriage];
-                                NativeList<Entity> seats = seatsCollection.seats;
-                                for (int j = 0; j < seats.Length; j++)
-                                {
-                                    CarriageSeatComponent seatC = seatComponents.GetRefRW(seats[j], false).ValueRW;
-                                    if (seatC.available)
-                                    {
-                                        // STUFF
-                                        seatC.available = false;
-                                        passenger.currentCarriage = carriage;
-                                        passenger.carriageSeat = seats[j];
-                                        walker.destinations.Push(worldTransforms[carriageNavPoints[carriage].entrancePointEntity].Position);
-                                        walker.destinations.Push(worldTransforms[seats[j]].Position);
-                                        queuer.state = QueueState.Boarding;
-                                        omegaBreak = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
                         break;
                     case CommuterState.WAIT_FOR_STOP:
                         Debug.Log($"Task is: wait for stop");
@@ -212,18 +189,7 @@ namespace Assets.DOTS.Systems
             }
         }
 
-        public Entity GetCarriageFromTrain(int trainIndex, int carriageIndex,
-        ComponentLookup<CarriageIDComponent> components, NativeArray<Entity> carriageEntities)
-        {
-            foreach (Entity item in carriageEntities)
-            {
-                if (components[item].trainIndex == trainIndex && components[item].id == carriageIndex)
-                {
-                    return item;
-                }
-            }
-            throw new System.Exception("Could not find the specific carriage.");
-        }
+        
     }
 
     
