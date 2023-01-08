@@ -8,5 +8,6 @@ namespace Assets.DOTS.Components.Train
     public struct CarriageNavPointsComponent : IComponentData
     {
         public Entity entrancePointEntity;
+        public bool init;
     }
 }
