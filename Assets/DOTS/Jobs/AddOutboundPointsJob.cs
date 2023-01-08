@@ -19,7 +19,9 @@ namespace DOTS.Jobs
 
         private int totalOutboundPoints;
 
-        public void Execute(in Entity entity, ref BezierPathComponent path, ref MetroLineComponent metroLine, in MetroLineCarriageDataComponent metroLineCarriageData, in MetroLineTrainDataComponent trainData, in ColorComponent color)
+        public void Execute(in Entity entity, ref BezierPathComponent path, ref MetroLineComponent metroLine,
+            in MetroLineCarriageDataComponent metroLineCarriageData, in MetroLineTrainDataComponent trainData,
+            in ColorComponent color)
         {
             var bezierPointBuffer = bezierPoints[entity];
             var lineRailMarkers = new NativeList<RailMarkerComponent>(Allocator.Temp);
@@ -39,7 +41,8 @@ namespace DOTS.Jobs
             path.distance = BezierUtility.MeasurePath(ref bezierPointBuffer);
 
             // Return points
-            var returnStartIndex = bezierPointBuffer.Length; // Stores index of when return points start in the nativelist
+            var returnStartIndex =
+                bezierPointBuffer.Length; // Stores index of when return points start in the nativelist
             AddReturnPoints(ref bezierPointBuffer, path);
 
             // Fix return handles
@@ -56,11 +59,13 @@ namespace DOTS.Jobs
                 if (lineRailMarkers[_plat_END].RailMarkerType == RailMarkerTypes.PLATFORM_END &&
                     lineRailMarkers[_plat_START].RailMarkerType == RailMarkerTypes.PLATFORM_START)
                 {
-                    var _outboundPlatform = AddPlatform(_plat_START, _plat_END, path, metroLine, metroLineCarriageData, platforms, platformEntities, color, bezierPointBuffer);
+                    var _outboundPlatform = AddPlatform(_plat_START, _plat_END, path, metroLine, metroLineCarriageData,
+                        platforms, platformEntities, color, bezierPointBuffer);
                     // now add an opposite platform!
                     int opposite_START = totalPoints - (i + 1);
                     int opposite_END = totalPoints - i;
-                    var _oppositePlatform = AddPlatform(opposite_START, opposite_END, path, metroLine, metroLineCarriageData, platforms, platformEntities, color, bezierPointBuffer);
+                    var _oppositePlatform = AddPlatform(opposite_START, opposite_END, path, metroLine,
+                        metroLineCarriageData, platforms, platformEntities, color, bezierPointBuffer);
 
                     ECB.SetComponent(_outboundPlatform.entity, new OppositePlatformComponent
                     {
@@ -80,14 +85,28 @@ namespace DOTS.Jobs
             platforms.Sort(new PlatformComparer());
             Debug.Log($"Total platforms {metroLine.MetroLineID}: " + platforms.Length);
             // TODO: If platform driving fucks up look at this
+            var numbIfOdd = platformEntities.Length - 1;
+            var numbIfEven = 0;
+            var nextNeighbour = 1;
             for (int i = 0; i < platforms.Length; i++)
             {
-                var p = platforms[i];
-                p.platformIndex = i;
-                p.nextPlatform = platformEntities[(i + 1) % platforms.Length];
-                ECB.SetComponent(platformEntities[i], p);
-                ECB.SetName(platformEntities[i], $"Platform_{metroLine.MetroLineID}:{i}");
+                var numb = 0;
+                if (i % 2 == 0)
+                {
+                    numb = numbIfEven;
+                    nextNeighbour = numbIfEven + 1;
+                    numbIfEven++;
+                }
+                else
+                {
+                    numb = numbIfOdd;
+                    numbIfOdd -= 1;
+                }
 
+                var p = platforms[i];
+                p.platformIndex = numb;
+                ECB.SetComponent(platformEntities[i], p);
+                ECB.SetName(platformEntities[i], $"Platform_{metroLine.MetroLineID}:{numb}");
             }
 
             metroLine.SpeedRatio = path.distance * trainData.maxTrainSpeed;
@@ -96,7 +115,10 @@ namespace DOTS.Jobs
             InstantiateRails(path, metroLine, bezierPointBuffer);
         }
 
-        private EntityWithRotation AddPlatform(int platStart, int platEnd, BezierPathComponent path, MetroLineComponent metroLine, MetroLineCarriageDataComponent metroLineCarriageData, NativeList<PlatformComponent> platforms, NativeList<Entity> platformEntities, ColorComponent color, DynamicBuffer<BezierPoint> points)
+        private EntityWithRotation AddPlatform(int platStart, int platEnd, BezierPathComponent path,
+            MetroLineComponent metroLine, MetroLineCarriageDataComponent metroLineCarriageData,
+            NativeList<PlatformComponent> platforms, NativeList<Entity> platformEntities, ColorComponent color,
+            DynamicBuffer<BezierPoint> points)
         {
             var _PT_START = points[platStart];
             var _PT_END = points[platEnd];
@@ -104,7 +126,8 @@ namespace DOTS.Jobs
             var plat = ECB.Instantiate(metroLine.platformPrefab);
             var transform = LocalTransform.FromPosition(_PT_END.location);
             var rot = quaternion.LookRotation(
-                transform.Position - BezierUtility.GetPoint_PerpendicularOffset(_PT_END, 3f, path.distance, points), Vector3.up);
+                transform.Position - BezierUtility.GetPoint_PerpendicularOffset(_PT_END, 3f, path.distance, points),
+                Vector3.up);
             transform.Rotation = rot;
             ECB.SetComponent(plat, transform);
 
@@ -124,7 +147,6 @@ namespace DOTS.Jobs
                 platform_exit2 = new float3(0),
                 carriage_entrance = new float3(0),
                 oppositePlatform = Entity.Null,
-                nextPlatform = Entity.Null,
             };
 
             platforms.Add(platformComponent);
@@ -134,7 +156,8 @@ namespace DOTS.Jobs
                 value = color.value
             });
 
-            ECB.SetComponent(plat, new QueueComponent{
+            ECB.SetComponent(plat, new QueueComponent
+            {
                 queue0 = new NativeList<Entity>(Allocator.Persistent),
                 queue1 = new NativeList<Entity>(Allocator.Persistent),
                 queue2 = new NativeList<Entity>(Allocator.Persistent),
@@ -152,7 +175,8 @@ namespace DOTS.Jobs
         }
 
 
-        private void AddOutboundHandles(ref DynamicBuffer<BezierPoint> bezierPoints, MetroLineComponent metroLine, NativeList<RailMarkerComponent> lineRailMarkers)
+        private void AddOutboundHandles(ref DynamicBuffer<BezierPoint> bezierPoints, MetroLineComponent metroLine,
+            NativeList<RailMarkerComponent> lineRailMarkers)
         {
             for (var i = 0; i < railMarkers.Length; i++)
             {
@@ -203,20 +227,24 @@ namespace DOTS.Jobs
             {
                 if (i == returnStartIndex)
                 {
-                    returnPoints[i] = returnPoints[i].SetHandles(returnPoints[returnStartIndex + 1].location - returnPoints[i].location);
+                    returnPoints[i] = returnPoints[i]
+                        .SetHandles(returnPoints[returnStartIndex + 1].location - returnPoints[i].location);
                 }
                 else if (i == returnPoints.Length - 1)
                 {
-                    returnPoints[i] = returnPoints[i].SetHandles(returnPoints[i].location - returnPoints[i - 1].location);
+                    returnPoints[i] =
+                        returnPoints[i].SetHandles(returnPoints[i].location - returnPoints[i - 1].location);
                 }
                 else
                 {
-                    returnPoints[i] = returnPoints[i].SetHandles(returnPoints[i + 1].location - returnPoints[i - 1].location);
+                    returnPoints[i] = returnPoints[i]
+                        .SetHandles(returnPoints[i + 1].location - returnPoints[i - 1].location);
                 }
             }
         }
 
-        private void InstantiateRails(BezierPathComponent path, MetroLineComponent metroLine, DynamicBuffer<BezierPoint> points)
+        private void InstantiateRails(BezierPathComponent path, MetroLineComponent metroLine,
+            DynamicBuffer<BezierPoint> points)
         {
             // Entity e = ECB.Instantiate(metroLine.railPrefab);
             // ECB.RemoveComponent<RailMarkerComponent>(e);
@@ -253,7 +281,6 @@ namespace DOTS.Jobs
         {
             return BezierUtility.Get_NormalAtPosition(_pos, distance, points);
         }
-
     }
 
     public struct EntityWithRotation
