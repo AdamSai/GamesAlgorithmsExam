@@ -1,9 +1,53 @@
+using DOTS.Components;
+using DOTS.Jobs;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 
+// Run the system after  SetupTrainsSystem
+[UpdateAfter(typeof(SetupTrainsSystem))]
 public partial struct UpdateTrainsSystem : ISystem
 {
+    private EntityQuery trainQuery;
+    private EntityQuery metroLineQuery;
+    private EntityQuery metroLineQuery2;
+    private EntityCommandBuffer ECB;
+
+    private ComponentLookup<TrainPositionComponent> trainPosLookUp;
+    private ComponentLookup<TrainIDComponent> trainIDs;
+    private ComponentLookup<TrainIDComponent> trainIDs2;
+    private ComponentLookup<PlatformComponent> platforms;
+    private ComponentLookup<MetroLineComponent> metroLineLookUp;
+    private ComponentLookup<MetroLineComponent> metroLineLookUp2;
+    private ComponentLookup<BezierPathComponent> bezierPathLookup;
+    private EntityQuery bezierPathQuery;
+    private EntityQuery platformEntitiesQuery;
+    private BufferLookup<DOTS.BezierPoint> bezierLookup;
+    private BufferLookup<DOTS.BezierPoint> bezierLookup2;
+
+
     public void OnCreate(ref SystemState state)
     {
+        trainQuery =
+            new EntityQueryBuilder(Allocator.Temp)
+                .WithAll<TrainPositionComponent, TrainIDComponent, TrainSpeedComponent>().Build(ref state);
+        metroLineQuery =
+            new EntityQueryBuilder(Allocator.Temp).WithAll<BezierPathComponent, MetroLineComponent>().Build(ref state);
+        metroLineQuery2 =
+            new EntityQueryBuilder(Allocator.Temp).WithAll<BezierPathComponent, MetroLineComponent>().Build(ref state);
+        bezierPathQuery =
+            new EntityQueryBuilder(Allocator.Temp).WithAll<BezierPathComponent>().Build(ref state);
+        platformEntitiesQuery =
+            new EntityQueryBuilder(Allocator.Temp).WithAll<PlatformComponent>().Build(ref state);
+        trainPosLookUp = state.GetComponentLookup<TrainPositionComponent>();
+        trainIDs = state.GetComponentLookup<TrainIDComponent>();
+        trainIDs2 = state.GetComponentLookup<TrainIDComponent>();
+        platforms = state.GetComponentLookup<PlatformComponent>();
+        bezierLookup = state.GetBufferLookup<DOTS.BezierPoint>(true);
+        bezierLookup2 = state.GetBufferLookup<DOTS.BezierPoint>(true);
+        metroLineLookUp = state.GetComponentLookup<MetroLineComponent>();
+        metroLineLookUp2 = state.GetComponentLookup<MetroLineComponent>();
+        bezierPathLookup = state.GetComponentLookup<BezierPathComponent>();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -12,117 +56,83 @@ public partial struct UpdateTrainsSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
+        ECB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
+            .CreateCommandBuffer(state.WorldUnmanaged);
 
-        //Update Trains State Job
+        var bezierPaths = bezierPathQuery.ToComponentDataArray<BezierPathComponent>(Allocator.Persistent);
+        var platformEntities = platformEntitiesQuery.ToEntityArray(Allocator.Persistent);
+        var metroLines2 =
+            metroLineQuery2.ToEntityArray(Allocator.Persistent);
+        trainPosLookUp.Update(ref state);
+        trainIDs.Update(ref state);
+        platforms.Update(ref state);
+        bezierLookup.Update(ref state);
+        metroLineLookUp.Update(ref state);
+        var ecb = new EntityCommandBuffer(Allocator.Persistent);
+        var updateTrainsJob = new UpdateTrainStatesJob
+        {
+            trainsPositions = trainPosLookUp,
+            trainIDs = trainIDs,
+            platforms = platforms,
+            bezierPathComponents = bezierPaths,
+            platformEntities = platformEntities,
+            bezierLookup = bezierLookup,
+            metroLineComponents = metroLineLookUp,
+            metroLines = metroLines2,
+            deltaTime = SystemAPI.Time.DeltaTime,
+            ECB = ecb
+        };
+        updateTrainsJob.Run();
+        // updateTrainHandle.Complete();
+        ecb.Playback(state.EntityManager);
+        ecb.Dispose();
+        // updateTrainHandle.Complete();
 
-        //Update Carriages Job
+        var trainJob = new UpdateTrainsPositionsJob { deltaTime = SystemAPI.Time.DeltaTime };
+        var updateTrainPosHandle = trainJob.Schedule(state.Dependency);
 
+        var carriageDependency = JobHandle.CombineDependencies(updateTrainPosHandle, state.Dependency);
+
+        var trains =
+            trainQuery.ToEntityArray(Allocator.Persistent);
+        var metroLines =
+            metroLineQuery.ToEntityArray(Allocator.Persistent);
+
+        metroLineLookUp2.Update(ref state);
+        trainIDs2.Update(ref state);
+        bezierLookup2.Update(ref state);
+        bezierPathLookup.Update(ref state);
+        var carriageJob = new UpdateCarriagesJob
+        {
+            trains = trains,
+            ECB = ECB,
+            metroLines = metroLines,
+            tPos = state.GetComponentLookup<TrainPositionComponent>(),
+            bezierPoints = bezierLookup2,
+            MetroLineComponents = metroLineLookUp2,
+            trainIDs = trainIDs2,
+            BezierPaths = bezierPathLookup
+        };
+        state.Dependency = carriageJob.Schedule(carriageDependency);
+        // state.Dependency.Complete();
+        state.CompleteDependency();
+        // var dependency = JobHandle.CombineDependencies(trainJobHandle, state.Dependency);
+        // state.Dependency = new UpdateCarriageJob {trains = trains}.Schedule(dependency);
     }
 }
 
-//[WithAll(typeof(TrainTag))]
-//public partial struct UpdateTrainCarriagesJob : IJobEntity
-//{
-//    public void Execute(Entity ent, )
-//    {
-//        //Get MetroLine entity
-//        //for (var i = 0; i < metroLines.Length; i++)
-//        //{
-//        //    if (EM.GetComponentData<MetroLineComponent>(metroLines[i]).MetroLineID == carriageIDComponent.lineIndex)
-//        //    {
-//        //        metroLine = metroLines[i];
-//        //        break;
-//        //    }
-//        //}
-//        //Update Each Train
-//        //Get All Carriages From that Train
-//    }
-//}
-// public partial struct UpdateTrainStatesJob : IJobEntity
-// {
-//     public void Execute(TrainStateComponent TSC)
-//     {
-//         switch (TSC.value)
-//         {
-//             case TrainStateDOTS.EN_ROUTE:
-//                 break;
-//
-//             case TrainStateDOTS.ARRIVING:
-//                 break;
-//
-//             case TrainStateDOTS.DOORS_OPEN:
-//                 break;
-//
-//             case TrainStateDOTS.UNLOADING:
-//                 break;
-//
-//             case TrainStateDOTS.LOADING:
-//                 break;
-//             case TrainStateDOTS.DOORS_CLOSE:
-//                 break;
-//             case TrainStateDOTS.DEPARTING:
-//
-//                 //1 Second Delay
-//                 //Update Next Platform train needs to go to
-//
-//                 break;
-//             case TrainStateDOTS.EMERGENCY_STOP:
-//                 // skip for now
-//                 break;
-//
-//             default:
-//                 break;
-//         }
-//     }
+public partial struct UpdateTrainsPositionsJob : IJobEntity
+{
+    public float deltaTime;
 
-    //void ChangeState(TrainStateDOTS _newState)
-    //{
+    public void Execute(in Entity ent, ref TrainPositionComponent tpos, ref TrainSpeedComponent speed)
+    {
+        // Set initial speed and position
+        // var pos = tpos.value;
 
-    //    switch (_newState)
-    //    {
-    //        case TrainStateDOTS.EN_ROUTE:
-    //            // keep current speed
-    //            break;
-    //        case TrainStateDOTS.ARRIVING:
-    //            //float maxSpeed = parentLine.maxTrainSpeed;
-    //            //speed_on_platform_arrival = Mathf.Clamp(speed, maxSpeed * 0.1f, maxSpeed);
-    //            break;
-    //        case TrainStateDOTS.DOORS_OPEN:
-    //            // slight delay, then open the required door
-    //            speed = 0f;
-    //            stateDelay = Metro.INSTANCE.Train_delay_doors_OPEN;
-    //            break;
-    //        case TrainStateDOTS.UNLOADING:
-    //            Prepare_DISEMBARK();
-    //            break;
-    //        case TrainStateDOTS.LOADING:
-    //            Prepare_EMBARK();
-    //            break;
-    //        case TrainStateDOTS.DOORS_CLOSE:
-    //            passengers_to_DISEMBARK.Clear();
-    //            passengers_to_EMBARK.Clear();
-    //            // once totalPassengers == (totalPassengers + (waitingToBoard - availableSpaces)) - shut the doors
-    //            stateDelay = Metro.INSTANCE.Train_delay_doors_CLOSE;
-    //            // sort out vars for next stop (nextPlatform, door side, passengers wanting to get off etc)
-    //            break;
-    //        case TrainStateDOTS.DEPARTING:
-    //            // Determine next platform / station we'll be stopping at
-    //            Update_NextPlatform();
-    //            // slight delay
-    //            stateDelay = Metro.INSTANCE.Train_delay_departure;
-    //            // get list of passengers who wish to depart at the next stop
-    //            break;
-    //        case TrainStateDOTS.EMERGENCY_STOP:
-    //            break;
-    //    }
-    //}
-// }
+        tpos.value = ((tpos.value += speed.speed * deltaTime) % 1f);
+        speed.speed *= speed.friction; // TODO: See Train_railFriction on Metro.cs
 
-
-//public partial struct UpdateCarriagesJob : IJobEntity
-//{
-//    public void Execute()
-//    {
-//        //Update Position and look at
-//    }
-//}
+        // tpos.value = pos;
+    }
+}
