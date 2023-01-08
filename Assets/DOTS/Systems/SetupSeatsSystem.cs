@@ -33,6 +33,8 @@ namespace Assets.DOTS.Systems
             state.Dependency = setupSeatsJob.Schedule(state.Dependency);
 
             state.Dependency.Complete();
+
+            state.Enabled = false;
         }
     }
 
@@ -44,6 +46,8 @@ namespace Assets.DOTS.Systems
         {
             if (seats.init)
                 return;
+
+            Debug.Log("Running SetupSeatsJob!");
 
             var buffer = EM.GetBuffer<LinkedEntityGroup>(entity);
 

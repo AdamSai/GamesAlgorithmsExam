@@ -1,18 +1,27 @@
-﻿using Assets.DOTS.Components.Train;
+﻿using Assets.DOTS.Components;
+using Assets.DOTS.Components.Train;
 using Assets.DOTS.Utility.Stack;
+using DOTS.Authoring;
+using DOTS.Components;
 using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Entities.UniversalDelegates;
 using Unity.Transforms;
 using UnityEngine;
 
 namespace Assets.DOTS.Systems
 {
+    [UpdateAfter(typeof(SetupCarriageColorSystem))]
+    [UpdateAfter(typeof(SetupSeatsSystem))]
     public partial struct TaskManagerSystem : ISystem
     {
+        private EntityQuery carriageIDQuery;
+
         public void OnCreate(ref SystemState state)
         {
-
+            carriageIDQuery =
+            new EntityQueryBuilder(Allocator.Persistent).WithAll<CarriageIDComponent>().Build(ref state);
         }
 
         public void OnDestroy(ref SystemState state)
@@ -29,8 +38,17 @@ namespace Assets.DOTS.Systems
             worldTransforms.Update(ref state);
             ComponentLookup<CarriagePassengerSeatsComponent> seatsComponent = state.GetComponentLookup<CarriagePassengerSeatsComponent>();
             seatsComponent.Update(ref state);
+            ComponentLookup<CarriageSeatComponent> seatComponents = state.GetComponentLookup<CarriageSeatComponent>();
+            seatsComponent.Update(ref state);
             ComponentLookup<CarriageNavPointsComponent> carriageNavPoints = state.GetComponentLookup<CarriageNavPointsComponent>();
             carriageNavPoints.Update(ref state);
+            ComponentLookup<CarriageIDComponent> carriageIDComponents = state.GetComponentLookup<CarriageIDComponent>();
+            carriageIDComponents.Update(ref state);
+            ComponentLookup<TrainIDComponent> trainIDComponents = state.GetComponentLookup<TrainIDComponent>();
+            carriageIDComponents.Update(ref state);
+
+            var carriageIDEntities =
+            carriageIDQuery.ToEntityArray(Allocator.Persistent);
 
             var job = new TaskManagerJob
             {
@@ -39,6 +57,11 @@ namespace Assets.DOTS.Systems
                 worldTransforms = worldTransforms,
                 seatsComponent = seatsComponent,
                 carriageNavPoints = carriageNavPoints,
+                carriageIDComponents = carriageIDComponents,
+                seatComponents = seatComponents,
+
+                trainIDComponents = trainIDComponents,
+                carriageIDEntities = carriageIDEntities,
             };
 
             state.Dependency = job.Schedule(state.Dependency);
@@ -55,13 +78,17 @@ namespace Assets.DOTS.Systems
         public ComponentLookup<LocalToWorld> worldTransforms;
         public ComponentLookup<CarriagePassengerSeatsComponent> seatsComponent;
         public ComponentLookup<CarriageNavPointsComponent> carriageNavPoints;
+        public ComponentLookup<CarriageSeatComponent> seatComponents;
+        public ComponentLookup<CarriageIDComponent> carriageIDComponents;
+        public ComponentLookup<TrainIDComponent> trainIDComponents;
+        public NativeArray<Entity> carriageIDEntities;
 
         // A job which will switch tasks for the commuter
         // Job is dependent on platformcomponent and carriageseats component
 
         // IMPORTANT: CANNOT BE SCHEDULED IN PARRALLEL
         public void Execute(in Entity entity, ref PassengerComponent passenger,
-            ref CommuterComponent commuter, ref WalkComponent walker)
+            ref CommuterComponent commuter, ref WalkComponent walker, in CommuterQueuerComponent queuer)
         {
             if (commuter.tasks.IsEmpty)
                 return;
@@ -143,6 +170,37 @@ namespace Assets.DOTS.Systems
                         Debug.Log($"Task is: queue");
                         // Wait for train to stop, when on platform
                         // If there is time, make a fancy queue
+                        if (queuer.state == QueueState.ReadyForBoarding)
+                        {
+                            Entity platform = commuter.currentPlatform;
+                            Entity train = platformComponent[platform].currentTrain;
+                            TrainIDComponent trainC = trainIDComponents[train];
+                            bool omegaBreak = false;
+                            for (int i = 0; i < 5; i++)
+                            {
+                                if (omegaBreak)
+                                    break;
+
+                                Entity carriage = GetCarriageFromTrain(trainC.TrainIndex, i, carriageIDComponents, carriageIDEntities);
+                                CarriagePassengerSeatsComponent seatsCollection = seatsComponent[carriage];
+                                NativeList<Entity> seats = seatsCollection.seats;
+                                for (int j = 0; j < seats.Length; j++)
+                                {
+                                    CarriageSeatComponent seatC = seatComponents.GetRefRW(seats[j], false).ValueRW;
+                                    if (seatC.available)
+                                    {
+                                        // STUFF
+                                        seatC.available = false;
+                                        passenger.currentCarriage = carriage;
+                                        passenger.carriageSeat = seats[j];
+                                        walker.destinations.Push(worldTransforms[carriageNavPoints[carriage].entrancePointEntity].Position);
+                                        walker.destinations.Push(worldTransforms[seats[j]].Position);
+                                        omegaBreak = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                         break;
                     case CommuterState.WAIT_FOR_STOP:
                         Debug.Log($"Task is: wait for stop");
@@ -152,5 +210,20 @@ namespace Assets.DOTS.Systems
                 }
             }
         }
+
+        public Entity GetCarriageFromTrain(int trainIndex, int carriageIndex,
+        ComponentLookup<CarriageIDComponent> components, NativeArray<Entity> carriageEntities)
+        {
+            foreach (Entity item in carriageEntities)
+            {
+                if (components[item].trainIndex == trainIndex && components[item].id == carriageIndex)
+                {
+                    return item;
+                }
+            }
+            throw new System.Exception("Could not find the specific carriage.");
+        }
     }
+
+    
 }
