@@ -36,7 +36,8 @@ namespace Assets.DOTS.Systems
             var platformEntities =
             platformQuery.ToEntityArray(Allocator.Persistent);
 
-            var job = new PathingTaskJob { 
+            var job = new PathingTaskJob
+            {
                 platformComponents = platformComponents,
                 platformEntities = platformEntities
             };
@@ -61,7 +62,7 @@ namespace Assets.DOTS.Systems
             {
                 //Debug.Log("This far: 0");
                 // No task: get random destination?
-                int r = RNG(entity.Index + commuter.r, platformEntities.Length-1);
+                int r = RNG(entity.Index + commuter.r, platformEntities.Length - 1);
                 if (commuter.currentPlatform == platformEntities[r])
                 {
                     r = RNG(r, platformEntities.Length - 1);
@@ -79,24 +80,69 @@ namespace Assets.DOTS.Systems
                 {
                     Entity to = path[i];
                     Entity from = path[i + 1];
+
                     if (platformComponents[from].neighborPlatforms.Contains(to))
                     {
-                        // Change platform
-                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
-                    } else
+                        //if (i == path.Length - 2)
+                        //{
+                        //    // First task: is to move
+                        //    commuter.tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
+                        //}
+                        //else 
+                        if (!commuter.tasks.IsEmpty)
+                        {
+                            var nextTask = commuter.tasks.NextStackElement();
+
+                            if (nextTask.state == CommuterState.WAIT_FOR_STOP)
+                            {
+                                commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_ON_TRAIN, nextTask.startPlatform, nextTask.endPlatform));
+                                commuter.tasks.Push(new CommuterComponentTask(CommuterState.QUEUE, nextTask.startPlatform, nextTask.endPlatform));
+                            }
+
+                            // Change platform
+                            commuter.tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
+                        }
+                        else
+                        {
+                            commuter.tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
+                        }
+                    }
+                    else
                     {
-                        // Get on train
-                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_OFF_TRAIN, from, to));
-                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.WAIT_FOR_STOP, from, to));
-                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_ON_TRAIN, from, to));
-                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.QUEUE, from, to));
+                        if (i == path.Length - 2)
+                        {
+                            commuter.tasks.Push(new CommuterComponentTask(CommuterState.WAIT_FOR_STOP, from, to));
+                            commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_ON_TRAIN, from, to));
+                            commuter.tasks.Push(new CommuterComponentTask(CommuterState.QUEUE, from, to));
+                        }
+                        else if (!commuter.tasks.IsEmpty)
+                        {
+                            var nextTask = commuter.tasks.NextStackElement();
+
+                            if (nextTask.state == CommuterState.WALK)
+                            {
+                                commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_OFF_TRAIN, nextTask.startPlatform, nextTask.endPlatform));
+                            }
+
+                            // Get on train
+                            commuter.tasks.Push(new CommuterComponentTask(CommuterState.WAIT_FOR_STOP, from, to));
+                        }
+                        else
+                        {
+                            commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_OFF_TRAIN, from, to));
+                            commuter.tasks.Push(new CommuterComponentTask(CommuterState.WAIT_FOR_STOP, from, to));
+                        }
+
+
                     }
                 }
+                commuter.tasks.Push(new CommuterComponentTask(CommuterState.START, Entity.Null, Entity.Null));
+                Debug.Log($"First task: {commuter.tasks.NextStackElement().state}");
                 //commuter.tasks.Push(new CommuterComponentTask(CommuterState.SPAWN_WALK, commuter.currentPlatform, commuter.currentPlatform));
                 //Debug.Log("This far: 4. Task list length: " + commuter.tasks.Length + ". Path length: " + path.Length);
                 //if (!commuter.tasks.IsEmpty)
                 //    Debug.Log("This far: 5. Start entity: " + path.NextStackElement() + ". First task entity: " + commuter.tasks.NextStackElement().endPlatform);
-                
+
                 path.Dispose();
             }
         }

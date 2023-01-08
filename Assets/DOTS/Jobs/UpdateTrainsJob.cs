@@ -23,6 +23,8 @@ namespace DOTS.Jobs
         public NativeArray<Entity> metroLines;
         public EntityCommandBuffer ECB;
 
+        public EntityManager EM;
+
         public float deltaTime;
 
 
@@ -264,6 +266,7 @@ namespace DOTS.Jobs
                         !nextPlatformComponent.value.Equals(platformEnt))
                     {
                         nextPlatformComponent.value = platformEnt;
+                        Debug.Log($"{EM.GetName(trainEntity)} is driving to {EM.GetName(platformEnt)}");
                         return;
                     }
                 }

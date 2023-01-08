@@ -80,7 +80,8 @@ public partial struct UpdateTrainsSystem : ISystem
             metroLineComponents = metroLineLookUp,
             metroLines = metroLines2,
             deltaTime = SystemAPI.Time.DeltaTime,
-            ECB = ecb
+            ECB = ecb,
+            EM = state.EntityManager,
         };
         updateTrainsJob.Run();
         // updateTrainHandle.Complete();

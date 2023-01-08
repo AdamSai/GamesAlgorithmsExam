@@ -9,6 +9,7 @@ using Random = UnityEngine.Random;
 
 public enum CommuterState
 {
+    START,
     WALK,
     QUEUE,
     GET_ON_TRAIN,

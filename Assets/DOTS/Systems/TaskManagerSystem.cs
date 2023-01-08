@@ -43,6 +43,8 @@ namespace Assets.DOTS.Systems
             carriageIDComponents.Update(ref state);
             ComponentLookup<TrainIDComponent> trainIDComponents = state.GetComponentLookup<TrainIDComponent>();
             carriageIDComponents.Update(ref state);
+            ComponentLookup<TrainStateComponent> trainStateComponents = state.GetComponentLookup<TrainStateComponent>();
+            trainStateComponents.Update(ref state);
 
             var carriageIDEntities =
             carriageIDQuery.ToEntityArray(Allocator.Persistent);
@@ -56,8 +58,8 @@ namespace Assets.DOTS.Systems
                 carriageNavPoints = carriageNavPoints,
                 carriageIDComponents = carriageIDComponents,
                 seatComponents = seatComponents,
-
                 trainIDComponents = trainIDComponents,
+                trainStateComponents = trainStateComponents,
                 carriageIDEntities = carriageIDEntities,
             };
 
@@ -78,6 +80,7 @@ namespace Assets.DOTS.Systems
         public ComponentLookup<CarriageSeatComponent> seatComponents;
         public ComponentLookup<CarriageIDComponent> carriageIDComponents;
         public ComponentLookup<TrainIDComponent> trainIDComponents;
+        public ComponentLookup<TrainStateComponent> trainStateComponents;
         public NativeArray<Entity> carriageIDEntities;
 
         // A job which will switch tasks for the commuter
@@ -96,6 +99,9 @@ namespace Assets.DOTS.Systems
 
             switch (currentTask.state)
             {
+                case CommuterState.START:
+                    jobFinished = true;
+                    break;
                 case CommuterState.WALK:
                     if (walker.destinations.IsEmpty)
                         jobFinished = true;
@@ -117,9 +123,14 @@ namespace Assets.DOTS.Systems
                     break;
                 case CommuterState.WAIT_FOR_STOP:
                     // See if train has stopped and is open
+                    if (trainStateComponents[passenger.currentTrain].value == TrainStateDOTS.UNLOADING)
+                    {
+                        jobFinished = true;
+                    }
                     break;
-
             }
+
+            
 
             if (jobFinished)
             {
@@ -134,6 +145,8 @@ namespace Assets.DOTS.Systems
 
                 // Get new task
                 var newTask = commuter.tasks.NextStackElement();
+
+                Debug.Log($"Current task: {currentTask.state}. Next: {newTask.state}.");
 
                 switch (newTask.state)
                 {
@@ -160,8 +173,8 @@ namespace Assets.DOTS.Systems
                         // Set it unavailable and walk there
                         //Debug.Log("Here0 " + passenger.currentCarriage);
                         //Debug.Log("Here1 " + carriageNavPoints[passenger.currentCarriage].entrancePointEntity);
-                        walker.destinations.Push(worldTransforms[carriageNavPoints[passenger.currentCarriage].entrancePointEntity].Position);
                         walker.destinations.Push(worldTransforms[passenger.carriageSeat].Position);
+                        walker.destinations.Push(worldTransforms[carriageNavPoints[passenger.currentCarriage].entrancePointEntity].Position);
                         break;
                     case CommuterState.GET_OFF_TRAIN:
                         //Debug.Log($"Task is: get off train");
@@ -170,6 +183,7 @@ namespace Assets.DOTS.Systems
                         // Get platform entity
                         // add walk destination for carriage nav point
                         // walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance2);
+                        walker.destinations.Push(worldTransforms[carriageNavPoints[passenger.currentCarriage].entrancePointEntity].Position);
                         break;
                     case CommuterState.QUEUE:
                         //Debug.Log($"Queue state in TaskManagerSystem: {queuer.state}");

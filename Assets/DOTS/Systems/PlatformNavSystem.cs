@@ -20,7 +20,7 @@ namespace Assets.DOTS.Systems
 
         public void OnDestroy(ref SystemState state)
         {
-            
+
         }
 
         public void OnUpdate(ref SystemState state)
@@ -29,8 +29,14 @@ namespace Assets.DOTS.Systems
                 return;
 
             // Setting nav points for all platforms
-            Debug.Log("Nav System!");
             EntityCommandBuffer ECB = new EntityCommandBuffer(Allocator.Persistent);
+
+            var worldTransforms = state.GetComponentLookup<WorldTransform>();
+            worldTransforms.Update(ref state);
+            var localTransforms = state.GetComponentLookup<LocalTransform>();
+            localTransforms.Update(ref state);
+            var navPoints = state.GetComponentLookup<NavPointComponent>();
+            navPoints.Update(ref state);
 
             // Set nav points
             var platformNavJob = new PlatformNavJob
@@ -62,7 +68,7 @@ namespace Assets.DOTS.Systems
     {
         public EntityCommandBuffer ECB;
 
-        public void Execute(ref CommuterSpawnComponent spawner, 
+        public void Execute(ref CommuterSpawnComponent spawner,
             in Entity entity, in LocalTransform transform, in PlatformComponent platform, QueueComponent queueC)
         {
             //Debug.Log("Spawning commuter job!");

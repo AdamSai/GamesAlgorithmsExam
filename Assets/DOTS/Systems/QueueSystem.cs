@@ -48,7 +48,9 @@ namespace Assets.DOTS.Systems
             // Queue job
             queueEntires.Update(ref state);
             ComponentLookup<TrainStateComponent> trainStateComponents = state.GetComponentLookup<TrainStateComponent>();
+            trainStateComponents.Update(ref state);
             ComponentLookup<CommuterQueuerComponent> queuerComponents = state.GetComponentLookup<CommuterQueuerComponent>();
+            queuerComponents.Update(ref state);
             ComponentLookup<WorldTransform> worldTransforms = state.GetComponentLookup<WorldTransform>();
             trainStateComponents.Update(ref state);
             EntityCommandBuffer ECB = new EntityCommandBuffer(Allocator.Persistent);
@@ -100,6 +102,7 @@ namespace Assets.DOTS.Systems
             state.Dependency = queuerJob.Schedule(state.Dependency);
             state.Dependency.Complete();
 
+            ECB.Playback(state.EntityManager);
             ECB.Dispose();
         }
     }
