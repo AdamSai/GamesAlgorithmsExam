@@ -1,3 +1,6 @@
+using Assets.DOTS.Components;
+using Assets.DOTS.Components.Train;
+using Assets.DOTS.Systems;
 using DOTS.Components;
 using DOTS.Components.Train;
 using Unity.Collections;
@@ -16,6 +19,7 @@ public enum TrainStateDOTS
     DEPARTING,
     EMERGENCY_STOP
 }
+
 [UpdateAfter(typeof(SetupRailSystem))]
 public partial struct SetupTrainsSystem : ISystem
 {
@@ -65,6 +69,16 @@ public partial struct SetupTrainsSystem : ISystem
         SetupCarriagesJob.Run();
         setupCarriagesECB.Playback(state.EntityManager);
 
+        var seatsECB = new EntityCommandBuffer(Allocator.Persistent);
+        var SetupSeatsJob = new SetupTrainSeatsJob()
+        {
+            EM = state.EntityManager
+        };
+        SetupSeatsJob.Run();
+        seatsECB.Playback(state.EntityManager);
+        
+
+        seatsECB.Dispose();
         setupTrainsECB.Dispose();
         setupCarriagesECB.Dispose();
         state.Enabled = false;
@@ -74,6 +88,7 @@ public partial struct SetupTrainsSystem : ISystem
 public partial struct SetupTrainsJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
+
     public void Execute(MetroLineTrainDataComponent MLTDC, MetroLineComponent MLA)
     {
         Debug.Log("Setup trains");
@@ -92,7 +107,7 @@ public partial struct SetupTrainsJob : IJobEntity
             });
 
             float pos = trainSpacing * i;
-            Debug.Log($"train pos {MLA.MetroLineID}: "+ pos);
+            Debug.Log($"train pos {MLA.MetroLineID}: " + pos);
             ECB.SetName(train, $"Train_{MLA.MetroLineID}:{i}");
             ECB.SetComponent(train, new TrainPositionComponent
             {
@@ -103,7 +118,6 @@ public partial struct SetupTrainsJob : IJobEntity
             {
                 speed = MLTDC.maxTrainSpeed,
                 friction = MLTDC.friction
-
             });
 
             ECB.SetComponent(train, new MaxTrainSpeedComponent
@@ -120,9 +134,9 @@ public partial struct SetupTrainsJob : IJobEntity
             {
                 value = TrainStateDOTS.DEPARTING
             });
-            
+
             ECB.AddComponent<TrainAheadComponent>(train);
-            
+
             ECB.AddComponent<TimerComponent>(train);
         }
     }
@@ -133,17 +147,20 @@ public partial struct SetupCarriagesJob : IJobEntity
     public EntityCommandBuffer ECB;
     public EntityManager EM;
 
-    public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, in MetroLineComponent MLID, ColorComponent color)
-    //public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, MetroLineComponent MLID)
+    public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain,
+            in MetroLineComponent MLID, ColorComponent color)
+        //public void Execute(MetroLineCarriageDataComponent MLCarriage, MetroLineTrainDataComponent MLTrain, MetroLineComponent MLID)
     {
         Debug.Log("Setup carriages");
         for (int i = 0; i < MLTrain.maxTrains; i++)
         {
+            Entity previousCarriage = Entity.Null;
             for (int j = 0; j < MLCarriage.carriages; j++)
             {
                 //Instantiate Carriages
                 Entity carriage = ECB.Instantiate(MLCarriage.carriage);
-
+                
+                
                 ECB.SetComponent(carriage, new CarriageIDComponent
                 {
                     id = j,
@@ -156,23 +173,18 @@ public partial struct SetupCarriagesJob : IJobEntity
                     value = color.value
                 });
 
-                //var children = EM.GetBuffer<LinkedEntityGroup>(carriage);
+                ECB.AddComponent(carriage, new CarriageAheadOfMeComponent
+                {
+                    Value = previousCarriage
+                });
+                
+                ECB.AddComponent(carriage, new CarriagePassengerSeatsComponent
+                {
+                    init = false
+                });
+ 
 
-                //for (int k = 0; k < children.Count(); k++)
-                //{
-                //Use Has Component
-                //    if (!EM.GetComponentData<CarriageColorTag>(children[i].Value).Equals(null))
-                //    {
-                //        UnityEngine.Debug.Log("Carriage Color Tag Found On Line: " + MLID.MetroLineID);
-                //    }
-                //}
-
-                //carr
-                //var buffer = ECB.
-                //Entity Carriage = ECB.Instantiate
-                //ECB.Instantiate()
-                //Set Colour to Line Colour
-                //Set Colour to Carriages Material
+                previousCarriage = carriage;
             }
         }
     }
@@ -183,7 +195,8 @@ public partial struct SetupTrainAheadJob : IJobEntity
     public ComponentLookup<TrainIDComponent> trainIdLookup;
     public NativeArray<Entity> trains;
 
-    public void Execute(in Entity entity, ref TrainAheadComponent trainAheadComponent, in AmountOfTrainsInLineComponent maxTrains)
+    public void Execute(in Entity entity, ref TrainAheadComponent trainAheadComponent,
+        in AmountOfTrainsInLineComponent maxTrains)
     {
         foreach (var train in trains)
         {
@@ -193,12 +206,13 @@ public partial struct SetupTrainAheadJob : IJobEntity
             {
                 if (entity.Index == train.Index)
                     continue;
-                
+
                 if (trainID.TrainIndex == maxTrains.value - 1 && other.TrainIndex == 0)
                 {
                     trainAheadComponent.Value = train;
                     return;
                 }
+
                 if (other.TrainIndex == trainID.TrainIndex + 1)
                 {
                     trainAheadComponent.Value = train;
@@ -209,3 +223,26 @@ public partial struct SetupTrainAheadJob : IJobEntity
     }
 }
 
+[WithAll(typeof(CarriageIDComponent))]
+public partial struct SetupTrainSeatsJob : IJobEntity
+{
+    public EntityManager EM;
+    public void Execute(in Entity ent)
+    {
+        var children = EM.GetBuffer<LinkedEntityGroup>(ent);
+        var seats = new NativeList<Entity>(Allocator.Persistent);
+        for (var i = 0; i < children.Length; i++)
+        {
+            if (EM.HasComponent<CarriageSeatComponent>(children[i].Value))
+            {
+                seats.Add(children[i].Value);
+            }
+        }
+        
+        EM.SetComponentData(ent, new CarriagePassengerSeatsComponent
+        {
+            init = true,
+            seats = seats
+        });
+    }
+}

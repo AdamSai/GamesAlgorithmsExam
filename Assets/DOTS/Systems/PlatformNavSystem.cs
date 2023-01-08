@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.DOTS.Systems
 {
-    [UpdateAfter(typeof(SetupSeatsSystem))]
+    [UpdateAfter(typeof(SetupTrainsSystem))]
     public partial struct PlatformNavSystem : ISystem
     {
 
