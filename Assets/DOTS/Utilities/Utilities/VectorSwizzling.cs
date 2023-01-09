@@ -9,12 +9,10 @@ using UnityEngine;
 *  Sample Usage: 
     Vector2 a = new Vector2(1, 2);
     Vector4 b = a.yxxy();
-    Debug.Log(b); //outputs (2.0, 1.0, 1.0, 2.0)
 
 0 and 1 swizzling sample usage:
     Vector3 position = new Vector3(20, 10, 5);
     Vector3 flattened_position = position.x0z();
-    Debug.log(flattened_position); //outputs (20.0, 0.0, 5.0);
 note: swizzles that start with a 0 or 1 have an underscore in front of them
 */
 

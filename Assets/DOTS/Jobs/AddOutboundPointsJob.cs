@@ -28,7 +28,6 @@ namespace DOTS.Jobs
             var platforms = new NativeList<PlatformComponent>(Allocator.Temp);
             var platformEntities = new NativeList<Entity>(Allocator.Temp);
             path.MetroLineID = metroLine.MetroLineID;
-            Debug.Log("Running on metroLine: " + metroLine.MetroLineID);
             // Sort the rail markers by PointIndex
             railMarkers.Sort(new RailMarkerComparer());
 
@@ -83,7 +82,6 @@ namespace DOTS.Jobs
 
             // Sorting platforms
             platforms.Sort(new PlatformComparer());
-            Debug.Log($"Total platforms {metroLine.MetroLineID}: " + platforms.Length);
             // TODO: If platform driving fucks up look at this
             var numbIfOdd = platformEntities.Length - 1;
             var numbIfEven = 0;

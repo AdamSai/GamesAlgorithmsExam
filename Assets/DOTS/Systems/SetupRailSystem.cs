@@ -109,7 +109,6 @@ public partial struct ConnectPlatformsJob : IJobEntity
             }
         }
 
-        Debug.Log($"Platforms lll: {myPlatforms.Length}");
 
         foreach (var otherEnt in myPlatforms)
         {
@@ -118,14 +117,12 @@ public partial struct ConnectPlatformsJob : IJobEntity
 
             if (platform.platformIndex == myPlatforms.Length - 1 && other.platformIndex == 0)
             {
-                Debug.Log($"33Connecting {platform.platformIndex} with {other.platformIndex}");
                 platform.nextPlatform = otherEnt;
                 ECB.SetComponent(entity, platform);
                 break;
             }
             else if (other.platformIndex == platform.platformIndex + 1)
             {
-                Debug.Log($"Connecting {entity} with {otherEnt}");
                 platform.nextPlatform = otherEnt;
                 ECB.SetComponent(entity, platform);
                 break;

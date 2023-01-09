@@ -255,7 +255,6 @@ namespace JStuff.AI.Pathfinding
         //    // an approximate distance between some vertex u and t. s is the starting vertex, 
         //    // u is some vertex, t is the goal vertex.
         //
-        //    Debug.Log("AStarCoroutine");
         //
         //    Dictionary<Node, float> dist = new Dictionary<Node, float>();
         //    Dictionary<Node, float> rdist = new Dictionary<Node, float>();

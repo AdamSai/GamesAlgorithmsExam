@@ -11,16 +11,19 @@ namespace Assets.DOTS.Systems
     [UpdateAfter(typeof(SetupTrainsSystem))]
     public partial struct PlatformNavSystem : ISystem
     {
-
+        public ComponentLookup<WorldTransform> worldTransforms;
+        public ComponentLookup<LocalTransform> localTransforms;
+        public ComponentLookup<NavPointComponent> navPoints;
 
         public void OnCreate(ref SystemState state)
         {
-
+            worldTransforms = state.GetComponentLookup<WorldTransform>();
+            localTransforms = state.GetComponentLookup<LocalTransform>();
+            navPoints = state.GetComponentLookup<NavPointComponent>();
         }
 
         public void OnDestroy(ref SystemState state)
         {
-
         }
 
         public void OnUpdate(ref SystemState state)
@@ -31,20 +34,16 @@ namespace Assets.DOTS.Systems
             // Setting nav points for all platforms
             EntityCommandBuffer ECB = new EntityCommandBuffer(Allocator.Persistent);
 
-            var worldTransforms = state.GetComponentLookup<WorldTransform>();
             worldTransforms.Update(ref state);
-            var localTransforms = state.GetComponentLookup<LocalTransform>();
             localTransforms.Update(ref state);
-            var navPoints = state.GetComponentLookup<NavPointComponent>();
             navPoints.Update(ref state);
-
             // Set nav points
             var platformNavJob = new PlatformNavJob
             {
                 ECB = ECB,
-                worldTransforms = state.GetComponentLookup<WorldTransform>(),
-                localTransforms = state.GetComponentLookup<LocalTransform>(),
-                navPoints = state.GetComponentLookup<NavPointComponent>(),
+                worldTransforms = worldTransforms,
+                localTransforms = localTransforms,
+                navPoints = navPoints,
                 EM = state.EntityManager
             };
             state.Dependency = platformNavJob.Schedule(state.Dependency);
@@ -55,7 +54,7 @@ namespace Assets.DOTS.Systems
 
             // Spawn commuters
             ECB = new EntityCommandBuffer(Allocator.Persistent);
-            var spawnJob = new SpawnCommutersJob { ECB = ECB };
+            var spawnJob = new SpawnCommutersJob {ECB = ECB};
 
             state.Dependency = spawnJob.Schedule(state.Dependency);
             state.Dependency.Complete();
@@ -71,7 +70,6 @@ namespace Assets.DOTS.Systems
         public void Execute(ref CommuterSpawnComponent spawner,
             in Entity entity, in LocalTransform transform, in PlatformComponent platform, QueueComponent queueC)
         {
-            //Debug.Log("Spawning commuter job!");
             // TODO make so only run once
             if (spawner.hasSpawned)
                 return;
@@ -79,7 +77,6 @@ namespace Assets.DOTS.Systems
             for (int i = 0; i < spawner.amount; i++)
             {
                 Entity commuter = ECB.Instantiate(spawner.commuter);
-                //Debug.Log("Spawning commuter: " + commuter);
 
                 ECB.SetComponent<LocalTransform>(commuter, LocalTransform.FromPosition(platform.platform_entrance0));
                 ECB.SetComponent<CommuterComponent>(commuter, new CommuterComponent
@@ -125,11 +122,6 @@ namespace Assets.DOTS.Systems
 
             tag.init = true;
 
-            foreach (var item in platform.neighborPlatforms)
-            {
-                Debug.Log($"Platform {EM.GetName(entity)} added neightbor: {EM.GetName(item)}.");
-            }
-
             var buffer = EM.GetBuffer<LinkedEntityGroup>(entity);
             foreach (var item in buffer)
             {
@@ -160,7 +152,6 @@ namespace Assets.DOTS.Systems
                             break;
 
                         case 100:
-                            //Debug.Log($"Queue point: {worldTransforms[e].Position}.");
                             queueC.queuePoint0 = worldTransforms[e].Position;
                             break;
                         case 101:
@@ -193,7 +184,6 @@ namespace Assets.DOTS.Systems
 
 
                         default:
-                            Debug.Log("ERROR: Nav points ID don't match!");
                             break;
                     }
                 }

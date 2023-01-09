@@ -68,7 +68,6 @@ namespace DOTS.Jobs
 
             var posOnRail = BezierUtility.Get_Position(pos, bezier.distance, bezierBuffer);
             var rotOnRail = BezierUtility.Get_NormalAtPosition(pos, bezier.distance, bezierBuffer);
-            // Debug.Log(carriageIDComponent.lineIndex + ":" + carriageIDComponent.id + ": " + carriageIDComponent.id * carriageOffset);
 
             // Set rotation and position
             var transform = LocalTransform.FromPosition(posOnRail);

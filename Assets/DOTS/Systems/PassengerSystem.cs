@@ -9,9 +9,10 @@ namespace Assets.DOTS.Systems
 {
     public partial struct PassengerSystem : ISystem
     {
+        public ComponentLookup<WorldTransform> transformLookup;
         public void OnCreate(ref SystemState state)
         {
-
+            transformLookup = state.GetComponentLookup<WorldTransform>();
         }
 
         public void OnDestroy(ref SystemState state)
@@ -21,7 +22,7 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
-            var transformLookup = state.GetComponentLookup<WorldTransform>();
+            
             transformLookup.Update(ref state);
 
             var job = new PassengerJob { worldTransforms = transformLookup };

@@ -23,7 +23,6 @@ namespace DOTS.Jobs
         public NativeArray<Entity> metroLines;
         public EntityCommandBuffer ECB;
 
-        public EntityManager EM;
 
         public float deltaTime;
 
@@ -145,12 +144,10 @@ namespace DOTS.Jobs
                         _platform_length;
 
                     arrivalProgress = 1f - math.cos(arrivalProgress * math.PI * 0.5f);
-                    Debug.Log("Speed on platform arriving");
                     speed.speed = speed.speedOnPlatformArriving * (1f - arrivalProgress);
 
                     if (arrivalProgress >= 0.975f) // see Metro.PLATFORM_ARRIVAL_THRESHOLD
                     {
-                        Debug.Log("speed stop");
 
                         // ===== CHANGE STATE =====
                         timer.duration = 1f;
@@ -228,7 +225,6 @@ namespace DOTS.Jobs
 
                     break;
                 case TrainStateDOTS.EMERGENCY_STOP:
-                    Debug.LogError("State: EMERGENCY_STOP");
 
                     break;
 
@@ -266,7 +262,6 @@ namespace DOTS.Jobs
                         !nextPlatformComponent.value.Equals(platformEnt))
                     {
                         nextPlatformComponent.value = platformEnt;
-                        Debug.Log($"{EM.GetName(trainEntity)} is driving to {EM.GetName(platformEnt)}");
                         return;
                     }
                 }

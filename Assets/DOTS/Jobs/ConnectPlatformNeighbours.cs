@@ -17,8 +17,6 @@ namespace DOTS.Jobs
         public void Execute(in Entity entity) // Pass in Platform component
         {
             counter = 0;
-            Debug.Log("Add missing platforms");
-            Debug.Log(PlatformsEntities.Length);
 
             var _PA = platformLookUp.GetRefRO(entity).ValueRO;
             var _PA_START = _PA.point_platform_START.location;
@@ -44,12 +42,10 @@ namespace DOTS.Jobs
             //var originalPlatform = platformLookUp.GetRefRW(entity, false).ValueRW;
             //originalPlatform.init = true;
 
-            Debug.Log("Counter: " + counter);
         }
 
         public void Add_AdjacentPlatform(Entity invokerEntity, Entity _platform)
         {
-            Debug.Log("Add adjacent");
             // Add the platform
             AddAdjacentIfNotPresent(invokerEntity, _platform);
         }
@@ -61,7 +57,6 @@ namespace DOTS.Jobs
             if (!originalPlatform.neighborPlatforms.Contains(_platform) && _platform.Index != original.Index)
             {
                 counter++;
-                Debug.Log("Adding adjacent platform");
                 originalPlatform.neighborPlatforms.Add(_platform);
             }
         }

@@ -36,7 +36,6 @@ namespace JStuff.Utilities
                 throw new System.Exception("Volume has to be between 0 and 1. (including)");
 
             AudioClip sound = (AudioClip)Resources.Load("Sounds/" + soundToPlay);
-            Debug.Log(sound);
             audioSound.PlayOneShot(sound, volume * AudioPlay.volume);
         }
 
@@ -55,7 +54,6 @@ namespace JStuff.Utilities
             source.volume = volume * AudioPlay.volume;
             source.loop = loop;
             source.Play();
-            Debug.Log("Sounds/" + soundToPlay + "  --  " + source.clip);
             return retval;
         }
 
@@ -67,7 +65,6 @@ namespace JStuff.Utilities
             AudioSource source = soundSource.GetComponent<AudioSource>();
             AudioClip clip = (AudioClip)Resources.Load("Sounds/" + soundToPlay);
 
-            Debug.Log(";"+clip.ToString() + "---" + source.clip.ToString()+";");
             source.volume = volume * AudioPlay.volume;
             source.loop = loop;
 

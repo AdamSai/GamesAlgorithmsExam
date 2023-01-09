@@ -11,7 +11,6 @@ namespace DOTS.Jobs
         public void Execute(in OppositePlatformComponent oppositePlatformComponent,
             ref PlatformComponent platformComponent)
         {
-            Debug.Log("Connect opposite platforms");
             platformComponent.oppositePlatform = oppositePlatformComponent.OppositePlatform.entity;
         }
 

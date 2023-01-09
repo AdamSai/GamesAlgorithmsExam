@@ -47,7 +47,6 @@ namespace Assets.DOTS.Systems
             if (seats.init)
                 return;
 
-            Debug.Log("Running SetupSeatsJob!");
 
             var buffer = EM.GetBuffer<LinkedEntityGroup>(entity);
 

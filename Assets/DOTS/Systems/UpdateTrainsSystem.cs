@@ -15,15 +15,12 @@ public partial struct UpdateTrainsSystem : ISystem
 
     private ComponentLookup<TrainPositionComponent> trainPosLookUp;
     private ComponentLookup<TrainIDComponent> trainIDs;
-    private ComponentLookup<TrainIDComponent> trainIDs2;
     private ComponentLookup<PlatformComponent> platforms;
     private ComponentLookup<MetroLineComponent> metroLineLookUp;
-    private ComponentLookup<MetroLineComponent> metroLineLookUp2;
     private ComponentLookup<BezierPathComponent> bezierPathLookup;
     private EntityQuery bezierPathQuery;
     private EntityQuery platformEntitiesQuery;
     private BufferLookup<DOTS.BezierPoint> bezierLookup;
-    private BufferLookup<DOTS.BezierPoint> bezierLookup2;
 
 
     public void OnCreate(ref SystemState state)
@@ -41,12 +38,9 @@ public partial struct UpdateTrainsSystem : ISystem
             new EntityQueryBuilder(Allocator.Temp).WithAll<PlatformComponent>().Build(ref state);
         trainPosLookUp = state.GetComponentLookup<TrainPositionComponent>();
         trainIDs = state.GetComponentLookup<TrainIDComponent>();
-        trainIDs2 = state.GetComponentLookup<TrainIDComponent>();
         platforms = state.GetComponentLookup<PlatformComponent>();
         bezierLookup = state.GetBufferLookup<DOTS.BezierPoint>(true);
-        bezierLookup2 = state.GetBufferLookup<DOTS.BezierPoint>(true);
         metroLineLookUp = state.GetComponentLookup<MetroLineComponent>();
-        metroLineLookUp2 = state.GetComponentLookup<MetroLineComponent>();
         bezierPathLookup = state.GetComponentLookup<BezierPathComponent>();
     }
 
@@ -61,13 +55,6 @@ public partial struct UpdateTrainsSystem : ISystem
 
         var bezierPaths = bezierPathQuery.ToComponentDataArray<BezierPathComponent>(Allocator.Persistent);
         var platformEntities = platformEntitiesQuery.ToEntityArray(Allocator.Persistent);
-
-
-        //var platformEntities = platformEntitiesQuery.ToEntityArray(Allocator.Persistent);
-
-        //NativeArray<Entity> platformEntitiesSorted = new NativeArray<Entity>(platformEntities.Length, Allocator.Persistent);
-
-
 
         var metroLines2 =
             metroLineQuery2.ToEntityArray(Allocator.Persistent);
@@ -89,17 +76,14 @@ public partial struct UpdateTrainsSystem : ISystem
             metroLines = metroLines2,
             deltaTime = SystemAPI.Time.DeltaTime,
             ECB = ecb,
-            EM = state.EntityManager,
         };
-        state.Dependency = updateTrainsJob.Schedule(state.Dependency);
-        // updateTrainHandle.Complete();
-        state.Dependency.Complete();
-        ecb.Playback(state.EntityManager);
-        ecb.Dispose();
+        var updateTrainStateHandle = updateTrainsJob.Schedule(state.Dependency);
+   
         // updateTrainHandle.Complete();
 
+        var trainPosDep = JobHandle.CombineDependencies(updateTrainStateHandle, state.Dependency);
         var trainJob = new UpdateTrainsPositionsJob { deltaTime = SystemAPI.Time.DeltaTime };
-        var updateTrainPosHandle = trainJob.Schedule(state.Dependency);
+        var updateTrainPosHandle = trainJob.Schedule(trainPosDep);
 
         var carriageDependency = JobHandle.CombineDependencies(updateTrainPosHandle, state.Dependency);
 
@@ -108,23 +92,30 @@ public partial struct UpdateTrainsSystem : ISystem
         var metroLines =
             metroLineQuery.ToEntityArray(Allocator.Persistent);
 
-        metroLineLookUp2.Update(ref state);
-        trainIDs2.Update(ref state);
-        bezierLookup2.Update(ref state);
+        metroLineLookUp.Update(ref state);
+        trainIDs.Update(ref state);
+        bezierLookup.Update(ref state);
         bezierPathLookup.Update(ref state);
+        trainPosLookUp.Update(ref state);
         var carriageJob = new UpdateCarriagesJob
         {
             trains = trains,
             ECB = ECB,
             metroLines = metroLines,
-            tPos = state.GetComponentLookup<TrainPositionComponent>(),
-            bezierPoints = bezierLookup2,
-            MetroLineComponents = metroLineLookUp2,
-            trainIDs = trainIDs2,
+            tPos = trainPosLookUp,
+            bezierPoints = bezierLookup,
+            MetroLineComponents = metroLineLookUp,
+            trainIDs = trainIDs,
             BezierPaths = bezierPathLookup
         };
+        
+  
         state.Dependency = carriageJob.Schedule(carriageDependency);
+        
         // state.Dependency.Complete();
+        updateTrainStateHandle.Complete();
+        ecb.Playback(state.EntityManager);
+        ecb.Dispose();
         state.CompleteDependency();
         // var dependency = JobHandle.CombineDependencies(trainJobHandle, state.Dependency);
         // state.Dependency = new UpdateCarriageJob {trains = trains}.Schedule(dependency);

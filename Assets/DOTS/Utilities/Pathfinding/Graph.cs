@@ -51,10 +51,8 @@ namespace JStuff.AI.Pathfinding
         {
             if (!edges.ContainsKey(v))
             {
-                Debug.LogError("Vertex v not in edges, v = " + v.x + ";" + v.z);
                 foreach (Node u in nodes)
                 {
-                    Debug.Log(u.x + ";" + u.z);
                 }
             }
 
@@ -109,12 +107,10 @@ namespace JStuff.AI.Pathfinding
 
             if (!nodes.Contains(v))
             {
-                Debug.LogError("Vertex v cannot have a neighbour, since v is not contained in the graph. v = " + v.x + ";" + v.z);
                 return;
             }
             if (!nodes.Contains(u))
             {
-                Debug.LogError("Vertex u cannot be a neighbour, since u is not contained in the graph. u = " + u.x + ";" + u.z);
                 return;
             }
 

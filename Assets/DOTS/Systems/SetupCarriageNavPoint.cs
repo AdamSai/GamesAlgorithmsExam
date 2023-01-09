@@ -41,7 +41,6 @@ namespace Assets.DOTS.Systems
                 if (navPoint.init)
                     return;
 
-                Debug.Log("Running SetupCarriageNavPointJob!");
 
                 var buffer = EM.GetBuffer<LinkedEntityGroup>(entity);
 
