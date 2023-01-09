@@ -12,18 +12,22 @@ using UnityEngine;
 namespace Assets.DOTS.Systems
 {
     [UpdateAfter(typeof(SetupTrainsSystem))]
+    [BurstCompile]
     public partial struct SetupSeatsSystem : ISystem
     {
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
             
         }
         
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var setupSeatsJob = new SetupSeatsJob 
@@ -38,6 +42,7 @@ namespace Assets.DOTS.Systems
         }
     }
 
+    [BurstCompile]
     public partial struct SetupSeatsJob : IJobEntity
     {
         public EntityManager EM;

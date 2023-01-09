@@ -1,10 +1,12 @@
 using Assets.DOTS.Components.Train;
 using DOTS.Components;
 using DOTS.Components.Train;
+using Unity.Burst;
 using Unity.Entities;
 
 namespace DOTS.Jobs
 {
+    [BurstCompile]
     public partial struct SetupCarriagesJob : IJobEntity
     {
         public EntityCommandBuffer ECB;

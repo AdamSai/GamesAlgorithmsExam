@@ -1,10 +1,12 @@
 using DOTS.Components;
 using DOTS.Jobs;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
 [UpdateAfter(typeof(SetupTrainsSystem))]
+[BurstCompile]
 public partial struct SetupCarriagesSystem : ISystem
 {
     EntityCommandBuffer ecb;
@@ -13,6 +15,7 @@ public partial struct SetupCarriagesSystem : ISystem
     [DeallocateOnJobCompletionAttribute]
     private NativeList<Entity> _carriages;
 
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         carriageQuery =
@@ -20,10 +23,12 @@ public partial struct SetupCarriagesSystem : ISystem
         carriageComponentLookup = state.GetComponentLookup<CarriageIDComponent>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         //Entity Command Buffer

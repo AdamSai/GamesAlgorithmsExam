@@ -1,10 +1,12 @@
 using DOTS.Components;
 using DOTS.Components.Train;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 
 namespace DOTS.Jobs
 {
+    [BurstCompile]
     public partial struct SetupTrainAheadJob : IJobEntity
     {
         public ComponentLookup<TrainIDComponent> trainIdLookup;

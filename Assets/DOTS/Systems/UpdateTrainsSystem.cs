@@ -1,11 +1,13 @@
 using DOTS.Components;
 using DOTS.Jobs;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
 // Run the system after  SetupTrainsSystem
 [UpdateAfter(typeof(SetupTrainsSystem))]
+[BurstCompile]
 public partial struct UpdateTrainsSystem : ISystem
 {
     private EntityQuery trainQuery;
@@ -22,7 +24,7 @@ public partial struct UpdateTrainsSystem : ISystem
     private EntityQuery platformEntitiesQuery;
     private BufferLookup<DOTS.BezierPoint> bezierLookup;
 
-
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         trainQuery =
@@ -44,14 +46,15 @@ public partial struct UpdateTrainsSystem : ISystem
         bezierPathLookup = state.GetComponentLookup<BezierPathComponent>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        ECB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
-            .CreateCommandBuffer(state.WorldUnmanaged);
+        var ECB = new EntityCommandBuffer(Allocator.Persistent);
 
         var bezierPaths = bezierPathQuery.ToComponentDataArray<BezierPathComponent>(Allocator.Persistent);
         var platformEntities = platformEntitiesQuery.ToEntityArray(Allocator.Persistent);
@@ -111,7 +114,9 @@ public partial struct UpdateTrainsSystem : ISystem
         
   
         state.Dependency = carriageJob.Schedule(carriageDependency);
-        
+        state.Dependency.Complete();
+        ECB.Playback(state.EntityManager);
+        ECB.Dispose();
         // state.Dependency.Complete();
         updateTrainStateHandle.Complete();
         ecb.Playback(state.EntityManager);
@@ -122,6 +127,7 @@ public partial struct UpdateTrainsSystem : ISystem
     }
 }
 
+[BurstCompile]
 public partial struct UpdateTrainsPositionsJob : IJobEntity
 {
     public float deltaTime;

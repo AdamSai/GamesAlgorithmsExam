@@ -6,14 +6,17 @@ using System.Linq;
 using DOTS.Components;
 using static UnityEngine.EventSystems.EventTrigger;
 using Assets.DOTS.Utility.Stack;
+using Unity.Burst;
 
 namespace Assets.DOTS.Systems
 {
+    [BurstCompile]
     public partial struct PathingTaskSystem : ISystem
     {
         private EntityQuery platformQuery;
         public ComponentLookup<PlatformComponent> platformComponents;
 
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             platformQuery =
@@ -21,11 +24,13 @@ namespace Assets.DOTS.Systems
             platformComponents = state.GetComponentLookup<PlatformComponent>();
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
 
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             if (SystemAPI.Time.ElapsedTime < 2.6f)
@@ -49,6 +54,7 @@ namespace Assets.DOTS.Systems
         }
     }
 
+    [BurstCompile]
     public partial struct PathingTaskJob : IJobEntity
     {
         public NativeArray<Entity> platformEntities;

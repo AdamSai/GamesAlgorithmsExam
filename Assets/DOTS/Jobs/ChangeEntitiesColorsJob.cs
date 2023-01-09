@@ -1,4 +1,5 @@
 using DOTS.Components;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -6,6 +7,7 @@ using Unity.Rendering;
 namespace DOTS.Jobs
 {
     [WithAny(typeof(CarriageTag), (typeof(PlatformTag)))]
+    [BurstCompile]
     public partial struct ChangeEntitiesColorsJob : IJobEntity
     {
         public EntityManager EM;

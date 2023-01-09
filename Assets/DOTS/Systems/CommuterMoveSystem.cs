@@ -6,21 +6,26 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using Assets.DOTS.Utility.Stack;
+using Unity.Burst;
 
 namespace Assets.DOTS.Systems
 {
+    [BurstCompile]
     public partial struct CommuterMoveSystem : ISystem
     {
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
 
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
 
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             //Time.ElapsedTime
@@ -31,6 +36,7 @@ namespace Assets.DOTS.Systems
             state.Dependency.Complete();
         }
 
+        [BurstCompile]
         public partial struct CommuterMovementJob : IJobEntity
         {
             public float deltaTime;

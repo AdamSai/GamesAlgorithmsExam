@@ -1,24 +1,29 @@
 ﻿using Assets.DOTS.Components.Train;
 using Assets.DOTS.Components;
 using System.Collections;
+using Unity.Burst;
 using Unity.Entities;
 using UnityEngine;
 
 namespace Assets.DOTS.Systems
 {
     [UpdateAfter(typeof(SetupSeatsSystem))]
+    [BurstCompile]
     public partial struct SetupCarriageNavPoint : ISystem
     {
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
 
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
 
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var setupCarriageNavPointJob = new SetupCarriageNavPointJob
@@ -32,6 +37,7 @@ namespace Assets.DOTS.Systems
             state.Enabled = false;
         }
 
+        [BurstCompile]
         public partial struct SetupCarriageNavPointJob : IJobEntity
         {
             public EntityManager EM;

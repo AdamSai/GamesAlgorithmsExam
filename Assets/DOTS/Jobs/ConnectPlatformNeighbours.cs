@@ -9,6 +9,7 @@ using static UnityEngine.UI.Image;
 namespace DOTS.Jobs
 {
     [WithAll(typeof(PlatformComponent))]
+    [BurstCompile]
     public partial struct ConnectPlatformNeighbours : IJobEntity
     {
         public ComponentLookup<PlatformComponent> platformLookUp;

@@ -1,5 +1,6 @@
 ﻿using Assets.DOTS.Components;
 using System.Collections;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,12 +10,14 @@ using UnityEngine;
 namespace Assets.DOTS.Systems
 {
     [UpdateAfter(typeof(SetupTrainsSystem))]
+    [BurstCompile]
     public partial struct PlatformNavSystem : ISystem
     {
         public ComponentLookup<WorldTransform> worldTransforms;
         public ComponentLookup<LocalTransform> localTransforms;
         public ComponentLookup<NavPointComponent> navPoints;
-
+        public EntityCommandBuffer ecbb;
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             worldTransforms = state.GetComponentLookup<WorldTransform>();
@@ -22,10 +25,12 @@ namespace Assets.DOTS.Systems
             navPoints = state.GetComponentLookup<NavPointComponent>();
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             if (SystemAPI.Time.ElapsedTime < 2)
@@ -53,16 +58,16 @@ namespace Assets.DOTS.Systems
             ECB.Dispose();
 
             // Spawn commuters
-            ECB = new EntityCommandBuffer(Allocator.Persistent);
-            var spawnJob = new SpawnCommutersJob {ECB = ECB};
+            ecbb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
+                .CreateCommandBuffer(state.WorldUnmanaged);
+            var spawnJob = new SpawnCommutersJob {ECB = ecbb};
 
             state.Dependency = spawnJob.Schedule(state.Dependency);
             state.Dependency.Complete();
-            ECB.Playback(state.EntityManager);
-            ECB.Dispose();
         }
     }
 
+    [BurstCompile]
     public partial struct SpawnCommutersJob : IJobEntity
     {
         public EntityCommandBuffer ECB;
@@ -100,6 +105,7 @@ namespace Assets.DOTS.Systems
         }
     }
 
+    [BurstCompile]
     public partial struct PlatformNavJob : IJobEntity
     {
         public EntityCommandBuffer ECB;

@@ -1,10 +1,12 @@
 using DOTS.Components;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 
 namespace DOTS.Jobs
 {
+    [BurstCompile]
     public partial struct CarriageParentJob : IJobEntity
     {
         public EntityCommandBuffer ECB;

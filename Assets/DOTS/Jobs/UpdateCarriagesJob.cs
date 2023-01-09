@@ -1,6 +1,7 @@
 using DOTS.Components;
 using DOTS.Components.Train;
 using DOTS.Utility;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -8,6 +9,7 @@ using UnityEngine;
 
 namespace DOTS.Jobs
 {
+    [BurstCompile]
     public partial struct UpdateCarriagesJob : IJobEntity
     {
         public EntityCommandBuffer ECB;

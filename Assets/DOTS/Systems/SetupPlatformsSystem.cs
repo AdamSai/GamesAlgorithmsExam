@@ -1,14 +1,17 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 
 namespace Assets.DOTS.Systems
 {
     [UpdateAfter(typeof(SetupRailSystem))]
+    [BurstCompile]
     public partial struct SetupPlatformsSystem : ISystem
     {
         private EntityQuery platformQuery2;
         private ComponentLookup<PlatformComponent> platformComponentLookup;
 
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             platformQuery2 =
@@ -17,10 +20,12 @@ namespace Assets.DOTS.Systems
 
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var platformEnts = platformQuery2.ToEntityArray(Allocator.Persistent);

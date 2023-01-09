@@ -2,6 +2,7 @@
 using Assets.DOTS.Components.Train;
 using Assets.DOTS.Utility.Stack;
 using DOTS.Components;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -11,6 +12,7 @@ namespace Assets.DOTS.Systems
 {
     [UpdateAfter(typeof(SetupCarriagesSystem))]
     [UpdateAfter(typeof(SetupSeatsSystem))]
+    [BurstCompile]
     public partial struct TaskManagerSystem : ISystem
     {
         public ComponentLookup<PlatformComponent> platformComponent;
@@ -18,6 +20,7 @@ namespace Assets.DOTS.Systems
         public ComponentLookup<CarriageNavPointsComponent> carriageNavPoints;
         private ComponentLookup<TrainStateComponent> trainStateComponents;
         
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             worldTransforms = state.GetComponentLookup<LocalToWorld>();
@@ -26,11 +29,13 @@ namespace Assets.DOTS.Systems
             trainStateComponents = state.GetComponentLookup<TrainStateComponent>();
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
 
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             platformComponent.Update(ref state);
@@ -54,6 +59,7 @@ namespace Assets.DOTS.Systems
         }
     }
 
+    [BurstCompile]
     public partial struct TaskManagerJob : IJobEntity
     {
         public ComponentLookup<PlatformComponent> platformComponent;

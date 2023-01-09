@@ -2,6 +2,7 @@ using Assets.DOTS.Components;
 using DOTS.Components;
 using DOTS.Jobs;
 using DOTS.Utility;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -9,7 +10,7 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.UI;
 
-// [BurstCompile]
+[BurstCompile]
 public partial struct SetupRailSystem : ISystem
 {
     private EntityQuery railMarkerQuery;
@@ -17,7 +18,7 @@ public partial struct SetupRailSystem : ISystem
     private ComponentLookup<PlatformComponent> platformComponentLookup;
     private BufferLookup<DOTS.BezierPoint> bezierPointBufferLookup;
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         railMarkerQuery =
@@ -29,13 +30,13 @@ public partial struct SetupRailSystem : ISystem
         bezierPointBufferLookup = state.GetBufferLookup<DOTS.BezierPoint>();
     }
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
         state.Enabled = false;
     }
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var ecb = new EntityCommandBuffer(Allocator.Persistent);
@@ -90,6 +91,7 @@ public partial struct SetupRailSystem : ISystem
 }
 
 [WithAll(typeof(PlatformComponent))]
+[BurstCompile]
 public partial struct ConnectPlatformsJob : IJobEntity
 {
     public ComponentLookup<PlatformComponent> platformLookUp;
@@ -131,6 +133,7 @@ public partial struct ConnectPlatformsJob : IJobEntity
     }
 }
 
+[BurstCompile]
 public partial struct PlatformInitJob : IJobEntity
 {
     public void Execute(ref PlatformComponent platform)

@@ -9,17 +9,18 @@ using Assets.DOTS.Utility.Stack;
 using Unity.Transforms;
 using Assets.DOTS.Components.Train;
 using DOTS.Components;
+using Unity.Burst;
 using Unity.Entities.UniversalDelegates;
 using Unity.Jobs;
 
 namespace Assets.DOTS.Systems
 {
     [UpdateAfter(typeof(PlatformNavSystem))]
+    [BurstCompile]
     public partial struct QueueSystem : ISystem
     {
         public BufferLookup<QueueEntryComponent> queueEntires;
         public EntityQuery carriageIDQuery;
-        public EntityQuery queuerQuery;
         public ComponentLookup<TrainStateComponent> trainStateComponents;
         public ComponentLookup<CommuterQueuerComponent> queuerComponents;
         public ComponentLookup<WorldTransform> worldTransforms;
@@ -30,13 +31,12 @@ namespace Assets.DOTS.Systems
         public ComponentLookup<TrainIDComponent> trainIDComponents;
         private ComponentLookup<CarriagePassengerSeatsComponent> seatsComponent;
 
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             queueEntires = state.GetBufferLookup<QueueEntryComponent>();
             carriageIDQuery =
                 new EntityQueryBuilder(Allocator.Persistent).WithAll<CarriageIDComponent>().Build(ref state);
-            queuerQuery =
-                new EntityQueryBuilder(Allocator.Persistent).WithAll<CommuterQueuerComponent>().Build(ref state);
             trainStateComponents = state.GetComponentLookup<TrainStateComponent>();
             queuerComponents = state.GetComponentLookup<CommuterQueuerComponent>();
             worldTransforms = state.GetComponentLookup<WorldTransform>();
@@ -51,10 +51,12 @@ namespace Assets.DOTS.Systems
             trainIDComponents = state.GetComponentLookup<TrainIDComponent>();
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             if (SystemAPI.Time.ElapsedTime < 2.5f)
@@ -122,6 +124,7 @@ namespace Assets.DOTS.Systems
         }
     }
 
+    [BurstCompile]
     public partial struct QueueEntryJob : IJobEntity
     {
         public BufferLookup<QueueEntryComponent> buffer;
@@ -142,6 +145,7 @@ namespace Assets.DOTS.Systems
         }
     }
 
+    [BurstCompile]
     public partial struct QueueJob : IJobEntity
     {
         public BufferLookup<QueueEntryComponent> buffer;
@@ -266,6 +270,7 @@ namespace Assets.DOTS.Systems
         }
     }
 
+    [BurstCompile]
     public partial struct CommuterQueueJob : IJobEntity
     {
         public EntityCommandBuffer ECB;

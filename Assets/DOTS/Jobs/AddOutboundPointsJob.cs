@@ -1,6 +1,7 @@
 ﻿using Assets.DOTS.Components;
 using DOTS.Components;
 using DOTS.Utility;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,6 +10,7 @@ using UnityEngine;
 
 namespace DOTS.Jobs
 {
+    [BurstCompile]
     public partial struct AddOutboundPointsJob : IJobEntity
     {
         public NativeList<RailMarkerComponent> railMarkers; // Contains ALL railMarkers

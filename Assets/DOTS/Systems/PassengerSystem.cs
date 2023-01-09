@@ -1,25 +1,31 @@
 ﻿using Assets.DOTS.Components.Train;
 using Assets.DOTS.Utility.Stack;
 using System.Collections;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
 
 namespace Assets.DOTS.Systems
 {
+    [BurstCompile]
     public partial struct PassengerSystem : ISystem
     {
         public ComponentLookup<WorldTransform> transformLookup;
+        
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             transformLookup = state.GetComponentLookup<WorldTransform>();
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
 
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             
@@ -30,6 +36,7 @@ namespace Assets.DOTS.Systems
             job.Run();
         }
 
+        [BurstCompile]
         public partial struct PassengerJob : IJobEntity
         {
             //public EntityCommandBuffer ECB;

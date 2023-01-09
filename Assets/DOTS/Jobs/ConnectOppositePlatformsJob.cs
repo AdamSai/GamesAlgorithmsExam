@@ -1,4 +1,5 @@
 using DOTS.Components;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -6,6 +7,7 @@ using UnityEngine;
 
 namespace DOTS.Jobs
 {
+    [BurstCompile]
     public partial struct ConnectOppositePlatformsJob : IJobEntity
     {
         public void Execute(in OppositePlatformComponent oppositePlatformComponent,

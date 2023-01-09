@@ -1,12 +1,14 @@
 using Assets.DOTS.Components;
 using Assets.DOTS.Components.Train;
 using DOTS.Components;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 
 namespace DOTS.Jobs
 {
     [WithAll(typeof(CarriageIDComponent))]
+    [BurstCompile]
     public partial struct SetupTrainSeatsJob : IJobEntity
     {
         public EntityManager EM;

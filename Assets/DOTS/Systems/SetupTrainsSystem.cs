@@ -1,6 +1,7 @@
 using DOTS.Components;
 using DOTS.Components.Train;
 using DOTS.Jobs;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -17,11 +18,13 @@ public enum TrainStateDOTS
 }
 
 [UpdateAfter(typeof(SetupRailSystem))]
+[BurstCompile]
 public partial struct SetupTrainsSystem : ISystem
 {
     private EntityQuery trainQuery;
     private ComponentLookup<TrainIDComponent> trainIDLookup;
 
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         trainQuery =
@@ -29,10 +32,12 @@ public partial struct SetupTrainsSystem : ISystem
         trainIDLookup = state.GetComponentLookup<TrainIDComponent>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var setupTrainsECB = new EntityCommandBuffer(Allocator.Persistent);

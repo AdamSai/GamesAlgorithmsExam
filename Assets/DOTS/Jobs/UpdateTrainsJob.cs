@@ -2,6 +2,7 @@ using System.Linq;
 using DOTS.Components;
 using DOTS.Components.Train;
 using DOTS.Utility;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,6 +10,7 @@ using UnityEngine;
 
 namespace DOTS.Jobs
 {
+    [BurstCompile]
     public partial struct UpdateTrainStatesJob : IJobEntity
     {
         public ComponentLookup<TrainPositionComponent> trainsPositions;
@@ -22,7 +24,6 @@ namespace DOTS.Jobs
         public BufferLookup<BezierPoint> bezierLookup;
         public NativeArray<Entity> metroLines;
         public EntityCommandBuffer ECB;
-
 
         public float deltaTime;
 
