@@ -1,4 +1,5 @@
 ﻿using Assets.DOTS.Components.Train;
+using Assets.DOTS.Utility.Stack;
 using System.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -20,8 +21,6 @@ namespace Assets.DOTS.Systems
 
         public void OnUpdate(ref SystemState state)
         {
-            return;
-
             var transformLookup = state.GetComponentLookup<WorldTransform>();
             transformLookup.Update(ref state);
 
@@ -36,8 +35,11 @@ namespace Assets.DOTS.Systems
             //public ComponentLookup<CarriagePassengerSeatsComponent> carriageSeats;
             public ComponentLookup<WorldTransform> worldTransforms;
 
-            public void Execute(in PassengerComponent passenger, ref LocalTransform transformm)
+            public void Execute(in CommuterComponent commuter, in PassengerComponent passenger, ref LocalTransform transformm)
             {
+                if (commuter.tasks.IsEmpty || commuter.tasks.NextStackElement().state != CommuterState.WAIT_FOR_STOP)
+                    return;
+
                 if (passenger.currentCarriage == Entity.Null)
                     return;
 

@@ -77,7 +77,7 @@ namespace Assets.DOTS.Systems
             ComponentLookup<CarriagePassengerSeatsComponent> seatsComponent = state.GetComponentLookup<CarriagePassengerSeatsComponent>();
             seatsComponent.Update(ref state);
             ComponentLookup<CarriageSeatComponent> seatComponents = state.GetComponentLookup<CarriageSeatComponent>();
-            seatsComponent.Update(ref state);
+            seatComponents.Update(ref state);
             ComponentLookup<CarriageNavPointsComponent> carriageNavPoints = state.GetComponentLookup<CarriageNavPointsComponent>();
             carriageNavPoints.Update(ref state);
             ComponentLookup<CarriageIDComponent> carriageIDComponents = state.GetComponentLookup<CarriageIDComponent>();
@@ -278,7 +278,7 @@ namespace Assets.DOTS.Systems
 
                     if (walker.destinations.IsEmpty)
                     {
-                        float3 target = queuer.queueStartPosition + queuer.queueDirection * queuer.lineIndex * 0.5f;
+                        float3 target = queuer.queueStartPosition + queuer.queueDirection * queuer.lineIndex * 1.5f;
 
                         if (math.distance(target, worldTransforms[entity].Position) > 0.1f)
                             walker.destinations.Push(target);
@@ -291,21 +291,26 @@ namespace Assets.DOTS.Systems
                     Entity carriage = GetCarriageFromTrain(trainC.LineIndex, trainC.TrainIndex, queuer.queueIndex, carriageIDComponents, carriageIDEntities);
                     CarriagePassengerSeatsComponent seatsCollection = seatsComponent[carriage];
                     NativeList<Entity> seats = seatsCollection.seats;
-                    Debug.Log($"{EM.GetName(entity)} is going to train {EM.GetName(train)} on platform {EM.GetName(commuter.currentPlatform)}");
+                    //Debug.Log($"{EM.GetName(entity)} is going to train {EM.GetName(train)} on platform {EM.GetName(commuter.currentPlatform)}");
+                    //Debug.Log($"Seats length: {seats.Length}");
                     for (int j = 0; j < seats.Length; j++)
                     {
-                        CarriageSeatComponent seatC = seatComponents.GetRefRW(seats[j], false).ValueRW;
+                        //CarriageSeatComponent seatC = seatComponents.GetRefRW(seats[j], false).ValueRW;
+                        CarriageSeatComponent seatC = seatComponents[seats[j]];
                         if (seatC.available)
                         {
                             // STUFF
-                            seatC.available = false;
+                            //seatC.available = false;
                             passenger.currentCarriage = carriage;
                             passenger.currentTrain = train;
                             passenger.carriageSeat = seats[j];
                             queuer.state = QueueState.Boarding;
+                            ECB.SetComponent(seats[j], new CarriageSeatComponent
+                            {
+                                available = false
+                            });
                             break;
                         }
-                        ECB.SetComponent(seats[j], seatC);
                     }
                     break;
                 case QueueState.Boarding:

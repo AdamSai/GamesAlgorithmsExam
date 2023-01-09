@@ -123,7 +123,7 @@ namespace Assets.DOTS.Systems
                     break;
                 case CommuterState.WAIT_FOR_STOP:
                     // See if train has stopped and is open
-                    Debug.Log($"Passenger train entity: {passenger.currentTrain}");
+                    //Debug.Log($"Passenger train entity: {passenger.currentTrain}");
                     if (trainStateComponents[passenger.currentTrain].value == TrainStateDOTS.UNLOADING)
                     {
                         jobFinished = true;
@@ -147,7 +147,7 @@ namespace Assets.DOTS.Systems
                 // Get new task
                 var newTask = commuter.tasks.NextStackElement();
 
-                Debug.Log($"Current task: {currentTask.state}. Next: {newTask.state}.");
+                //Debug.Log($"Current task: {currentTask.state}. Next: {newTask.state}.");
 
                 switch (newTask.state)
                 {
@@ -155,7 +155,7 @@ namespace Assets.DOTS.Systems
                         //Debug.Log($"Task is: walk");
                         // Walk from one platform to another platform
                         // Note: Stack push, therefore destinations are added in reverse order
-                        Debug.Log($"Walk task target: {platformComponent[newTask.startPlatform].platform_exit0} with component: {newTask.startPlatform}");
+                        //Debug.Log($"Walk task target: {platformComponent[newTask.startPlatform].platform_exit0} with component: {newTask.startPlatform}");
                         walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance0);
                         walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance1);
                         walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance2);
@@ -174,6 +174,7 @@ namespace Assets.DOTS.Systems
                         // Set it unavailable and walk there
                         //Debug.Log("Here0 " + passenger.currentCarriage);
                         //Debug.Log("Here1 " + carriageNavPoints[passenger.currentCarriage].entrancePointEntity);
+                        walker.destinations.Clear();
                         walker.destinations.Push(worldTransforms[passenger.carriageSeat].Position);
                         walker.destinations.Push(worldTransforms[carriageNavPoints[passenger.currentCarriage].entrancePointEntity].Position);
                         break;
@@ -184,6 +185,7 @@ namespace Assets.DOTS.Systems
                         // Get platform entity
                         // add walk destination for carriage nav point
                         // walker.destinations.Push(platformComponent[newTask.endPlatform].platform_entrance2);
+                        walker.destinations.Clear();
                         walker.destinations.Push(worldTransforms[carriageNavPoints[passenger.currentCarriage].entrancePointEntity].Position);
                         break;
                     case CommuterState.QUEUE:

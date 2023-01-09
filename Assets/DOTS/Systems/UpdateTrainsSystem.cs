@@ -61,6 +61,14 @@ public partial struct UpdateTrainsSystem : ISystem
 
         var bezierPaths = bezierPathQuery.ToComponentDataArray<BezierPathComponent>(Allocator.Persistent);
         var platformEntities = platformEntitiesQuery.ToEntityArray(Allocator.Persistent);
+
+
+        //var platformEntities = platformEntitiesQuery.ToEntityArray(Allocator.Persistent);
+
+        //NativeArray<Entity> platformEntitiesSorted = new NativeArray<Entity>(platformEntities.Length, Allocator.Persistent);
+
+
+
         var metroLines2 =
             metroLineQuery2.ToEntityArray(Allocator.Persistent);
         trainPosLookUp.Update(ref state);
@@ -83,8 +91,9 @@ public partial struct UpdateTrainsSystem : ISystem
             ECB = ecb,
             EM = state.EntityManager,
         };
-        updateTrainsJob.Run();
+        state.Dependency = updateTrainsJob.Schedule(state.Dependency);
         // updateTrainHandle.Complete();
+        state.Dependency.Complete();
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
         // updateTrainHandle.Complete();
