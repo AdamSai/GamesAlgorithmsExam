@@ -114,7 +114,6 @@ namespace Assets.DOTS.Systems
         public void Execute(ref NavTag tag, in Entity entity, ref PlatformComponent platform, ref QueueComponent queueC)
         {
             // TODO make so only run once
-            Debug.Log("Nav Job! before");
             if (!platform.init)
                 return;
 
@@ -126,19 +125,21 @@ namespace Assets.DOTS.Systems
 
             tag.init = true;
 
+            foreach (var item in platform.neighborPlatforms)
+            {
+                Debug.Log($"Platform {EM.GetName(entity)} added neightbor: {EM.GetName(item)}.");
+            }
+
             var buffer = EM.GetBuffer<LinkedEntityGroup>(entity);
-            Debug.Log("Nav Job! after");
             foreach (var item in buffer)
             {
                 Entity e = item.Value;
 
                 if (EM.HasComponent<NavPointComponent>(e))
                 {
-                    Debug.Log("Setting nav point: " + navPoints[e].pointID);
                     switch (navPoints[e].pointID)
                     {
                         case 0:
-                            Debug.Log($"{worldTransforms[e].Position} vs {localTransforms[entity].Position}");
                             platform.platform_entrance0 = worldTransforms[e].Position;
                             break;
                         case 1:

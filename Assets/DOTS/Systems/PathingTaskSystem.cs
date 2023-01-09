@@ -136,6 +136,31 @@ namespace Assets.DOTS.Systems
 
                     }
                 }
+                for (int i = 0; i < path.Length - 1; i++)
+                {
+                    Entity to = path[i];
+                    Entity from = path[i + 1];
+                    if (platformComponents[from].neighborPlatforms.Contains(to))
+                    {
+                        // Change platform
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.WALK, from, to));
+                    }
+                    else
+                    {
+                        // Get on train
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_OFF_TRAIN, from, to));
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.WAIT_FOR_STOP, from, to));
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_ON_TRAIN, from, to));
+                        commuter.tasks.Push(new CommuterComponentTask(CommuterState.QUEUE, from, to));
+                    }
+                }
+                //for (int i = 0; i < 10000; i++)
+                //{
+                //    commuter.tasks.Push(new CommuterComponentTask(CommuterState.WAIT_FOR_STOP, Entity.Null, Entity.Null));
+                //}
+                //var from = path.Pop();
+                //var to = path.Pop();
+                //commuter.tasks.Push(new CommuterComponentTask(CommuterState.QUEUE, from, to));
                 commuter.tasks.Push(new CommuterComponentTask(CommuterState.START, Entity.Null, Entity.Null));
                 Debug.Log($"First task: {commuter.tasks.NextStackElement().state}");
                 //commuter.tasks.Push(new CommuterComponentTask(CommuterState.SPAWN_WALK, commuter.currentPlatform, commuter.currentPlatform));

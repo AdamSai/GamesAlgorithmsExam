@@ -123,6 +123,7 @@ namespace Assets.DOTS.Systems
                     break;
                 case CommuterState.WAIT_FOR_STOP:
                     // See if train has stopped and is open
+                    Debug.Log($"Passenger train entity: {passenger.currentTrain}");
                     if (trainStateComponents[passenger.currentTrain].value == TrainStateDOTS.UNLOADING)
                     {
                         jobFinished = true;
@@ -189,7 +190,7 @@ namespace Assets.DOTS.Systems
                         //Debug.Log($"Queue state in TaskManagerSystem: {queuer.state}");
                         // Wait for train to stop, when on platform
                         // If there is time, make a fancy queue
-
+                        queuer.state = QueueState.None;
                         break;
                     case CommuterState.WAIT_FOR_STOP:
                         //Debug.Log($"Task is: wait for stop");

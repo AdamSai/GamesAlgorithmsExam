@@ -300,6 +300,7 @@ namespace Assets.DOTS.Systems
                             // STUFF
                             seatC.available = false;
                             passenger.currentCarriage = carriage;
+                            passenger.currentTrain = train;
                             passenger.carriageSeat = seats[j];
                             queuer.state = QueueState.Boarding;
                             break;
