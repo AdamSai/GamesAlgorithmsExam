@@ -12,11 +12,13 @@ namespace Assets.DOTS.Systems
     public partial struct PathingTaskSystem : ISystem
     {
         private EntityQuery platformQuery;
+        public ComponentLookup<PlatformComponent> platformComponents;
 
         public void OnCreate(ref SystemState state)
         {
             platformQuery =
             new EntityQueryBuilder(Allocator.Persistent).WithAll<PlatformComponent>().Build(ref state);
+            platformComponents = state.GetComponentLookup<PlatformComponent>();
         }
 
         public void OnDestroy(ref SystemState state)
@@ -30,7 +32,6 @@ namespace Assets.DOTS.Systems
                 return;
 
             //return; // TODO: remove this and make it work
-            var platformComponents = state.GetComponentLookup<PlatformComponent>();
             platformComponents.Update(ref state);
 
             var platformEntities =
