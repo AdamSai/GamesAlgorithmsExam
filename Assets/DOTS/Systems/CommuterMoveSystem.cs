@@ -40,7 +40,8 @@ namespace Assets.DOTS.Systems
                 if (walk.destinations.IsEmpty)
                     return;
 
-                if (DOT(walk.velocity, walk.destinations.NextStackElement() - transform.Position) < 0)
+                if (DOT(walk.velocity, walk.destinations.NextStackElement() - transform.Position) < 0f && 
+                    math.distance(transform.Position, walk.destinations.NextStackElement()) < 0.5f)
                 {
                     // Reached intermediate destination
                     walk.destinations.Pop();

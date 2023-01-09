@@ -121,7 +121,7 @@ namespace Assets.DOTS.Systems
 
                             if (nextTask.state == CommuterState.WALK)
                             {
-                                commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_OFF_TRAIN, nextTask.startPlatform, nextTask.endPlatform));
+                                commuter.tasks.Push(new CommuterComponentTask(CommuterState.GET_OFF_TRAIN, from, to));
                             }
 
                             // Get on train
